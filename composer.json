@@ -17,6 +17,11 @@
         "phpunit/phpunit": "~5",
         "cedriclombardot/twig-generator": "~1"
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Perfumer\\Component\\Bdd\\Sandbox\\": "sandbox/"
+        }
+    },
     "autoload": {
         "psr-4": {
             "Perfumer\\Component\\Bdd\\": "src/"

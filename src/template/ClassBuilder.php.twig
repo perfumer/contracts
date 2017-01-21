@@ -11,7 +11,7 @@ class {{ context.name }}{{ context.nameSuffix }} extends \Generated\{{ context.n
     }
     
 {% endfor %}
-{% for step in action.processedSteps if step.type == 'call' and step.service is null %}
+{% for step in steps if step.type == 'call' and step.service is null %}
     protected function {{ step.functionName }}({{ method_arguments(step.arguments) }})
     {
         throw new \Exception('"{{ step.functionName }}" is not implemented.');

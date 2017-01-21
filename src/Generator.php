@@ -17,6 +17,26 @@ class Generator
     private $root_dir;
 
     /**
+     * @var string
+     */
+    private $base_src_path = '/generated/src/';
+
+    /**
+     * @var string
+     */
+    private $base_test_path = '/generated/tests/';
+
+    /**
+     * @var string
+     */
+    private $src_path = '/src/';
+
+    /**
+     * @var string
+     */
+    private $test_path = '/tests/';
+
+    /**
      * @var array
      */
     private $contexts;
@@ -27,9 +47,25 @@ class Generator
      */
     public function __construct($root_dir, $options = [])
     {
+        $this->generator = new \TwigGenerator\Builder\Generator();
+
         $this->root_dir = $root_dir;
 
-        $this->generator = new \TwigGenerator\Builder\Generator();
+        if (isset($options['base_src_path'])) {
+            $this->base_src_path = (string) $options['base_src_path'];
+        }
+
+        if (isset($options['base_test_path'])) {
+            $this->base_test_path = (string) $options['base_test_path'];
+        }
+
+        if (isset($options['src_path'])) {
+            $this->src_path = (string) $options['src_path'];
+        }
+
+        if (isset($options['test_path'])) {
+            $this->test_path = (string) $options['test_path'];
+        }
     }
 
     /**
@@ -82,6 +118,9 @@ class Generator
         $output_name = str_replace('\\', '/', $context->getNamespace()) . '/' . $context->getName() . $context->getNameSuffix() . '.php';
 
         $builder = new Builder();
+        $builder->setMustOverwriteIfExists(true);
+        $builder->setTemplateName('BaseClassBuilder.php.twig');
+        $builder->addTemplateDir(__DIR__ . '/template');
         $builder->setGenerator($this->generator);
         $builder->setOutputName($output_name);
         $builder->setVariables([
@@ -97,6 +136,9 @@ class Generator
         $output_name = str_replace('\\', '/', $context->getNamespace()) . '/' . $context->getName() . $context->getNameSuffix() . '.php';
 
         $builder = new Builder();
+        $builder->setMustOverwriteIfExists(true);
+        $builder->setTemplateName('BaseTestBuilder.php.twig');
+        $builder->addTemplateDir(__DIR__ . '/template');
         $builder->setGenerator($this->generator);
         $builder->setOutputName($output_name);
         $builder->setVariables([
@@ -112,6 +154,9 @@ class Generator
         $output_name = str_replace('\\', '/', $context->getNamespace()) . '/' . $context->getName() . $context->getNameSuffix() . 'Test.php';
 
         $builder = new Builder();
+        $builder->setMustOverwriteIfExists(true);
+        $builder->setTemplateName('ClassBuilder.php.twig');
+        $builder->addTemplateDir(__DIR__ . '/template');
         $builder->setGenerator($this->generator);
         $builder->setOutputName($output_name);
         $builder->setVariables([
@@ -127,6 +172,9 @@ class Generator
         $output_name = str_replace('\\', '/', $context->getNamespace()) . '/' . $context->getName() . $context->getNameSuffix() . 'Test.php';
 
         $builder = new Builder();
+        $builder->setMustOverwriteIfExists(true);
+        $builder->setTemplateName('TestBuilder.php.twig');
+        $builder->addTemplateDir(__DIR__ . '/template');
         $builder->setGenerator($this->generator);
         $builder->setOutputName($output_name);
         $builder->setVariables([

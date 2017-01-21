@@ -37,6 +37,7 @@ abstract class {{ context.name }}{{ context.nameSuffix }}
             {{ return_value(step.return) }}$this->{{ step.functionName }}({{ call_arguments(step.arguments) }});
 {% elseif step.type == 'formatter' %}
             {{ return_value(step.return) }}$this->{{ step.functionName }}({{ call_arguments(step.arguments) }});
+{% endif %}
         }
 {% endfor %}
 
