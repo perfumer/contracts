@@ -1,0 +1,51 @@
+<?php
+
+namespace Generated\{{ context.namespacePrefix }}\{{ context.srcDir | capitalize }}{% if context.namespace %}\{{ context.namespace }}{% endif %};
+
+{% if context.extendsClass %}
+abstract class {{ context.name }}{{ context.nameSuffix }} extends {{ context.extendsClass }}
+{% else %}
+abstract class {{ context.name }}{{ context.nameSuffix }}
+{% endif %}
+{
+{% for step in steps %}
+{% if step.type in ['validator', 'formatter'] %}
+    abstract public function {{ step.functionName }}({{ method_arguments(step.arguments) }});
+{% endif %}
+{% if step.type == 'call' and step.service is null %}
+    abstract protected function {{ step.functionName }}({{ method_arguments(step.arguments) }});
+{% endif %}
+{% if step.type == 'call' and step.service is not null %}
+    final private function {{ step.functionName }}({{ method_arguments(step.arguments) }})
+    {
+        {% if step.return %}return {% endif %}$this->{{ step.service }}->{{ step.method }}({{ method_arguments(step.arguments) }});
+    }
+{% endif %}
+{% endfor %}
+
+{% for action in context.actions %}
+    final public function {{ action.name }}({{ method_arguments(action.arguments) }})
+    {
+        $_error = null;
+        $_return = null;
+
+{% for step in action.steps %}
+        if ($_error === null) {
+{% if step.type == 'validator' %}
+            $_error = $this->{{ step.functionName }}({{ call_arguments(step.arguments) }});
+{% elseif step.type == 'call' %}
+            {{ return_value(step.return) }}$this->{{ step.functionName }}({{ call_arguments(step.arguments) }});
+{% elseif step.type == 'formatter' %}
+            {{ return_value(step.return) }}$this->{{ step.functionName }}({{ call_arguments(step.arguments) }});
+        }
+{% endfor %}
+
+        if ($_error !== null) {
+            return $_error;
+        }
+
+        return $_return;
+    }
+
+{% endfor %}
+}

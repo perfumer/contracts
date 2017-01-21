@@ -1,0 +1,21 @@
+<?php
+
+namespace {{ context.namespacePrefix }}\{{ context.srcDir | capitalize }}{% if context.namespace %}\{{ context.namespace }}{% endif %};
+
+class {{ context.name }}{{ context.nameSuffix }} extends \Generated\{{ context.namespacePrefix }}\{{ context.srcDir | capitalize }}{% if context.namespace %}\{{ context.namespace }}{% endif %}\{{ context.name }}{{ context.nameSuffix }}
+{
+{% for step in steps if step.type in ['validator', 'formatter'] %}
+    public function {{ step.functionName }}({{ method_arguments(step.arguments) }})
+    {
+        throw new \Exception('"{{ step.functionName }}" is not implemented.');
+    }
+    
+{% endfor %}
+{% for step in action.processedSteps if step.type == 'call' and step.service is null %}
+    protected function {{ step.functionName }}({{ method_arguments(step.arguments) }})
+    {
+        throw new \Exception('"{{ step.functionName }}" is not implemented.');
+    }
+
+{% endfor %}
+}

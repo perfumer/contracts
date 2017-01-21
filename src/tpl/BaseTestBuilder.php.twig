@@ -1,0 +1,29 @@
+<?php
+
+namespace Generated\Tests\{{ context.namespacePrefix }}\{{ context.srcDir | capitalize }}{% if context.namespace %}\{{ context.namespace }}{% endif %};
+
+{% if context.extendsTest %}
+abstract class {{ context.name }}{{ context.nameSuffix }}Test extends {{ context.extendsClass }}
+{% else %}
+abstract class {{ context.name }}{{ context.nameSuffix }}Test extends \PHPUnit_Framework_TestCase
+{% endif %}
+{
+    abstract public function getClassInstance();
+
+{% for step in steps %}
+{% if step.type in ['validator', 'formatter'] %}
+    abstract public function {{ step.name }}DataProvider();
+
+    /**
+     * @dataProvider {{ step.name }}DataProvider
+     */
+    final public function test_{{ step.functionName }}({% if step.arguments %}{{ method_arguments(step.arguments) }}, {% endif %}$result)
+    {
+        $_class_instance = $this->getClassInstance();
+
+        $this->assertEquals($_class_instance->{{ step.functionName }}({{ method_arguments(step.arguments) }}), $result);
+    }
+
+{% endif %}
+{% endfor %}
+}
