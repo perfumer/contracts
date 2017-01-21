@@ -12,7 +12,7 @@ class CallStep extends \Perfumer\Component\Bdd\Step\CallStep
     /**
      * @var array
      */
-    protected $arguments = ['param1'];
+    protected $arguments = ['this.param4'];
 
     /**
      * @var string

@@ -3,6 +3,7 @@
 namespace Perfumer\Component\Bdd;
 
 use Perfumer\Component\Bdd\Step\AbstractStep;
+use Perfumer\Component\Bdd\Step\CallStep;
 
 class Generator
 {
@@ -81,13 +82,23 @@ class Generator
 
     public function generate()
     {
+        /** @var Context $context */
         foreach ($this->contexts as $context) {
-            /** @var Context $context */
-            $tests = false;
+            $context_data = [
+                'properties'
+            ];
+            $action_data = [];
             $steps = [];
+            $tests = false;
 
             /** @var Action $action */
             foreach ($context->getActions() as $action) {
+                if (!isset($action_data[$action->getName()])) {
+                    $action_data[$action->getName()] = [
+                        'defaults' => []
+                    ];
+                }
+
                 /** @var AbstractStep $step */
                 foreach ($action->getSteps() as $step) {
                     switch ($step->getType()) {
@@ -95,25 +106,51 @@ class Generator
                         case 'formatter':
                             $tests = true;
                             break;
+                        case 'call':
+                            /** @var CallStep $step */
+                            if ($step->getService()) {
+                                $context_data['properties'][] = $step->getService();
+                            }
+                            break;
                     }
 
                     if (!isset($steps[$step->getFunctionName()])) {
                         $steps[$step->getFunctionName()] = $step;
                     }
+
+                    if ($step->getArguments()) {
+                        foreach ($step->getArguments() as $argument) {
+                            if (substr($argument, 0, 5) == 'this.') {
+                                $context_data['properties'][] = substr($argument, 5);
+                            }
+                        }
+                    }
+
+                    if ($step->getReturn() && $step->getReturn() != 'return') {
+                        if (substr($step->getReturn(), 0, 5) == 'this.') {
+                            $context_data['properties'][] = substr($step->getReturn(), 5);
+                        } else {
+                            $action_data[$action->getName()]['defaults'][] = $step->getReturn();
+                        }
+                    }
                 }
+
+                $action_data[$action->getName()]['defaults'] = array_unique($action_data[$action->getName()]['defaults']);
             }
 
-            $this->generateBaseClass($context, $steps);
-            $this->generateClass($context, $steps);
+            $context_data['properties'] = array_unique($context_data['properties']);
+
+            $this->generateBaseClass($context, $context_data, $action_data, $steps);
+            $this->generateClass($context, $context_data, $action_data, $steps);
 
             if ($tests) {
-                $this->generateBaseTest($context, $steps);
-                $this->generateTest($context, $steps);
+                $this->generateBaseTest($context, $context_data, $action_data, $steps);
+                $this->generateTest($context, $context_data, $action_data, $steps);
             }
         }
     }
 
-    private function generateBaseClass(Context $context, array $steps)
+    private function generateBaseClass(Context $context, array $context_data, array $action_data, array $steps)
     {
         $output_name = str_replace('\\', '/', $context->getNamespace()) . '/' . $context->getName() . $context->getNameSuffix() . '.php';
 
@@ -125,13 +162,15 @@ class Generator
         $builder->setOutputName($output_name);
         $builder->setVariables([
             'context' => $context,
+            'context_data' => $context_data,
+            'action_data' => $action_data,
             'steps' => $steps,
         ]);
 
-        $builder->writeOnDisk($this->root_dir . '/' . $this->base_src_path . '/' . $context->getSrcDir());
+        $builder->writeOnDisk($this->root_dir . '/' . $this->base_src_path . '/' . ucfirst($context->getSrcDir()));
     }
 
-    private function generateClass(Context $context, array $steps)
+    private function generateClass(Context $context, array $context_data, array $action_data, array $steps)
     {
         $output_name = str_replace('\\', '/', $context->getNamespace()) . '/' . $context->getName() . $context->getNameSuffix() . '.php';
 
@@ -143,13 +182,15 @@ class Generator
         $builder->setOutputName($output_name);
         $builder->setVariables([
             'context' => $context,
+            'context_data' => $context_data,
+            'action_data' => $action_data,
             'steps' => $steps,
         ]);
 
-        $builder->writeOnDisk($this->root_dir . '/' . $this->src_path . '/' . $context->getSrcDir());
+        $builder->writeOnDisk($this->root_dir . '/' . $this->src_path . '/' . ucfirst($context->getSrcDir()));
     }
 
-    private function generateBaseTest(Context $context, array $steps)
+    private function generateBaseTest(Context $context, array $context_data, array $action_data, array $steps)
     {
         $output_name = str_replace('\\', '/', $context->getNamespace()) . '/' . $context->getName() . $context->getNameSuffix() . 'Test.php';
 
@@ -161,13 +202,15 @@ class Generator
         $builder->setOutputName($output_name);
         $builder->setVariables([
             'context' => $context,
+            'context_data' => $context_data,
+            'action_data' => $action_data,
             'steps' => $steps,
         ]);
 
-        $builder->writeOnDisk($this->root_dir . '/' . $this->base_test_path . '/' . $context->getSrcDir());
+        $builder->writeOnDisk($this->root_dir . '/' . $this->base_test_path . '/' . ucfirst($context->getSrcDir()));
     }
 
-    private function generateTest(Context $context, array $steps)
+    private function generateTest(Context $context, array $context_data, array $action_data, array $steps)
     {
         $output_name = str_replace('\\', '/', $context->getNamespace()) . '/' . $context->getName() . $context->getNameSuffix() . 'Test.php';
 
@@ -179,9 +222,11 @@ class Generator
         $builder->setOutputName($output_name);
         $builder->setVariables([
             'context' => $context,
+            'context_data' => $context_data,
+            'action_data' => $action_data,
             'steps' => $steps,
         ]);
 
-        $builder->writeOnDisk($this->root_dir . '/' . $this->test_path . '/' . $context->getSrcDir());
+        $builder->writeOnDisk($this->root_dir . '/' . $this->test_path . '/' . ucfirst($context->getSrcDir()));
     }
 }

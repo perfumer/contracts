@@ -20,7 +20,8 @@ class ActionTwo extends \Perfumer\Component\Bdd\Action
     public function __construct()
     {
         $this->steps = [
-            new CallStep()
+            new CallStep(),
+            new ServiceStep()
         ];
     }
 }

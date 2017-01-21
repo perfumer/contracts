@@ -19,7 +19,11 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Perfumer\\Component\\Bdd\\Sandbox\\": "sandbox/"
+            "Perfumer\\Component\\Bdd\\Sandbox\\": "sandbox/",
+            "Perfumer\\Component\\Bdd\\Sandbox\\Controller\\": "sandbox/generated/src/Controller/",
+            "Tests\\Perfumer\\Component\\Bdd\\Sandbox\\": "sandbox/generated/tests/",
+            "Generated\\Perfumer\\Component\\Bdd\\Sandbox\\": "sandbox/generated/generated/src/",
+            "Generated\\Tests\\Perfumer\\Component\\Bdd\\Sandbox\\": "sandbox/generated/generated/tests/"
         }
     },
     "autoload": {
