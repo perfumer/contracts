@@ -12,10 +12,10 @@ abstract class {{ context.name }}{{ context.nameSuffix }}Test extends \PHPUnit_F
 
 {% for step in steps %}
 {% if step.type in ['validator', 'formatter'] %}
-    abstract public function {{ step.name }}DataProvider();
+    abstract public function {{ step.functionName }}DataProvider();
 
     /**
-     * @dataProvider {{ step.name }}DataProvider
+     * @dataProvider {{ step.functionName }}DataProvider
      */
     final public function test_{{ step.functionName }}({% if step.arguments %}{{ method_arguments(step.arguments) }}, {% endif %}$result)
     {

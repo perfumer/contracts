@@ -13,9 +13,9 @@ class {{ context.name }}{{ context.nameSuffix }}Test extends \Generated\Tests\{{
     /**
      * @return array
      */
-    public function {{ step.name }}DataProvider()
+    public function {{ step.functionName }}DataProvider()
     {
-        throw new \Exception('{{ step.name }}DataProvider is not implemented.');
+        throw new \Exception('{{ step.functionName }}DataProvider is not implemented.');
     }
 
 {% endfor %}

@@ -137,7 +137,7 @@ class Generator
 
         $builder = new Builder();
         $builder->setMustOverwriteIfExists(true);
-        $builder->setTemplateName('BaseTestBuilder.php.twig');
+        $builder->setTemplateName('ClassBuilder.php.twig');
         $builder->addTemplateDir(__DIR__ . '/template');
         $builder->setGenerator($this->generator);
         $builder->setOutputName($output_name);
@@ -155,7 +155,7 @@ class Generator
 
         $builder = new Builder();
         $builder->setMustOverwriteIfExists(true);
-        $builder->setTemplateName('ClassBuilder.php.twig');
+        $builder->setTemplateName('BaseTestBuilder.php.twig');
         $builder->addTemplateDir(__DIR__ . '/template');
         $builder->setGenerator($this->generator);
         $builder->setOutputName($output_name);
