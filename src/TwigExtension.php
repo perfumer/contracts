@@ -44,8 +44,8 @@ class TwigExtension extends \Twig_Extension
     public function method_arguments($arguments, $serialize = true)
     {
         $arguments = array_map(function($value) {
-            if ($value[0] == '+') {
-                $value = substr($value, 1);
+            if (substr($value, 0, 5) == 'this.') {
+                $value = substr($value, 5);
             }
 
             return '$' . $value;
@@ -62,8 +62,8 @@ class TwigExtension extends \Twig_Extension
     public function call_arguments($arguments, $serialize = true)
     {
         $arguments = array_map(function($value) {
-            if ($value[0] == '+') {
-                $value = substr($value, 1);
+            if (substr($value, 0, 5) == 'this.') {
+                $value = substr($value, 5);
 
                 return '$this->' . $value;
             } else {
@@ -82,11 +82,11 @@ class TwigExtension extends \Twig_Extension
     {
         if (!$return) {
             return '';
-        } elseif ($return[0] == '+') {
-            $return = substr($return, 1);
+        } elseif (substr($return, 0, 5) == 'this.') {
+            $return = substr($return, 5);
 
             return '$this->' . $return . ' = ';
-        } elseif ($return === '>') {
+        } elseif ($return === 'return') {
             return '$_return = ';
         } else {
             return '$' . $return . ' = ';

@@ -12,10 +12,10 @@ class CallStep extends \Perfumer\Component\Bdd\Step\CallStep
     /**
      * @var array
      */
-    protected $arguments = ['param3'];
+    protected $arguments = ['param1'];
 
     /**
      * @var string
      */
-    protected $return = '>';
+    protected $return = 'return';
 }

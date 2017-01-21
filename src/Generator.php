@@ -128,7 +128,7 @@ class Generator
             'steps' => $steps,
         ]);
 
-        $builder->writeOnDisk($this->root_dir . '/' . $this->base_src_path . '/' . ucfirst($context->getSrcDir()));
+        $builder->writeOnDisk($this->root_dir . '/' . $this->base_src_path . '/' . $context->getSrcDir());
     }
 
     private function generateClass(Context $context, array $steps)
@@ -136,7 +136,7 @@ class Generator
         $output_name = str_replace('\\', '/', $context->getNamespace()) . '/' . $context->getName() . $context->getNameSuffix() . '.php';
 
         $builder = new Builder();
-        $builder->setMustOverwriteIfExists(true);
+        $builder->setMustOverwriteIfExists(false);
         $builder->setTemplateName('ClassBuilder.php.twig');
         $builder->addTemplateDir(__DIR__ . '/template');
         $builder->setGenerator($this->generator);
@@ -146,7 +146,7 @@ class Generator
             'steps' => $steps,
         ]);
 
-        $builder->writeOnDisk($this->root_dir . '/' . $this->src_path . '/' . ucfirst($context->getSrcDir()));
+        $builder->writeOnDisk($this->root_dir . '/' . $this->src_path . '/' . $context->getSrcDir());
     }
 
     private function generateBaseTest(Context $context, array $steps)
@@ -164,7 +164,7 @@ class Generator
             'steps' => $steps,
         ]);
 
-        $builder->writeOnDisk($this->root_dir . '/' . $this->base_test_path . '/' . ucfirst($context->getSrcDir()));
+        $builder->writeOnDisk($this->root_dir . '/' . $this->base_test_path . '/' . $context->getSrcDir());
     }
 
     private function generateTest(Context $context, array $steps)
@@ -172,7 +172,7 @@ class Generator
         $output_name = str_replace('\\', '/', $context->getNamespace()) . '/' . $context->getName() . $context->getNameSuffix() . 'Test.php';
 
         $builder = new Builder();
-        $builder->setMustOverwriteIfExists(true);
+        $builder->setMustOverwriteIfExists(false);
         $builder->setTemplateName('TestBuilder.php.twig');
         $builder->addTemplateDir(__DIR__ . '/template');
         $builder->setGenerator($this->generator);
@@ -182,6 +182,6 @@ class Generator
             'steps' => $steps,
         ]);
 
-        $builder->writeOnDisk($this->root_dir . '/' . $this->test_path . '/' . ucfirst($context->getSrcDir()));
+        $builder->writeOnDisk($this->root_dir . '/' . $this->test_path . '/' . $context->getSrcDir());
     }
 }

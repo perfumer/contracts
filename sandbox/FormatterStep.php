@@ -17,5 +17,5 @@ class FormatterStep extends \Perfumer\Component\Bdd\Step\FormatterStep
     /**
      * @var string
      */
-    protected $return = 'param4';
+    protected $return = 'this.param4';
 }
