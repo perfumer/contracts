@@ -86,7 +86,7 @@ class TwigExtension extends \Twig_Extension
             $return = substr($return, 5);
 
             return '$this->' . $return . ' = ';
-        } elseif ($return === 'return') {
+        } elseif ($return === '_return') {
             return '$_return = ';
         } else {
             return '$' . $return . ' = ';

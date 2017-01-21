@@ -19,7 +19,7 @@ abstract class {{ context.name }}{{ context.nameSuffix }}
 {% if step.type == 'call' and step.service is null %}
     abstract protected function {{ step.functionName }}({{ method_arguments(step.arguments) }});
 {% endif %}
-{% if step.type == 'call' and step.service is not null and step.service != 'parent' %}
+{% if step.type == 'call' and step.service is not null and step.service != '_parent' %}
     final private function {{ step.functionName }}({{ method_arguments(step.arguments) }})
     {
         {% if step.return %}return {% endif %}$this->{{ step.service }}->{{ step.method }}({{ method_arguments(step.arguments) }});
@@ -41,7 +41,7 @@ abstract class {{ context.name }}{{ context.nameSuffix }}
 {% if step.type == 'validator' %}
             $_error = $this->{{ step.functionName }}({{ call_arguments(step.arguments) }});
 {% elseif step.type == 'call' %}
-{% if step.service == 'parent' %}
+{% if step.service == '_parent' %}
             {{ return_value(step.return) }}parent::{{ action.name }}({{ call_arguments(step.arguments) }});
 {% else %}
             {{ return_value(step.return) }}$this->{{ step.functionName }}({{ call_arguments(step.arguments) }});

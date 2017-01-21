@@ -17,5 +17,5 @@ class CallStep extends \Perfumer\Component\Bdd\Step\CallStep
     /**
      * @var string
      */
-    protected $return = 'return';
+    protected $return = '_return';
 }

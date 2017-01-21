@@ -27,7 +27,7 @@ class Context extends \Perfumer\Component\Bdd\Context
     /**
      * @var string
      */
-    protected $extends_class;
+    protected $extends_class = '\\Perfumer\\Component\\Bdd\\Sandbox\\ParentController';
 
     /**
      * @var string

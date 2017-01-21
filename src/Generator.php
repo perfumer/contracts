@@ -108,7 +108,7 @@ class Generator
                             break;
                         case 'call':
                             /** @var CallStep $step */
-                            if ($step->getService()) {
+                            if ($step->getService() && $step->getService() !== '_parent') {
                                 $context_data['properties'][] = $step->getService();
                             }
                             break;
@@ -126,7 +126,7 @@ class Generator
                         }
                     }
 
-                    if ($step->getReturn() && $step->getReturn() != 'return') {
+                    if ($step->getReturn() && $step->getReturn() != '_return') {
                         if (substr($step->getReturn(), 0, 5) == 'this.') {
                             $context_data['properties'][] = substr($step->getReturn(), 5);
                         } else {

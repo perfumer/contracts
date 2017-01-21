@@ -21,7 +21,8 @@ class ActionTwo extends \Perfumer\Component\Bdd\Action
     {
         $this->steps = [
             new CallStep(),
-            new ServiceStep()
+            new ServiceStep(),
+            new ParentStep()
         ];
     }
 }
