@@ -19,22 +19,22 @@ class Generator
     /**
      * @var string
      */
-    private $base_src_path = '/generated/src/';
+    private $base_src_path = 'generated/src';
 
     /**
      * @var string
      */
-    private $base_test_path = '/generated/tests/';
+    private $base_test_path = 'generated/tests';
 
     /**
      * @var string
      */
-    private $src_path = '/src/';
+    private $src_path = 'src';
 
     /**
      * @var string
      */
-    private $test_path = '/tests/';
+    private $test_path = 'tests';
 
     /**
      * @var array
@@ -128,7 +128,7 @@ class Generator
             'steps' => $steps,
         ]);
 
-        $builder->writeOnDisk($this->root_dir . '/generated/src/' . ucfirst($context->getSrcDir()));
+        $builder->writeOnDisk($this->root_dir . '/' . $this->base_src_path . '/' . ucfirst($context->getSrcDir()));
     }
 
     private function generateClass(Context $context, array $steps)
@@ -146,7 +146,7 @@ class Generator
             'steps' => $steps,
         ]);
 
-        $builder->writeOnDisk($this->root_dir . '/src/' . ucfirst($context->getSrcDir()));
+        $builder->writeOnDisk($this->root_dir . '/' . $this->src_path . '/' . ucfirst($context->getSrcDir()));
     }
 
     private function generateBaseTest(Context $context, array $steps)
@@ -164,7 +164,7 @@ class Generator
             'steps' => $steps,
         ]);
 
-        $builder->writeOnDisk($this->root_dir . '/generated/tests/' . ucfirst($context->getSrcDir()));
+        $builder->writeOnDisk($this->root_dir . '/' . $this->base_test_path . '/' . ucfirst($context->getSrcDir()));
     }
 
     private function generateTest(Context $context, array $steps)
@@ -182,6 +182,6 @@ class Generator
             'steps' => $steps,
         ]);
 
-        $builder->writeOnDisk($this->root_dir . '/tests/' . ucfirst($context->getSrcDir()));
+        $builder->writeOnDisk($this->root_dir . '/' . $this->test_path . '/' . ucfirst($context->getSrcDir()));
     }
 }
