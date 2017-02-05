@@ -43,16 +43,16 @@ class Generator
     private $contexts;
 
     /**
-     * @var StepParser
+     * @var StepParserInterface
      */
     private $step_parser;
 
     /**
-     * @param StepParser $step_parser
+     * @param StepParserInterface $step_parser
      * @param string $root_dir
      * @param array $options
      */
-    public function __construct(StepParser $step_parser, $root_dir, $options = [])
+    public function __construct(StepParserInterface $step_parser, $root_dir, $options = [])
     {
         $this->generator = new \TwigGenerator\Builder\Generator();
         $this->step_parser = $step_parser;
@@ -122,6 +122,7 @@ class Generator
                 foreach ($action->getSteps() as $step) {
                     $runtime_step = new RuntimeStep();
                     $runtime_step->setStep($step);
+                    $runtime_step->setReturnExpression($this->step_parser->parseReturn($step->getReturn()));
 
                     foreach ($step->getArguments() as $argument) {
                         $argument_var = $this->step_parser->parseForMethod($argument);

@@ -17,6 +17,11 @@ class RuntimeStep
     protected $arguments = [];
 
     /**
+     * @var string
+     */
+    protected $return_expression;
+
+    /**
      * @return AbstractStep
      */
     public function getStep()
@@ -54,5 +59,21 @@ class RuntimeStep
     public function addArgument($argument)
     {
         $this->arguments[] = $argument;
+    }
+
+    /**
+     * @return string
+     */
+    public function getReturnExpression()
+    {
+        return $this->return_expression;
+    }
+
+    /**
+     * @param string $return_expression
+     */
+    public function setReturnExpression($return_expression)
+    {
+        $this->return_expression = $return_expression;
     }
 }

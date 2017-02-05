@@ -19,8 +19,6 @@ class TwigExtension extends \Twig_Extension
     {
         return [
             new \Twig_SimpleFunction('method_arguments', [$this, 'method_arguments']),
-            new \Twig_SimpleFunction('call_arguments', [$this, 'call_arguments']),
-            new \Twig_SimpleFunction('return_value', [$this, 'return_value']),
             new \Twig_SimpleFunction('str_replace', [$this, 'str_replace']),
         ];
     }
@@ -52,44 +50,5 @@ class TwigExtension extends \Twig_Extension
         }, $arguments);
 
         return $serialize ? implode(', ', $arguments) : $arguments;
-    }
-
-    /**
-     * @param array $arguments
-     * @param bool $serialize
-     * @return string|array
-     */
-    public function call_arguments($arguments, $serialize = true)
-    {
-        $arguments = array_map(function($value) {
-            if (substr($value, 0, 5) == 'this.') {
-                $value = substr($value, 5);
-
-                return '$this->' . $value;
-            } else {
-                return '$' . $value;
-            }
-        }, $arguments);
-
-        return $serialize ? implode(', ', $arguments) : $arguments;
-    }
-
-    /**
-     * @param string $return
-     * @return string
-     */
-    public function return_value($return)
-    {
-        if (!$return) {
-            return '';
-        } elseif (substr($return, 0, 5) == 'this.') {
-            $return = substr($return, 5);
-
-            return '$this->' . $return . ' = ';
-        } elseif ($return === '_return') {
-            return '$_return = ';
-        } else {
-            return '$' . $return . ' = ';
-        }
     }
 }

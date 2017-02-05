@@ -42,12 +42,12 @@ abstract class {{ context.className }}
             $_error = $this->{{ step.step.functionName }}({{ step.arguments|join(', ') }});
 {% elseif step.step.type == 'call' %}
 {% if step.step.service == '_parent' %}
-            {{ return_value(step.step.return) }}parent::{{ action.methodName }}({{ step.arguments|join(', ') }});
+            {{ step.returnExpression }}parent::{{ action.methodName }}({{ step.arguments|join(', ') }});
 {% else %}
-            {{ return_value(step.step.return) }}$this->{{ step.step.functionName }}({{ step.arguments|join(', ') }});
+            {{ step.returnExpression }}$this->{{ step.step.functionName }}({{ step.arguments|join(', ') }});
 {% endif %}
 {% elseif step.step.type == 'formatter' %}
-            {{ return_value(step.step.return) }}$this->{{ step.step.functionName }}({{ step.arguments|join(', ') }});
+            {{ step.returnExpression }}$this->{{ step.step.functionName }}({{ step.arguments|join(', ') }});
 {% endif %}
         }
 {% endfor %}
