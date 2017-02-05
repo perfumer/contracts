@@ -27,11 +27,6 @@ abstract class AbstractStep
     /**
      * @return string
      */
-    abstract public function getFunctionName();
-
-    /**
-     * @return string
-     */
     public function getType()
     {
         return $this->type;

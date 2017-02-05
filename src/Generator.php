@@ -120,7 +120,7 @@ class Generator
 
                 /** @var AbstractStep $step */
                 foreach ($action->getSteps() as $step) {
-                    $runtime_step = new RuntimeStep();
+                    $runtime_step = new RuntimeStep($step);
                     $runtime_step->setStep($step);
                     $runtime_step->setReturnExpression($this->step_parser->parseReturn($step->getReturn()));
 
@@ -164,11 +164,11 @@ class Generator
                         }
                     }
 
-                    if (!$runtime_context->hasStep($step->getFunctionName())) {
-                        $runtime_context->addStep($step->getFunctionName(), $runtime_step);
+                    if (!$runtime_context->hasStep($runtime_step->getMethodName())) {
+                        $runtime_context->addStep($runtime_step->getMethodName(), $runtime_step);
                     }
 
-                    $runtime_action->addStep($step->getFunctionName(), $runtime_step);
+                    $runtime_action->addStep($runtime_step->getMethodName(), $runtime_step);
                 }
 
                 $runtime_context->addAction($runtime_action);
@@ -184,6 +184,10 @@ class Generator
         }
     }
 
+    /**
+     * @param Context $context
+     * @param RuntimeContext $runtime_context
+     */
     private function generateBaseClass(Context $context, RuntimeContext $runtime_context)
     {
         $output_name = str_replace('\\', '/', $context->getNamespace()) . '/' . $context->getName() . $context->getNameSuffix() . '.php';
@@ -201,6 +205,10 @@ class Generator
         $builder->writeOnDisk($this->root_dir . '/' . $this->base_src_path . '/' . ucfirst($context->getSrcDir()));
     }
 
+    /**
+     * @param Context $context
+     * @param RuntimeContext $runtime_context
+     */
     private function generateClass(Context $context, RuntimeContext $runtime_context)
     {
         $output_name = str_replace('\\', '/', $context->getNamespace()) . '/' . $context->getName() . $context->getNameSuffix() . '.php';
@@ -218,6 +226,10 @@ class Generator
         $builder->writeOnDisk($this->root_dir . '/' . $this->src_path . '/' . ucfirst($context->getSrcDir()));
     }
 
+    /**
+     * @param Context $context
+     * @param RuntimeContext $runtime_context
+     */
     private function generateBaseTest(Context $context, RuntimeContext $runtime_context)
     {
         $output_name = str_replace('\\', '/', $context->getNamespace()) . '/' . $context->getName() . $context->getNameSuffix() . 'Test.php';
@@ -235,6 +247,10 @@ class Generator
         $builder->writeOnDisk($this->root_dir . '/' . $this->base_test_path . '/' . ucfirst($context->getSrcDir()));
     }
 
+    /**
+     * @param Context $context
+     * @param RuntimeContext $runtime_context
+     */
     private function generateTest(Context $context, RuntimeContext $runtime_context)
     {
         $output_name = str_replace('\\', '/', $context->getNamespace()) . '/' . $context->getName() . $context->getNameSuffix() . 'Test.php';

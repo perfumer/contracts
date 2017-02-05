@@ -12,16 +12,16 @@ abstract class {{ context.className }}Test extends \PHPUnit_Framework_TestCase
 
 {% for step in context.steps %}
 {% if step.step.type in ['validator', 'formatter'] %}
-    abstract public function {{ step.step.functionName }}DataProvider();
+    abstract public function {{ step.methodName }}DataProvider();
 
     /**
-     * @dataProvider {{ step.step.functionName }}DataProvider
+     * @dataProvider {{ step.methodName }}DataProvider
      */
-    final public function test_{{ step.step.functionName }}({% if step.arguments %}{{ step.arguments|join(', ') }}, {% endif %}$result)
+    final public function test_{{ step.methodName }}({% if step.arguments %}{{ step.arguments|join(', ') }}, {% endif %}$result)
     {
         $_class_instance = $this->getClassInstance();
 
-        $this->assertEquals($_class_instance->{{ step.step.functionName }}({{ step.arguments|join(', ') }}), $result);
+        $this->assertEquals($_class_instance->{{ step.methodName }}({{ step.arguments|join(', ') }}), $result);
     }
 
 {% endif %}

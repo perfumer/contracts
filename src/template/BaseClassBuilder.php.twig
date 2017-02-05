@@ -14,13 +14,13 @@ abstract class {{ context.className }}
 
 {% for step in context.steps %}
 {% if step.step.type in ['validator', 'formatter'] %}
-    abstract public function {{ step.step.functionName }}({{ step.arguments|join(', ') }});
+    abstract public function {{ step.methodName }}({{ step.arguments|join(', ') }});
 {% endif %}
 {% if step.step.type == 'call' and step.step.service is null %}
-    abstract protected function {{ step.step.functionName }}({{ step.arguments|join(', ') }});
+    abstract protected function {{ step.methodName }}({{ step.arguments|join(', ') }});
 {% endif %}
 {% if step.step.type == 'call' and step.step.service is not null and step.step.service != '_parent' %}
-    final private function {{ step.step.functionName }}({{ step.arguments|join(', ') }})
+    final private function {{ step.methodName }}({{ step.arguments|join(', ') }})
     {
         {% if step.step.return %}return {% endif %}$this->{{ step.step.service }}->{{ step.step.method }}({{ step.arguments|join(', ') }});
     }
@@ -39,15 +39,15 @@ abstract class {{ context.className }}
 {% for step in action.steps %}
         if ($_error === null) {
 {% if step.step.type == 'validator' %}
-            $_error = $this->{{ step.step.functionName }}({{ step.arguments|join(', ') }});
+            $_error = $this->{{ step.methodName }}({{ step.arguments|join(', ') }});
 {% elseif step.step.type == 'call' %}
 {% if step.step.service == '_parent' %}
             {{ step.returnExpression }}parent::{{ action.methodName }}({{ step.arguments|join(', ') }});
 {% else %}
-            {{ step.returnExpression }}$this->{{ step.step.functionName }}({{ step.arguments|join(', ') }});
+            {{ step.returnExpression }}$this->{{ step.methodName }}({{ step.arguments|join(', ') }});
 {% endif %}
 {% elseif step.step.type == 'formatter' %}
-            {{ step.returnExpression }}$this->{{ step.step.functionName }}({{ step.arguments|join(', ') }});
+            {{ step.returnExpression }}$this->{{ step.methodName }}({{ step.arguments|join(', ') }});
 {% endif %}
         }
 {% endfor %}

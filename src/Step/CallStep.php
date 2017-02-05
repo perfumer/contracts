@@ -22,14 +22,6 @@ class CallStep extends AbstractStep
     /**
      * @return string
      */
-    public function getFunctionName()
-    {
-        return $this->name . 'Call';
-    }
-
-    /**
-     * @return string
-     */
     public function getService()
     {
         return $this->service;
