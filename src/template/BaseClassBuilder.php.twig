@@ -42,7 +42,7 @@ abstract class {{ context.className }}
             $_error = $this->{{ step.functionName }}({{ call_arguments(step.arguments) }});
 {% elseif step.type == 'call' %}
 {% if step.service == '_parent' %}
-            {{ return_value(step.return) }}parent::{{ action.name }}({{ call_arguments(step.arguments) }});
+            {{ return_value(step.return) }}parent::{{ action.methodName }}({{ call_arguments(step.arguments) }});
 {% else %}
             {{ return_value(step.return) }}$this->{{ step.functionName }}({{ call_arguments(step.arguments) }});
 {% endif %}

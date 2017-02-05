@@ -7,7 +7,7 @@ class ParentStep extends \Perfumer\Component\Bdd\Step\CallStep
     /**
      * @var string
      */
-    protected $name = 'service';
+    protected $name = 'parent';
 
     /**
      * @var string
