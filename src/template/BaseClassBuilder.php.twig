@@ -1,18 +1,18 @@
 <?php
 
-namespace Generated\{{ context.namespacePrefix }}\{{ context.srcDir | capitalize }}{% if context.namespace %}\{{ context.namespace }}{% endif %};
+namespace Generated\{{ context.namespace }};
 
 {% if context.extendsClass %}
-abstract class {{ context.name }}{{ context.nameSuffix }} extends {{ context.extendsClass }}
+abstract class {{ context.className }} extends {{ context.extendsClass }}
 {% else %}
-abstract class {{ context.name }}{{ context.nameSuffix }}
+abstract class {{ context.className }}
 {% endif %}
 {
-{% for variable in context_data['properties'] %}
+{% for variable in context.properties %}
     protected ${{ variable }};
 {% endfor %}
 
-{% for step in steps %}
+{% for step in context.stepHeaders %}
 {% if step.type in ['validator', 'formatter'] %}
     abstract public function {{ step.functionName }}({{ method_arguments(step.arguments) }});
 {% endif %}
@@ -28,11 +28,11 @@ abstract class {{ context.name }}{{ context.nameSuffix }}
 {% endfor %}
 
 {% for action in context.actions %}
-    final public function {{ action.name }}({{ method_arguments(action.arguments) }})
+    final public function {{ action.methodName }}({{ method_arguments(action.methodArguments) }})
     {
         $_error = null;
         $_return = null;
-{% for variable in action_data[action.name]['defaults'] %}
+{% for variable in action.localVariables %}
         ${{ variable }} = null;
 {% endfor %}
 

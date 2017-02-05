@@ -1,16 +1,16 @@
 <?php
 
-namespace Generated\Tests\{{ context.namespacePrefix }}\{{ context.srcDir | capitalize }}{% if context.namespace %}\{{ context.namespace }}{% endif %};
+namespace Generated\Tests\{{ context.namespace }};
 
 {% if context.extendsTest %}
-abstract class {{ context.name }}{{ context.nameSuffix }}Test extends {{ context.extendsClass }}
+abstract class {{ context.className }}Test extends {{ context.extendsClass }}
 {% else %}
-abstract class {{ context.name }}{{ context.nameSuffix }}Test extends \PHPUnit_Framework_TestCase
+abstract class {{ context.className }}Test extends \PHPUnit_Framework_TestCase
 {% endif %}
 {
     abstract public function getClassInstance();
 
-{% for step in steps %}
+{% for step in context.stepHeaders %}
 {% if step.type in ['validator', 'formatter'] %}
     abstract public function {{ step.functionName }}DataProvider();
 

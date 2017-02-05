@@ -1,15 +1,15 @@
 <?php
 
-namespace Tests\{{ context.namespacePrefix }}\{{ context.srcDir | capitalize }}{% if context.namespace %}\{{ context.namespace }}{% endif %};
+namespace Tests\{{ context.namespace }};
 
-class {{ context.name }}{{ context.nameSuffix }}Test extends \Generated\Tests\{{ context.namespacePrefix }}\{{ context.srcDir | capitalize }}{% if context.namespace %}\{{ context.namespace }}{% endif %}\{{ context.name }}{{ context.nameSuffix }}Test
+class {{ context.className }}Test extends \Generated\Tests\{{ context.namespace }}\{{ context.className }}Test
 {
     public function getClassInstance()
     {
         throw new \Exception('"getClassInstance" is not implemented.');
     }
 
-{% for step in steps if step.type in ['validator', 'formatter'] %}
+{% for step in context.stepHeaders if step.type in ['validator', 'formatter'] %}
     /**
      * @return array
      */
