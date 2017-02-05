@@ -36,6 +36,9 @@ abstract class {{ context.className }}
         {{ variable_name }} = {{ variable_value|default('null') }};
 {% endfor %}
 
+{% block _action_local_variables %}
+{% endblock %}
+
 {% for step in action.steps %}
         if ($_error === null) {
 {% if step.step.type == 'validator' %}
@@ -52,11 +55,15 @@ abstract class {{ context.className }}
         }
 {% endfor %}
 
+{% block _action_error_expression %}
         if ($_error !== null) {
             return $_error;
         }
+{% endblock %}
 
+{% block _action_return_expression %}
         return $_return;
+{% endblock %}
     }
 
 {% endfor %}

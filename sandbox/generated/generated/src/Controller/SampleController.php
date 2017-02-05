@@ -21,6 +21,7 @@ abstract class SampleController extends \Perfumer\Component\Bdd\Sandbox\ParentCo
         $_return = null;
         $param4 = $this->param4;
 
+
         if ($_error === null) {
             $_error = $this->sampleValidator($param1);
         }
@@ -43,6 +44,7 @@ abstract class SampleController extends \Perfumer\Component\Bdd\Sandbox\ParentCo
         $_error = null;
         $_return = null;
         $param4 = $this->param4;
+
 
         if ($_error === null) {
             $_return = $this->sampleCall($param4);
