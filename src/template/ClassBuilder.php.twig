@@ -4,17 +4,17 @@ namespace {{ context.namespace }};
 
 class {{ context.className }} extends \Generated\{{ context.namespace }}\{{ context.className }}
 {
-{% for step in context.stepHeaders if step.type in ['validator', 'formatter'] %}
-    public function {{ step.functionName }}({{ method_arguments(step.arguments) }})
+{% for step in context.steps if step.type in ['validator', 'formatter'] %}
+    public function {{ step.step.functionName }}({{ step.arguments|join(', ') }})
     {
-        throw new \Exception('"{{ step.functionName }}" is not implemented.');
+        throw new \Exception('"{{ step.step.functionName }}" is not implemented.');
     }
     
 {% endfor %}
-{% for step in context.stepHeaders if step.type == 'call' and step.service is null %}
-    protected function {{ step.functionName }}({{ method_arguments(step.arguments) }})
+{% for step in context.steps if step.step.type == 'call' and step.step.service is null %}
+    protected function {{ step.step.functionName }}({{ step.arguments|join(', ') }})
     {
-        throw new \Exception('"{{ step.functionName }}" is not implemented.');
+        throw new \Exception('"{{ step.step.functionName }}" is not implemented.');
     }
 
 {% endfor %}

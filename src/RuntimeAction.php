@@ -69,7 +69,7 @@ class RuntimeAction
      */
     public function getLocalVariables()
     {
-        return array_unique($this->local_variables);
+        return $this->local_variables;
     }
 
     /**
@@ -82,10 +82,11 @@ class RuntimeAction
 
     /**
      * @param string $local_variable
+     * @param string $value
      */
-    public function addLocalVariable($local_variable)
+    public function addLocalVariable($local_variable, $value)
     {
-        $this->local_variables[] = $local_variable;
+        $this->local_variables[$local_variable] = $value;
     }
 
     /**
@@ -97,10 +98,20 @@ class RuntimeAction
     }
 
     /**
-     * @param array $steps
+     * @param string $key
+     * @param RuntimeStep $step
      */
-    public function setSteps($steps)
+    public function addStep($key, RuntimeStep $step)
     {
-        $this->steps = $steps;
+        $this->steps[$key] = $step;
+    }
+
+    /**
+     * @param string $key
+     * @return bool
+     */
+    public function hasStep($key)
+    {
+        return isset($this->steps[$key]);
     }
 }

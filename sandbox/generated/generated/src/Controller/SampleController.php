@@ -19,7 +19,7 @@ abstract class SampleController extends \Perfumer\Component\Bdd\Sandbox\ParentCo
     {
         $_error = null;
         $_return = null;
-        $param4 = null;
+        $param4 = $this->param4;
 
         if ($_error === null) {
             $_error = $this->sampleValidator($param1);
@@ -28,7 +28,7 @@ abstract class SampleController extends \Perfumer\Component\Bdd\Sandbox\ParentCo
             $param4 = $this->sampleFormatter($param2);
         }
         if ($_error === null) {
-            $_return = $this->sampleCall($this->param4);
+            $_return = $this->sampleCall($param4);
         }
 
         if ($_error !== null) {
@@ -42,9 +42,10 @@ abstract class SampleController extends \Perfumer\Component\Bdd\Sandbox\ParentCo
     {
         $_error = null;
         $_return = null;
+        $param4 = $this->param4;
 
         if ($_error === null) {
-            $_return = $this->sampleCall($this->param4);
+            $_return = $this->sampleCall($param4);
         }
         if ($_error === null) {
             $this->serviceCall($param1, $param2);

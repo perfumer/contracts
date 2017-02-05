@@ -2,8 +2,6 @@
 
 namespace Perfumer\Component\Bdd;
 
-use Perfumer\Component\Bdd\Step\AbstractStep;
-
 class RuntimeContext
 {
     /**
@@ -34,7 +32,7 @@ class RuntimeContext
     /**
      * @var array
      */
-    protected $step_headers = [];
+    protected $steps = [];
 
     /**
      * @var array
@@ -132,26 +130,27 @@ class RuntimeContext
     /**
      * @return array
      */
-    public function getStepHeaders()
+    public function getSteps()
     {
-        return $this->step_headers;
-    }
-
-    /**
-     * @param array $step_headers
-     */
-    public function setStepHeaders($step_headers)
-    {
-        $this->step_headers = $step_headers;
+        return $this->steps;
     }
 
     /**
      * @param string $key
-     * @param AbstractStep $step_header
+     * @param RuntimeStep $step
      */
-    public function addStepHeader($key, $step_header)
+    public function addStep($key, RuntimeStep $step)
     {
-        $this->step_headers[$key] = $step_header;
+        $this->steps[$key] = $step;
+    }
+
+    /**
+     * @param string $key
+     * @return bool
+     */
+    public function hasStep($key)
+    {
+        return isset($this->steps[$key]);
     }
 
     /**

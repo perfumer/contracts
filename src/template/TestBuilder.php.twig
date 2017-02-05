@@ -9,13 +9,13 @@ class {{ context.className }}Test extends \Generated\Tests\{{ context.namespace 
         throw new \Exception('"getClassInstance" is not implemented.');
     }
 
-{% for step in context.stepHeaders if step.type in ['validator', 'formatter'] %}
+{% for step in context.steps if step.step.type in ['validator', 'formatter'] %}
     /**
      * @return array
      */
-    public function {{ step.functionName }}DataProvider()
+    public function {{ step.step.functionName }}DataProvider()
     {
-        throw new \Exception('{{ step.functionName }}DataProvider is not implemented.');
+        throw new \Exception('{{ step.step.functionName }}DataProvider is not implemented.');
     }
 
 {% endfor %}

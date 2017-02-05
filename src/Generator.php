@@ -43,12 +43,18 @@ class Generator
     private $contexts;
 
     /**
+     * @var StepParser
+     */
+    private $step_parser;
+
+    /**
      * @param string $root_dir
      * @param array $options
      */
     public function __construct($root_dir, $options = [])
     {
         $this->generator = new \TwigGenerator\Builder\Generator();
+        $this->step_parser = new StepParser();
 
         $this->root_dir = $root_dir;
 
@@ -105,12 +111,28 @@ class Generator
             /** @var Action $action */
             foreach ($context->getActions() as $action) {
                 $runtime_action = new RuntimeAction();
-                $runtime_action->setMethodArguments($action->getArguments());
                 $runtime_action->setMethodName($action->getName());
-                $runtime_action->setSteps($action->getSteps());
+
+                $runtime_action->setMethodArguments(array_map(function($value) {
+                    return '$' . $value;
+                }, $action->getArguments()));
 
                 /** @var AbstractStep $step */
                 foreach ($action->getSteps() as $step) {
+                    $runtime_step = new RuntimeStep();
+                    $runtime_step->setStep($step);
+
+                    foreach ($step->getArguments() as $argument) {
+                        $argument_var = $this->step_parser->parseForMethod($argument);
+                        $argument_value = $this->step_parser->parseForCall($argument);
+
+                        $runtime_step->addArgument($argument_var);
+
+                        if (!in_array($argument_var, $runtime_action->getMethodArguments())) {
+                            $runtime_action->addLocalVariable($argument_var, $argument_value);
+                        }
+                    }
+
                     switch ($step->getType()) {
                         case 'validator':
                         case 'formatter':
@@ -124,8 +146,6 @@ class Generator
                             break;
                     }
 
-                    $runtime_context->addStepHeader($step->getFunctionName(), $step);
-
                     if ($step->getArguments()) {
                         foreach ($step->getArguments() as $argument) {
                             if (substr($argument, 0, 5) == 'this.') {
@@ -138,9 +158,15 @@ class Generator
                         if (substr($step->getReturn(), 0, 5) == 'this.') {
                             $runtime_context->addProperty(substr($step->getReturn(), 5));
                         } else {
-                            $runtime_action->addLocalVariable($step->getReturn());
+                            $runtime_action->addLocalVariable('$' . $step->getReturn(), null);
                         }
                     }
+
+                    if (!$runtime_context->hasStep($step->getFunctionName())) {
+                        $runtime_context->addStep($step->getFunctionName(), $runtime_step);
+                    }
+
+                    $runtime_action->addStep($step->getFunctionName(), $runtime_step);
                 }
 
                 $runtime_context->addAction($runtime_action);

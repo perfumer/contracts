@@ -12,42 +12,42 @@ abstract class {{ context.className }}
     protected ${{ variable }};
 {% endfor %}
 
-{% for step in context.stepHeaders %}
-{% if step.type in ['validator', 'formatter'] %}
-    abstract public function {{ step.functionName }}({{ method_arguments(step.arguments) }});
+{% for step in context.steps %}
+{% if step.step.type in ['validator', 'formatter'] %}
+    abstract public function {{ step.step.functionName }}({{ step.arguments|join(', ') }});
 {% endif %}
-{% if step.type == 'call' and step.service is null %}
-    abstract protected function {{ step.functionName }}({{ method_arguments(step.arguments) }});
+{% if step.step.type == 'call' and step.step.service is null %}
+    abstract protected function {{ step.step.functionName }}({{ step.arguments|join(', ') }});
 {% endif %}
-{% if step.type == 'call' and step.service is not null and step.service != '_parent' %}
-    final private function {{ step.functionName }}({{ method_arguments(step.arguments) }})
+{% if step.step.type == 'call' and step.step.service is not null and step.step.service != '_parent' %}
+    final private function {{ step.step.functionName }}({{ step.arguments|join(', ') }})
     {
-        {% if step.return %}return {% endif %}$this->{{ step.service }}->{{ step.method }}({{ method_arguments(step.arguments) }});
+        {% if step.step.return %}return {% endif %}$this->{{ step.step.service }}->{{ step.step.method }}({{ step.arguments|join(', ') }});
     }
 {% endif %}
 {% endfor %}
 
 {% for action in context.actions %}
-    final public function {{ action.methodName }}({{ method_arguments(action.methodArguments) }})
+    final public function {{ action.methodName }}({{ action.methodArguments|join(', ') }})
     {
         $_error = null;
         $_return = null;
-{% for variable in action.localVariables %}
-        ${{ variable }} = null;
+{% for variable_name, variable_value in action.localVariables %}
+        {{ variable_name }} = {{ variable_value|default('null') }};
 {% endfor %}
 
 {% for step in action.steps %}
         if ($_error === null) {
-{% if step.type == 'validator' %}
-            $_error = $this->{{ step.functionName }}({{ call_arguments(step.arguments) }});
-{% elseif step.type == 'call' %}
-{% if step.service == '_parent' %}
-            {{ return_value(step.return) }}parent::{{ action.methodName }}({{ call_arguments(step.arguments) }});
+{% if step.step.type == 'validator' %}
+            $_error = $this->{{ step.step.functionName }}({{ step.arguments|join(', ') }});
+{% elseif step.step.type == 'call' %}
+{% if step.step.service == '_parent' %}
+            {{ return_value(step.step.return) }}parent::{{ action.methodName }}({{ step.arguments|join(', ') }});
 {% else %}
-            {{ return_value(step.return) }}$this->{{ step.functionName }}({{ call_arguments(step.arguments) }});
+            {{ return_value(step.step.return) }}$this->{{ step.step.functionName }}({{ step.arguments|join(', ') }});
 {% endif %}
-{% elseif step.type == 'formatter' %}
-            {{ return_value(step.return) }}$this->{{ step.functionName }}({{ call_arguments(step.arguments) }});
+{% elseif step.step.type == 'formatter' %}
+            {{ return_value(step.step.return) }}$this->{{ step.step.functionName }}({{ step.arguments|join(', ') }});
 {% endif %}
         }
 {% endfor %}
