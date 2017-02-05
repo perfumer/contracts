@@ -48,13 +48,14 @@ class Generator
     private $step_parser;
 
     /**
+     * @param StepParser $step_parser
      * @param string $root_dir
      * @param array $options
      */
-    public function __construct($root_dir, $options = [])
+    public function __construct(StepParser $step_parser, $root_dir, $options = [])
     {
         $this->generator = new \TwigGenerator\Builder\Generator();
-        $this->step_parser = new StepParser();
+        $this->step_parser = $step_parser;
 
         $this->root_dir = $root_dir;
 
