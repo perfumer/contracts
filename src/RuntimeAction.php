@@ -90,6 +90,15 @@ class RuntimeAction
     }
 
     /**
+     * @param string $local_variable
+     * @return bool
+     */
+    public function hasLocalVariable($local_variable)
+    {
+        return array_key_exists($local_variable, $this->local_variables);
+    }
+
+    /**
      * @return array
      */
     public function getSteps()
@@ -98,20 +107,10 @@ class RuntimeAction
     }
 
     /**
-     * @param string $key
      * @param RuntimeStep $step
      */
-    public function addStep($key, RuntimeStep $step)
+    public function addStep(RuntimeStep $step)
     {
-        $this->steps[$key] = $step;
-    }
-
-    /**
-     * @param string $key
-     * @return bool
-     */
-    public function hasStep($key)
-    {
-        return isset($this->steps[$key]);
+        $this->steps[] = $step;
     }
 }

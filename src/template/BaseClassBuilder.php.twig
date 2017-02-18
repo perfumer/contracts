@@ -13,16 +13,14 @@ abstract class {{ context.className }}
 {% endfor %}
 
 {% for step in context.steps %}
-{% if step.step.type in ['validator', 'formatter'] %}
-    abstract public function {{ step.methodName }}({{ step.arguments|join(', ') }});
+{% if step.service is null and step.context is null %}
+    abstract protected function {{ step.functionName }}({{ step.methodArguments|join(', ') }});
 {% endif %}
-{% if step.step.type == 'call' and step.step.service is null %}
-    abstract protected function {{ step.methodName }}({{ step.arguments|join(', ') }});
-{% endif %}
-{% if step.step.type == 'call' and step.step.service is not null and step.step.service != '_parent' %}
-    final private function {{ step.methodName }}({{ step.arguments|join(', ') }})
+{% if step.context %}
+    final private function {{ step.functionName }}({{ step.methodArguments|join(', ') }})
     {
-        {% if step.step.return %}return {% endif %}$this->{{ step.step.service }}->{{ step.step.method }}({{ step.arguments|join(', ') }});
+        $context = new {{ step.context }}();
+        {% if step.returnExpression %}return {% endif %}$context->{{ step.method }}({{ step.methodArguments|join(', ') }});
     }
 {% endif %}
 {% endfor %}
@@ -41,16 +39,12 @@ abstract class {{ context.className }}
 
 {% for step in action.steps %}
         if ($_error === null) {
-{% if step.step.type == 'validator' %}
-            $_error = $this->{{ step.methodName }}({{ step.arguments|join(', ') }});
-{% elseif step.step.type == 'call' %}
-{% if step.step.service == '_parent' %}
-            {{ step.returnExpression }}parent::{{ action.methodName }}({{ step.arguments|join(', ') }});
+{% if step.functionName is not null %}
+            {{ step.returnExpression }}$this->{{ step.functionName }}({{ step.callArguments|join(', ') }});
+{% elseif step.service == '_parent' %}
+            {{ step.returnExpression }}parent::{{ step.method }}({{ step.callArguments|join(', ') }});
 {% else %}
-            {{ step.returnExpression }}$this->{{ step.methodName }}({{ step.arguments|join(', ') }});
-{% endif %}
-{% elseif step.step.type == 'formatter' %}
-            {{ step.returnExpression }}$this->{{ step.methodName }}({{ step.arguments|join(', ') }});
+            {{ step.returnExpression }}$this->{{ step.service }}->{{ step.method }}({{ step.callArguments|join(', ') }});
 {% endif %}
         }
 {% endfor %}

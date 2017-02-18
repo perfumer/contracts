@@ -7,7 +7,11 @@ $generator = new \Perfumer\Component\Bdd\Generator(new \Perfumer\Component\Bdd\S
     'base_test_path' => 'sandbox/generated/generated/tests',
     'src_path' => 'sandbox/generated/src',
     'test_path' => 'sandbox/generated/tests',
+    'interface_prefix' => 'Perfumer\\Component\\Bdd\\Sandbox\\Contracts',
+    'class_prefix' => 'Perfumer\\Component\\Bdd\\Sandbox'
 ]);
 
-$generator->addContext(new \Perfumer\Component\Bdd\Sandbox\Context());
+$generator->addContext('validators', '\\Perfumer\\Component\\Bdd\\Sandbox\\FooContext');
+$generator->addClass('\\Perfumer\\Component\\Bdd\\Sandbox\\Contracts\\Controller\\FooController');
 $generator->generate();
+

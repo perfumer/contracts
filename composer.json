@@ -1,37 +1,38 @@
 {
-    "name": "perfumer/bdd",
-    "type": "library",
-    "description": "BDD generating tool",
-    "keywords": ["bdd", "generator"],
-    "homepage": "https://github.com/perfumer/bdd",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Ilyas Makashev",
-            "email": "mehmatovec@gmail.com",
-            "role": "Developer"
-        }
-    ],
-    "require": {
-        "php": ">=7.0.0",
-        "phpunit/phpunit": "~5",
-        "cedriclombardot/twig-generator": "~1"
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Perfumer\\Component\\Bdd\\Sandbox\\": "sandbox/",
-            "Perfumer\\Component\\Bdd\\Sandbox\\Controller\\": "sandbox/generated/src/Controller/",
-            "Tests\\Perfumer\\Component\\Bdd\\Sandbox\\": "sandbox/generated/tests/",
-            "Generated\\Perfumer\\Component\\Bdd\\Sandbox\\": "sandbox/generated/generated/src/",
-            "Generated\\Tests\\Perfumer\\Component\\Bdd\\Sandbox\\": "sandbox/generated/generated/tests/"
-        }
-    },
-    "autoload": {
-        "psr-4": {
-            "Perfumer\\Component\\Bdd\\": "src/"
-        }
-    },
-    "config": {
-        "preferred-install": "dist"
+  "name": "perfumer/bdd",
+  "type": "library",
+  "description": "BDD generating tool",
+  "keywords": ["bdd", "generator"],
+  "homepage": "https://github.com/perfumer/bdd",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Ilyas Makashev",
+      "email": "mehmatovec@gmail.com",
+      "role": "Developer"
     }
+  ],
+  "require": {
+    "php": ">=7.0.0",
+    "phpunit/phpunit": "~5",
+    "doctrine/annotations": "~1",
+    "cedriclombardot/twig-generator": "~1"
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Perfumer\\Component\\Bdd\\Sandbox\\": "sandbox/",
+      "Perfumer\\Component\\Bdd\\Sandbox\\Controller\\": "sandbox/generated/src/Controller/",
+      "Tests\\Perfumer\\Component\\Bdd\\Sandbox\\": "sandbox/generated/tests/",
+      "Generated\\Perfumer\\Component\\Bdd\\Sandbox\\": "sandbox/generated/generated/src/",
+      "Generated\\Tests\\Perfumer\\Component\\Bdd\\Sandbox\\": "sandbox/generated/generated/tests/"
+    }
+  },
+  "autoload": {
+    "psr-4": {
+      "Perfumer\\Component\\Bdd\\": "src/"
+    }
+  },
+  "config": {
+    "preferred-install": "dist"
+  }
 }

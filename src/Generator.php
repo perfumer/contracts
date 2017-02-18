@@ -2,8 +2,13 @@
 
 namespace Perfumer\Component\Bdd;
 
-use Perfumer\Component\Bdd\Step\AbstractStep;
-use Perfumer\Component\Bdd\Step\CallStep;
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\AnnotationRegistry;
+use Perfumer\Component\Bdd\Annotations\Call;
+use Perfumer\Component\Bdd\Annotations\Extend;
+use Perfumer\Component\Bdd\Annotations\Format;
+use Perfumer\Component\Bdd\Annotations\Service;
+use Perfumer\Component\Bdd\Annotations\Validate;
 
 class Generator
 {
@@ -11,6 +16,16 @@ class Generator
      * @var \TwigGenerator\Builder\Generator
      */
     private $generator;
+
+    /**
+     * @var string
+     */
+    private $interface_prefix;
+
+    /**
+     * @var string
+     */
+    private $class_prefix;
 
     /**
      * @var string
@@ -40,6 +55,11 @@ class Generator
     /**
      * @var array
      */
+    private $classes;
+
+    /**
+     * @var array
+     */
     private $contexts;
 
     /**
@@ -59,6 +79,18 @@ class Generator
 
         $this->root_dir = $root_dir;
 
+        if (isset($options['interface_prefix'])) {
+            $this->interface_prefix = (string) $options['interface_prefix'];
+        }
+
+        if (isset($options['class_prefix'])) {
+            $this->class_prefix = (string) $options['class_prefix'];
+        }
+
+        if (isset($options['base_src_path'])) {
+            $this->base_src_path = (string) $options['base_src_path'];
+        }
+
         if (isset($options['base_src_path'])) {
             $this->base_src_path = (string) $options['base_src_path'];
         }
@@ -77,120 +109,158 @@ class Generator
     }
 
     /**
-     * @param Context $context
+     * @param string $class
      * @return $this
      */
-    public function addContext(Context $context)
+    public function addClass(string $class)
     {
-        $this->contexts[] = $context;
+        $this->classes[] = $class;
+
+        return $this;
+    }
+
+    /**
+     * @param string $alias
+     * @param string $context
+     * @return $this
+     */
+    public function addContext(string $alias, string $context)
+    {
+        $this->contexts[$alias] = $context;
 
         return $this;
     }
 
     public function generate()
     {
-        /** @var Context $context */
-        foreach ($this->contexts as $context) {
+        AnnotationRegistry::registerFile(__DIR__ . '/Annotations.php');
+
+        $reader = new AnnotationReader();
+
+        foreach ($this->classes as $class) {
+            $reflection = new \ReflectionClass($class);
+            $class_annotations = $reader->getClassAnnotations($reflection);
+
             $runtime_context = new RuntimeContext();
 
-            $namespace = implode('\\', [
-                $context->getNamespacePrefix(),
-                ucfirst($context->getSrcDir())
-            ]);
-
-            if ($context->getNamespace()) {
-                $namespace .= '\\' . $context->getNamespace();
-            }
+            $namespace = str_replace($this->interface_prefix, $this->class_prefix, $reflection->getNamespaceName());
 
             $runtime_context->setNamespace($namespace);
-            $runtime_context->setClassName($context->getName() . $context->getNameSuffix());
-            $runtime_context->setExtendsClass($context->getExtendsClass());
-            $runtime_context->setExtendsTest($context->getExtendsTest());
+            $runtime_context->setClassName($reflection->getShortName());
 
-            $tests = false;
+            foreach ($class_annotations as $annotation) {
+                if ($annotation instanceof Extend) {
+                    $runtime_context->setExtendsClass($annotation->name);
+                }
+            }
 
-            /** @var Action $action */
-            foreach ($context->getActions() as $action) {
+            foreach ($reflection->getMethods() as $method) {
                 $runtime_action = new RuntimeAction();
-                $runtime_action->setMethodName($action->getName());
+                $runtime_action->setMethodName($method->name);
 
-                $runtime_action->setMethodArguments(array_map(function($value) {
-                    return '$' . $value;
-                }, $action->getArguments()));
+                foreach ($method->getParameters() as $parameter) {
+                    $runtime_action->addMethodArgument('$' . $parameter->name);
+                }
 
-                /** @var AbstractStep $step */
-                foreach ($action->getSteps() as $step) {
-                    $runtime_step = new RuntimeStep($step);
-                    $runtime_step->setStep($step);
-                    $runtime_step->setReturnExpression($this->step_parser->parseReturn($step->getReturn()));
+                $method_annotations = $reader->getMethodAnnotations($method);
 
-                    foreach ($step->getArguments() as $argument) {
+                foreach ($method_annotations as $annotation) {
+                    if (!$annotation instanceof Validate && !$annotation instanceof Call && !$annotation instanceof Service && !$annotation instanceof Format) {
+                        continue;
+                    }
+
+                    $runtime_step = new RuntimeStep();
+
+                    if ($annotation instanceof Format || $annotation instanceof Validate) {
+                        $runtime_step->setContext($this->contexts[$annotation->name]);
+                        $runtime_step->setMethod($annotation->method);
+                        $runtime_step->setFunctionName($annotation->name . ucfirst($annotation->method));
+                    }
+
+                    if ($annotation instanceof Service && $annotation->name) {
+                        $runtime_step->setService($annotation->name);
+                        $runtime_step->setMethod($annotation->method);
+
+                        if ($annotation->name !== '_parent') {
+                            $runtime_context->addProperty($annotation->name);
+                        }
+                    }
+
+                    if ($annotation instanceof Call) {
+                        $runtime_step->setFunctionName($annotation->name);
+                    }
+
+                    if ($annotation instanceof Format || $annotation instanceof Service || $annotation instanceof Call) {
+                        if ($annotation->return) {
+                            $runtime_step->setReturnExpression($this->step_parser->parseReturn($annotation->return));
+
+                            if ($annotation->return != '_return') {
+                                if (substr($annotation->return, 0, 5) == 'this.') {
+                                    $runtime_context->addProperty(substr($annotation->return, 5));
+                                } else {
+                                    $runtime_action->addLocalVariable('$' . $annotation->return, null);
+                                }
+                            }
+                        }
+                    }
+
+                    if ($annotation instanceof Validate) {
+                        $runtime_step->setReturnExpression('$_error = ');
+                    }
+
+                    foreach ($annotation->arguments as $argument) {
                         $argument_var = $this->step_parser->parseForMethod($argument);
                         $argument_value = $this->step_parser->parseForCall($argument);
 
-                        $runtime_step->addArgument($argument_var);
+                        $runtime_step->addMethodArgument($argument_var);
+                        $runtime_step->addCallArgument($argument_value);
 
-                        if (!in_array($argument_var, $runtime_action->getMethodArguments())) {
+                        if (
+                            !in_array($argument_var, $runtime_action->getMethodArguments()) &&
+                            !$runtime_action->hasLocalVariable($argument_var) &&
+                            substr($argument, 0, 5) !== 'this.'
+                        ) {
                             $runtime_action->addLocalVariable($argument_var, $argument_value);
                         }
-                    }
 
-                    switch ($step->getType()) {
-                        case 'validator':
-                        case 'formatter':
-                            $tests = true;
-                            break;
-                        case 'call':
-                            /** @var CallStep $step */
-                            if ($step->getService() && $step->getService() !== '_parent') {
-                                $runtime_context->addProperty($step->getService());
-                            }
-                            break;
-                    }
-
-                    if ($step->getArguments()) {
-                        foreach ($step->getArguments() as $argument) {
-                            if (substr($argument, 0, 5) == 'this.') {
-                                $runtime_context->addProperty(substr($argument, 5));
-                            }
+                        if (substr($argument, 0, 5) == 'this.') {
+                            $runtime_context->addProperty(substr($argument, 5));
                         }
                     }
 
-                    if ($step->getReturn() && $step->getReturn() != '_return') {
-                        if (substr($step->getReturn(), 0, 5) == 'this.') {
-                            $runtime_context->addProperty(substr($step->getReturn(), 5));
-                        } else {
-                            $runtime_action->addLocalVariable('$' . $step->getReturn(), null);
-                        }
+                    if (!$runtime_context->hasStep($runtime_step->getFunctionName())) {
+                        $runtime_context->addStep($runtime_step->getFunctionName(), $runtime_step);
                     }
 
-                    if (!$runtime_context->hasStep($runtime_step->getMethodName())) {
-                        $runtime_context->addStep($runtime_step->getMethodName(), $runtime_step);
-                    }
-
-                    $runtime_action->addStep($runtime_step->getMethodName(), $runtime_step);
+                    $runtime_action->addStep($runtime_step);
                 }
 
                 $runtime_context->addAction($runtime_action);
             }
 
-            $this->generateBaseClass($context, $runtime_context);
-            $this->generateClass($context, $runtime_context);
+            $this->generateBaseClass($reflection, $runtime_context);
+            $this->generateClass($reflection, $runtime_context);
 
-            if ($tests) {
-                $this->generateBaseTest($context, $runtime_context);
-                $this->generateTest($context, $runtime_context);
-            }
+//            if ($tests) {
+//                $this->generateBaseTest($context, $runtime_context);
+//                $this->generateTest($context, $runtime_context);
+//            }
         }
     }
 
     /**
-     * @param Context $context
+     * @param \ReflectionClass $reflection
      * @param RuntimeContext $runtime_context
      */
-    private function generateBaseClass(Context $context, RuntimeContext $runtime_context)
+    private function generateBaseClass(\ReflectionClass $reflection, RuntimeContext $runtime_context)
     {
-        $output_name = str_replace('\\', '/', $context->getNamespace()) . '/' . $context->getName() . $context->getNameSuffix() . '.php';
+        $output_name = str_replace('\\', '/', trim(str_replace($this->interface_prefix, '', $reflection->getNamespaceName()), '\\'));
+
+        if ($output_name) {
+            $output_name .= '/';
+        }
+
+        $output_name = $output_name . $reflection->getShortName() . '.php';
 
         $builder = new Builder();
         $builder->setMustOverwriteIfExists(true);
@@ -202,19 +272,25 @@ class Generator
             'context' => $runtime_context
         ]);
 
-        $builder->writeOnDisk($this->root_dir . '/' . $this->base_src_path . '/' . ucfirst($context->getSrcDir()));
+        $builder->writeOnDisk($this->root_dir . '/' . $this->base_src_path);
     }
 
     /**
-     * @param Context $context
+     * @param \ReflectionClass $reflection
      * @param RuntimeContext $runtime_context
      */
-    private function generateClass(Context $context, RuntimeContext $runtime_context)
+    private function generateClass(\ReflectionClass $reflection, RuntimeContext $runtime_context)
     {
-        $output_name = str_replace('\\', '/', $context->getNamespace()) . '/' . $context->getName() . $context->getNameSuffix() . '.php';
+        $output_name = str_replace('\\', '/', trim(str_replace($this->interface_prefix, '', $reflection->getNamespaceName()), '\\'));
+
+        if ($output_name) {
+            $output_name .= '/';
+        }
+
+        $output_name = $output_name . $reflection->getShortName() . '.php';
 
         $builder = new Builder();
-        $builder->setMustOverwriteIfExists(false);
+        $builder->setMustOverwriteIfExists(true);
         $builder->setTemplateName('ClassBuilder.php.twig');
         $builder->addTemplateDir(__DIR__ . '/template');
         $builder->setGenerator($this->generator);
@@ -223,48 +299,48 @@ class Generator
             'context' => $runtime_context
         ]);
 
-        $builder->writeOnDisk($this->root_dir . '/' . $this->src_path . '/' . ucfirst($context->getSrcDir()));
+        $builder->writeOnDisk($this->root_dir . '/' . $this->src_path);
     }
 
     /**
      * @param Context $context
      * @param RuntimeContext $runtime_context
      */
-    private function generateBaseTest(Context $context, RuntimeContext $runtime_context)
-    {
-        $output_name = str_replace('\\', '/', $context->getNamespace()) . '/' . $context->getName() . $context->getNameSuffix() . 'Test.php';
-
-        $builder = new Builder();
-        $builder->setMustOverwriteIfExists(true);
-        $builder->setTemplateName('BaseTestBuilder.php.twig');
-        $builder->addTemplateDir(__DIR__ . '/template');
-        $builder->setGenerator($this->generator);
-        $builder->setOutputName($output_name);
-        $builder->setVariables([
-            'context' => $runtime_context
-        ]);
-
-        $builder->writeOnDisk($this->root_dir . '/' . $this->base_test_path . '/' . ucfirst($context->getSrcDir()));
-    }
+//    private function generateBaseTest(Context $context, RuntimeContext $runtime_context)
+//    {
+//        $output_name = str_replace('\\', '/', $context->getNamespace()) . '/' . $context->getName() . $context->getNameSuffix() . 'Test.php';
+//
+//        $builder = new Builder();
+//        $builder->setMustOverwriteIfExists(true);
+//        $builder->setTemplateName('BaseTestBuilder.php.twig');
+//        $builder->addTemplateDir(__DIR__ . '/template');
+//        $builder->setGenerator($this->generator);
+//        $builder->setOutputName($output_name);
+//        $builder->setVariables([
+//            'context' => $runtime_context
+//        ]);
+//
+//        $builder->writeOnDisk($this->root_dir . '/' . $this->base_test_path . '/' . ucfirst($context->getSrcDir()));
+//    }
 
     /**
      * @param Context $context
      * @param RuntimeContext $runtime_context
      */
-    private function generateTest(Context $context, RuntimeContext $runtime_context)
-    {
-        $output_name = str_replace('\\', '/', $context->getNamespace()) . '/' . $context->getName() . $context->getNameSuffix() . 'Test.php';
-
-        $builder = new Builder();
-        $builder->setMustOverwriteIfExists(false);
-        $builder->setTemplateName('TestBuilder.php.twig');
-        $builder->addTemplateDir(__DIR__ . '/template');
-        $builder->setGenerator($this->generator);
-        $builder->setOutputName($output_name);
-        $builder->setVariables([
-            'context' => $runtime_context
-        ]);
-
-        $builder->writeOnDisk($this->root_dir . '/' . $this->test_path . '/' . ucfirst($context->getSrcDir()));
-    }
+//    private function generateTest(Context $context, RuntimeContext $runtime_context)
+//    {
+//        $output_name = str_replace('\\', '/', $context->getNamespace()) . '/' . $context->getName() . $context->getNameSuffix() . 'Test.php';
+//
+//        $builder = new Builder();
+//        $builder->setMustOverwriteIfExists(false);
+//        $builder->setTemplateName('TestBuilder.php.twig');
+//        $builder->addTemplateDir(__DIR__ . '/template');
+//        $builder->setGenerator($this->generator);
+//        $builder->setOutputName($output_name);
+//        $builder->setVariables([
+//            'context' => $runtime_context
+//        ]);
+//
+//        $builder->writeOnDisk($this->root_dir . '/' . $this->test_path . '/' . ucfirst($context->getSrcDir()));
+//    }
 }

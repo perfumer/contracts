@@ -2,27 +2,37 @@
 
 namespace Perfumer\Component\Bdd;
 
-use Perfumer\Component\Bdd\Step\AbstractStep;
-use Perfumer\Component\Bdd\Step\CallStep;
-use Perfumer\Component\Bdd\Step\FormatterStep;
-use Perfumer\Component\Bdd\Step\ValidatorStep;
-
 class RuntimeStep
 {
     /**
-     * @var AbstractStep
+     * @var string
      */
-    protected $step;
+    protected $function_name;
 
     /**
      * @var string
      */
-    protected $method_name;
+    protected $context;
+
+    /**
+     * @var string
+     */
+    protected $service;
+
+    /**
+     * @var string
+     */
+    protected $method;
 
     /**
      * @var array
      */
-    protected $arguments = [];
+    protected $call_arguments = [];
+
+    /**
+     * @var array
+     */
+    protected $method_arguments = [];
 
     /**
      * @var string
@@ -30,72 +40,115 @@ class RuntimeStep
     protected $return_expression;
 
     /**
-     * RuntimeStep constructor.
-     * @param AbstractStep $step
+     * @return string
      */
-    public function __construct(AbstractStep $step)
+    public function getFunctionName()
     {
-        $this->step = $step;
-
-        if ($step instanceof CallStep) {
-            $this->method_name = $step->getName() . 'Call';
-        }
-
-        if ($step instanceof FormatterStep) {
-            $this->method_name = $step->getName() . 'Formatter';
-        }
-
-        if ($step instanceof ValidatorStep) {
-            $this->method_name = $step->getName() . 'Validator';
-        }
+        return $this->function_name;
     }
 
     /**
-     * @return AbstractStep
+     * @param string $function_name
      */
-    public function getStep()
+    public function setFunctionName($function_name)
     {
-        return $this->step;
-    }
-
-    /**
-     * @param AbstractStep $step
-     */
-    public function setStep(AbstractStep $step)
-    {
-        $this->step = $step;
+        $this->function_name = $function_name;
     }
 
     /**
      * @return string
      */
-    public function getMethodName()
+    public function getContext()
     {
-        return $this->method_name;
+        return $this->context;
+    }
+
+    /**
+     * @param string $context
+     */
+    public function setContext($context)
+    {
+        $this->context = $context;
+    }
+
+    /**
+     * @return string
+     */
+    public function getService()
+    {
+        return $this->service;
+    }
+
+    /**
+     * @param string $service
+     */
+    public function setService($service)
+    {
+        $this->service = $service;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMethod()
+    {
+        return $this->method;
+    }
+
+    /**
+     * @param string $method
+     */
+    public function setMethod($method)
+    {
+        $this->method = $method;
     }
 
     /**
      * @return array
      */
-    public function getArguments()
+    public function getCallArguments()
     {
-        return $this->arguments;
+        return $this->call_arguments;
     }
 
     /**
-     * @param array $arguments
+     * @param array $call_arguments
      */
-    public function setArguments($arguments)
+    public function setCallArguments($call_arguments)
     {
-        $this->arguments = $arguments;
+        $this->call_arguments = $call_arguments;
     }
 
     /**
      * @param string $argument
      */
-    public function addArgument($argument)
+    public function addCallArgument($argument)
     {
-        $this->arguments[] = $argument;
+        $this->call_arguments[] = $argument;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMethodArguments()
+    {
+        return $this->method_arguments;
+    }
+
+    /**
+     * @param array $method_arguments
+     */
+    public function setMethodArguments($method_arguments)
+    {
+        $this->method_arguments = $method_arguments;
+    }
+
+    /**
+     * @param string $argument
+     */
+    public function addMethodArgument($argument)
+    {
+        $this->method_arguments[] = $argument;
     }
 
     /**
