@@ -3,13 +3,15 @@
 namespace Perfumer\Component\Bdd\Sandbox\Contracts\Controller;
 
 use Perfumer\Component\Bdd\Annotations\Call;
+use Perfumer\Component\Bdd\Annotations\Context;
 use Perfumer\Component\Bdd\Annotations\Custom;
 use Perfumer\Component\Bdd\Annotations\Extend;
 use Perfumer\Component\Bdd\Annotations\Service;
 use Perfumer\Component\Bdd\Annotations\Validate;
 
 /**
- * @Extend(name = "\Perfumer\Component\Bdd\Sandbox\ParentController")
+ * @Extend(class = "\Perfumer\Component\Bdd\Sandbox\ParentController")
+ * @Context(name = "validators", class = "\Perfumer\Component\Bdd\Sandbox\FooContext")
  */
 interface FooController
 {

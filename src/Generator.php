@@ -4,6 +4,7 @@ namespace Perfumer\Component\Bdd;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
+use Perfumer\Component\Bdd\Annotations\Context;
 use Perfumer\Component\Bdd\Annotations\Custom;
 use Perfumer\Component\Bdd\Annotations\Extend;
 use Perfumer\Component\Bdd\Annotations\Call;
@@ -56,11 +57,6 @@ class Generator
      * @var array
      */
     private $classes;
-
-    /**
-     * @var array
-     */
-    private $contexts;
 
     /**
      * @var StepParserInterface
@@ -119,18 +115,6 @@ class Generator
         return $this;
     }
 
-    /**
-     * @param string $alias
-     * @param string $context
-     * @return $this
-     */
-    public function addContext(string $alias, string $context)
-    {
-        $this->contexts[$alias] = $context;
-
-        return $this;
-    }
-
     public function generate()
     {
         AnnotationRegistry::registerFile(__DIR__ . '/Annotations.php');
@@ -138,6 +122,8 @@ class Generator
         $reader = new AnnotationReader();
 
         foreach ($this->classes as $class) {
+            $contexts = [];
+
             $reflection = new \ReflectionClass($class);
             $class_annotations = $reader->getClassAnnotations($reflection);
 
@@ -150,7 +136,11 @@ class Generator
 
             foreach ($class_annotations as $annotation) {
                 if ($annotation instanceof Extend) {
-                    $runtime_context->setExtendsClass($annotation->name);
+                    $runtime_context->setExtendsClass($annotation->class);
+                }
+
+                if ($annotation instanceof Context) {
+                    $contexts[$annotation->name] = $annotation->class;
                 }
             }
 
@@ -172,7 +162,7 @@ class Generator
                     $runtime_step = new RuntimeStep();
 
                     if ($annotation instanceof Call || $annotation instanceof Validate) {
-                        $runtime_step->setContext($this->contexts[$annotation->name]);
+                        $runtime_step->setContext($contexts[$annotation->name]);
                         $runtime_step->setMethod($annotation->method);
                         $runtime_step->setFunctionName($annotation->name . ucfirst($annotation->method));
                     }

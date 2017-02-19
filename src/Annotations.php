@@ -28,7 +28,7 @@ class Custom
  */
 class Extend
 {
-    public $name;
+    public $class;
 }
 
 /**
@@ -55,6 +55,16 @@ class Call
      * @var string
      */
     public $return;
+}
+
+/**
+ * @Annotation
+ */
+class Context
+{
+    public $name;
+
+    public $class;
 }
 
 /**

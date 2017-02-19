@@ -11,7 +11,6 @@ $generator = new \Perfumer\Component\Bdd\Generator(new \Perfumer\Component\Bdd\S
     'class_prefix' => 'Perfumer\\Component\\Bdd\\Sandbox'
 ]);
 
-$generator->addContext('validators', '\\Perfumer\\Component\\Bdd\\Sandbox\\FooContext');
 $generator->addClass('\\Perfumer\\Component\\Bdd\\Sandbox\\Contracts\\Controller\\FooController');
 $generator->generate();
 
