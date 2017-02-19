@@ -4,9 +4,9 @@ namespace Perfumer\Component\Bdd;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
-use Perfumer\Component\Bdd\Annotations\Call;
+use Perfumer\Component\Bdd\Annotations\Custom;
 use Perfumer\Component\Bdd\Annotations\Extend;
-use Perfumer\Component\Bdd\Annotations\Format;
+use Perfumer\Component\Bdd\Annotations\Call;
 use Perfumer\Component\Bdd\Annotations\Service;
 use Perfumer\Component\Bdd\Annotations\Validate;
 
@@ -165,13 +165,13 @@ class Generator
                 $method_annotations = $reader->getMethodAnnotations($method);
 
                 foreach ($method_annotations as $annotation) {
-                    if (!$annotation instanceof Validate && !$annotation instanceof Call && !$annotation instanceof Service && !$annotation instanceof Format) {
+                    if (!$annotation instanceof Validate && !$annotation instanceof Custom && !$annotation instanceof Service && !$annotation instanceof Call) {
                         continue;
                     }
 
                     $runtime_step = new RuntimeStep();
 
-                    if ($annotation instanceof Format || $annotation instanceof Validate) {
+                    if ($annotation instanceof Call || $annotation instanceof Validate) {
                         $runtime_step->setContext($this->contexts[$annotation->name]);
                         $runtime_step->setMethod($annotation->method);
                         $runtime_step->setFunctionName($annotation->name . ucfirst($annotation->method));
@@ -186,11 +186,11 @@ class Generator
                         }
                     }
 
-                    if ($annotation instanceof Call) {
+                    if ($annotation instanceof Custom) {
                         $runtime_step->setFunctionName($annotation->name);
                     }
 
-                    if ($annotation instanceof Format || $annotation instanceof Service || $annotation instanceof Call) {
+                    if ($annotation instanceof Call || $annotation instanceof Service || $annotation instanceof Custom) {
                         if ($annotation->return) {
                             $runtime_step->setReturnExpression($this->step_parser->parseReturn($annotation->return));
 

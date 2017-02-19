@@ -5,7 +5,7 @@ namespace Perfumer\Component\Bdd\Annotations;
 /**
  * @Annotation
  */
-class Call
+class Custom
 {
     /**
      * @var string
@@ -34,7 +34,7 @@ class Extend
 /**
  * @Annotation
  */
-class Format
+class Call
 {
     /**
      * @var string
