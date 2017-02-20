@@ -10,12 +10,12 @@ abstract class FooController extends \Perfumer\Component\Bdd\Sandbox\ParentContr
 
     final private function validatorsIntType($param1)
     {
-        $context = new \Perfumer\Component\Bdd\Sandbox\FooContext();
+        $context = new \Perfumer\Component\Bdd\Sandbox\Contexts\FooContext();
         return $context->intType($param1);
     }
     final private function validatorsSum($param1, $param2)
     {
-        $context = new \Perfumer\Component\Bdd\Sandbox\FooContext();
+        $context = new \Perfumer\Component\Bdd\Sandbox\Contexts\FooContext();
         return $context->sum($param1, $param2);
     }
     abstract protected function getSomeStaff($param3);

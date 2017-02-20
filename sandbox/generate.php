@@ -8,9 +8,12 @@ $generator = new \Perfumer\Component\Bdd\Generator(new \Perfumer\Component\Bdd\S
     'src_path' => 'sandbox/generated/src',
     'test_path' => 'sandbox/generated/tests',
     'interface_prefix' => 'Perfumer\\Component\\Bdd\\Sandbox\\Contracts',
+    'context_prefix' => 'Perfumer\\Component\\Bdd\\Sandbox',
     'class_prefix' => 'Perfumer\\Component\\Bdd\\Sandbox'
 ]);
 
-$generator->addClass('\\Perfumer\\Component\\Bdd\\Sandbox\\Contracts\\Controller\\FooController');
-$generator->generate();
+$generator->addContext('\\Perfumer\\Component\\Bdd\\Sandbox\\Contexts\\FooContext');
+$generator->generateContexts();
 
+$generator->addClass('\\Perfumer\\Component\\Bdd\\Sandbox\\Contracts\\Controller\\FooController');
+$generator->generateClasses();

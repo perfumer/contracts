@@ -11,7 +11,7 @@ use Perfumer\Component\Bdd\Annotations\Validate;
 
 /**
  * @Extend(class = "\Perfumer\Component\Bdd\Sandbox\ParentController")
- * @Context(name = "validators", class = "\Perfumer\Component\Bdd\Sandbox\FooContext")
+ * @Context(name = "validators", class = "\Perfumer\Component\Bdd\Sandbox\Contexts\FooContext")
  */
 interface FooController
 {

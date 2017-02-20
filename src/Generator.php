@@ -9,6 +9,7 @@ use Perfumer\Component\Bdd\Annotations\Custom;
 use Perfumer\Component\Bdd\Annotations\Extend;
 use Perfumer\Component\Bdd\Annotations\Call;
 use Perfumer\Component\Bdd\Annotations\Service;
+use Perfumer\Component\Bdd\Annotations\Test;
 use Perfumer\Component\Bdd\Annotations\Validate;
 
 class Generator
@@ -27,6 +28,11 @@ class Generator
      * @var string
      */
     private $class_prefix;
+
+    /**
+     * @var string
+     */
+    private $context_prefix;
 
     /**
      * @var string
@@ -56,7 +62,12 @@ class Generator
     /**
      * @var array
      */
-    private $classes;
+    private $classes = [];
+
+    /**
+     * @var array
+     */
+    private $contexts = [];
 
     /**
      * @var StepParserInterface
@@ -83,6 +94,10 @@ class Generator
             $this->class_prefix = (string) $options['class_prefix'];
         }
 
+        if (isset($options['context_prefix'])) {
+            $this->context_prefix = (string) $options['context_prefix'];
+        }
+
         if (isset($options['base_src_path'])) {
             $this->base_src_path = (string) $options['base_src_path'];
         }
@@ -105,6 +120,17 @@ class Generator
     }
 
     /**
+     * @param string $context
+     * @return $this
+     */
+    public function addContext(string $context)
+    {
+        $this->contexts[] = $context;
+
+        return $this;
+    }
+
+    /**
      * @param string $class
      * @return $this
      */
@@ -115,7 +141,58 @@ class Generator
         return $this;
     }
 
-    public function generate()
+    public function generateContexts()
+    {
+        AnnotationRegistry::registerFile(__DIR__ . '/Annotations.php');
+
+        $reader = new AnnotationReader();
+
+        foreach ($this->contexts as $class) {
+            $reflection = new \ReflectionClass($class);
+            $class_annotations = $reader->getClassAnnotations($reflection);
+            $tests = false;
+
+            $runtime_context = new RuntimeContext();
+
+            $namespace = $reflection->getNamespaceName();
+
+            $runtime_context->setNamespace($namespace);
+            $runtime_context->setClassName($reflection->getShortName());
+
+            foreach ($class_annotations as $annotation) {
+                if ($annotation instanceof Extend) {
+                    $runtime_context->setExtendsClass($annotation->class);
+                }
+            }
+
+            foreach ($reflection->getMethods() as $method) {
+                $method_annotations = $reader->getMethodAnnotations($method);
+
+                foreach ($method_annotations as $annotation) {
+                    if ($annotation instanceof Test) {
+                        $tests = true;
+
+                        $runtime_step = new RuntimeStep();
+                        $runtime_step->setFunctionName($method->name);
+                        $runtime_step->setContext($class);
+
+                        foreach ($method->getParameters() as $parameter) {
+                            $runtime_step->addMethodArgument('$' . $parameter->name);
+                        }
+
+                        $runtime_context->addStep($runtime_step->getFunctionName(), $runtime_step);
+                    }
+                }
+            }
+
+            if ($tests) {
+                $this->generateBaseContextTest($reflection, $runtime_context);
+                $this->generateContextTest($reflection, $runtime_context);
+            }
+        }
+    }
+
+    public function generateClasses()
     {
         AnnotationRegistry::registerFile(__DIR__ . '/Annotations.php');
 
@@ -230,11 +307,6 @@ class Generator
 
             $this->generateBaseClass($reflection, $runtime_context);
             $this->generateClass($reflection, $runtime_context);
-
-//            if ($tests) {
-//                $this->generateBaseTest($context, $runtime_context);
-//                $this->generateTest($context, $runtime_context);
-//            }
         }
     }
 
@@ -293,44 +365,56 @@ class Generator
     }
 
     /**
-     * @param Context $context
+     * @param \ReflectionClass $reflection
      * @param RuntimeContext $runtime_context
      */
-//    private function generateBaseTest(Context $context, RuntimeContext $runtime_context)
-//    {
-//        $output_name = str_replace('\\', '/', $context->getNamespace()) . '/' . $context->getName() . $context->getNameSuffix() . 'Test.php';
-//
-//        $builder = new Builder();
-//        $builder->setMustOverwriteIfExists(true);
-//        $builder->setTemplateName('BaseTestBuilder.php.twig');
-//        $builder->addTemplateDir(__DIR__ . '/template');
-//        $builder->setGenerator($this->generator);
-//        $builder->setOutputName($output_name);
-//        $builder->setVariables([
-//            'context' => $runtime_context
-//        ]);
-//
-//        $builder->writeOnDisk($this->root_dir . '/' . $this->base_test_path . '/' . ucfirst($context->getSrcDir()));
-//    }
+    private function generateBaseContextTest(\ReflectionClass $reflection, RuntimeContext $runtime_context)
+    {
+        $output_name = str_replace('\\', '/', trim(str_replace($this->context_prefix, '', $reflection->getNamespaceName()), '\\'));
+
+        if ($output_name) {
+            $output_name .= '/';
+        }
+
+        $output_name = $output_name . $reflection->getShortName() . 'Test.php';
+
+        $builder = new Builder();
+        $builder->setMustOverwriteIfExists(true);
+        $builder->setTemplateName('BaseContextTestBuilder.php.twig');
+        $builder->addTemplateDir(__DIR__ . '/template');
+        $builder->setGenerator($this->generator);
+        $builder->setOutputName($output_name);
+        $builder->setVariables([
+            'context' => $runtime_context
+        ]);
+
+        $builder->writeOnDisk($this->root_dir . '/' . $this->base_test_path);
+    }
 
     /**
-     * @param Context $context
+     * @param \ReflectionClass $reflection
      * @param RuntimeContext $runtime_context
      */
-//    private function generateTest(Context $context, RuntimeContext $runtime_context)
-//    {
-//        $output_name = str_replace('\\', '/', $context->getNamespace()) . '/' . $context->getName() . $context->getNameSuffix() . 'Test.php';
-//
-//        $builder = new Builder();
-//        $builder->setMustOverwriteIfExists(false);
-//        $builder->setTemplateName('TestBuilder.php.twig');
-//        $builder->addTemplateDir(__DIR__ . '/template');
-//        $builder->setGenerator($this->generator);
-//        $builder->setOutputName($output_name);
-//        $builder->setVariables([
-//            'context' => $runtime_context
-//        ]);
-//
-//        $builder->writeOnDisk($this->root_dir . '/' . $this->test_path . '/' . ucfirst($context->getSrcDir()));
-//    }
+    private function generateContextTest(\ReflectionClass $reflection, RuntimeContext $runtime_context)
+    {
+        $output_name = str_replace('\\', '/', trim(str_replace($this->context_prefix, '', $reflection->getNamespaceName()), '\\'));
+
+        if ($output_name) {
+            $output_name .= '/';
+        }
+
+        $output_name = $output_name . $reflection->getShortName() . 'Test.php';
+
+        $builder = new Builder();
+        $builder->setMustOverwriteIfExists(false);
+        $builder->setTemplateName('ContextTestBuilder.php.twig');
+        $builder->addTemplateDir(__DIR__ . '/template');
+        $builder->setGenerator($this->generator);
+        $builder->setOutputName($output_name);
+        $builder->setVariables([
+            'context' => $runtime_context
+        ]);
+
+        $builder->writeOnDisk($this->root_dir . '/' . $this->test_path);
+    }
 }

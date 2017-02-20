@@ -113,3 +113,10 @@ class Validate
      */
     public $arguments = [];
 }
+
+/**
+ * @Annotation
+ */
+class Test
+{
+}

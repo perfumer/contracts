@@ -1,0 +1,17 @@
+<?php
+
+namespace Tests\{{ context.namespace }};
+
+class {{ context.className }}Test extends \Generated\Tests\{{ context.namespace }}\{{ context.className }}Test
+{
+{% for step in context.steps %}
+    /**
+     * @return array
+     */
+    public function {{ step.functionName }}DataProvider()
+    {
+        throw new \Exception('{{ step.functionName }}DataProvider is not implemented.');
+    }
+
+{% endfor %}
+}

@@ -1,0 +1,27 @@
+<?php
+
+namespace Generated\Tests\{{ context.namespace }};
+
+{% if context.extendsTest %}
+abstract class {{ context.className }}Test extends {{ context.extendsClass }}
+{% else %}
+abstract class {{ context.className }}Test extends \PHPUnit_Framework_TestCase
+{% endif %}
+{
+{% for step in context.steps %}
+    abstract public function {{ step.functionName }}DataProvider();
+
+{% endfor %}
+{% for step in context.steps %}
+    /**
+     * @dataProvider {{ step.functionName }}DataProvider
+     */
+    final public function test_{{ step.functionName }}({% if step.methodArguments %}{{ step.methodArguments|join(', ') }}, {% endif %}$result)
+    {
+        $_class_instance = new {{ step.context }}();
+
+        $this->assertEquals($_class_instance->{{ step.functionName }}({{ step.methodArguments|join(', ') }}), $result);
+    }
+
+{% endfor %}
+}

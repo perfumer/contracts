@@ -1,7 +1,8 @@
 <?php
 
-namespace Perfumer\Component\Bdd\Sandbox;
+namespace Perfumer\Component\Bdd\Sandbox\Contexts;
 
+use Perfumer\Component\Bdd\Annotations\Test;
 use Perfumer\Component\Bdd\Context;
 
 class FooContext implements Context
@@ -27,5 +28,16 @@ class FooContext implements Context
     public function sum(int $a, int $b)
     {
         return $a + $b;
+    }
+
+    /**
+     * @param int $a
+     * @param int $b
+     * @return int
+     * @return int
+     */
+    public function multiply(int $a, int $b)
+    {
+        return $a * $b;
     }
 }
