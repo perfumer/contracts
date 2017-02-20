@@ -50,4 +50,13 @@ class StepParser implements StepParserInterface
             return '$' . $value . ' = ';
         }
     }
+
+    /**
+     * @param string $value
+     * @return string
+     */
+    public function parseServiceName($value)
+    {
+        return $value;
+    }
 }

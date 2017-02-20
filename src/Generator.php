@@ -245,7 +245,7 @@ class Generator
                     }
 
                     if ($annotation instanceof Service && $annotation->name) {
-                        $runtime_step->setService($annotation->name);
+                        $runtime_step->setService($this->step_parser->parseServiceName($annotation->name));
                         $runtime_step->setMethod($annotation->method);
 
                         if ($annotation->name !== '_parent') {

@@ -21,4 +21,10 @@ interface StepParserInterface
      * @return string
      */
     public function parseReturn($value);
+
+    /**
+     * @param string $value
+     * @return string
+     */
+    public function parseServiceName($value);
 }
