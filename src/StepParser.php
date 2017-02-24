@@ -2,13 +2,13 @@
 
 namespace Perfumer\Component\Bdd;
 
-class StepParser implements StepParserInterface
+class StepParser
 {
     /**
      * @param string $value
      * @return string
      */
-    public function parseForMethod($value)
+    public function parseHeaderArgument($value)
     {
         if (substr($value, 0, 5) == 'this.') {
             $value = substr($value, 5);
@@ -21,7 +21,7 @@ class StepParser implements StepParserInterface
      * @param string $value
      * @return string
      */
-    public function parseForCall($value)
+    public function parseBodyArgument($value)
     {
         if (substr($value, 0, 5) == 'this.') {
             $value = substr($value, 5);

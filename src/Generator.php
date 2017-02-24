@@ -6,7 +6,6 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Perfumer\Component\Bdd\Annotations\Collection;
 use Perfumer\Component\Bdd\Annotations\Context;
-use Perfumer\Component\Bdd\Annotations\Custom;
 use Perfumer\Component\Bdd\Annotations\Extend;
 use Perfumer\Component\Bdd\Annotations\Call;
 use Perfumer\Component\Bdd\Annotations\Service;
@@ -71,16 +70,16 @@ class Generator
     private $contexts = [];
 
     /**
-     * @var StepParserInterface
+     * @var StepParser
      */
     private $step_parser;
 
     /**
-     * @param StepParserInterface $step_parser
+     * @param StepParser $step_parser
      * @param string $root_dir
      * @param array $options
      */
-    public function __construct(StepParserInterface $step_parser, $root_dir, $options = [])
+    public function __construct(StepParser $step_parser, $root_dir, $options = [])
     {
         $this->addAnnotations(__DIR__ . '/Annotations.php');
 
@@ -316,8 +315,8 @@ class Generator
         }
 
         foreach ($annotation->arguments as $argument) {
-            $argument_var = $this->step_parser->parseForMethod($argument);
-            $argument_value = $this->step_parser->parseForCall($argument);
+            $argument_var = $this->step_parser->parseHeaderArgument($argument);
+            $argument_value = $this->step_parser->parseBodyArgument($argument);
 
             $runtime_step->addMethodArgument($argument_var);
             $runtime_step->addCallArgument($argument_value);
