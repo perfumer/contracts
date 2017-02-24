@@ -82,6 +82,8 @@ class Generator
      */
     public function __construct(StepParserInterface $step_parser, $root_dir, $options = [])
     {
+        $this->addAnnotations(__DIR__ . '/Annotations.php');
+
         $this->generator = new \TwigGenerator\Builder\Generator();
         $this->step_parser = $step_parser;
 
@@ -121,6 +123,14 @@ class Generator
     }
 
     /**
+     * @param string $filename
+     */
+    public function addAnnotations(string $filename)
+    {
+        AnnotationRegistry::registerFile($filename);
+    }
+
+    /**
      * @param string $context
      * @return $this
      */
@@ -144,8 +154,6 @@ class Generator
 
     public function generateContexts()
     {
-        AnnotationRegistry::registerFile(__DIR__ . '/Annotations.php');
-
         $reader = new AnnotationReader();
 
         foreach ($this->contexts as $class) {
@@ -195,8 +203,6 @@ class Generator
 
     public function generateClasses()
     {
-        AnnotationRegistry::registerFile(__DIR__ . '/Annotations.php');
-
         $reader = new AnnotationReader();
 
         foreach ($this->classes as $class) {
@@ -267,7 +273,15 @@ class Generator
         }
     }
 
-    private function processStepAnnotation($annotation, RuntimeStep $runtime_step, RuntimeAction $runtime_action, RuntimeContext $runtime_context, array $contexts) {
+    /**
+     * @param mixed $annotation
+     * @param RuntimeStep $runtime_step
+     * @param RuntimeAction $runtime_action
+     * @param RuntimeContext $runtime_context
+     * @param array $contexts
+     */
+    private function processStepAnnotation($annotation, RuntimeStep $runtime_step, RuntimeAction $runtime_action, RuntimeContext $runtime_context, array $contexts)
+    {
         if ($annotation instanceof Call || $annotation instanceof Validate) {
             $runtime_step->setContext($contexts[$annotation->name]);
             $runtime_step->setMethod($annotation->method);
@@ -370,7 +384,7 @@ class Generator
         $output_name = $output_name . $reflection->getShortName() . '.php';
 
         $builder = new Builder();
-        $builder->setMustOverwriteIfExists(true);
+        $builder->setMustOverwriteIfExists(false);
         $builder->setTemplateName('ClassBuilder.php.twig');
         $builder->addTemplateDir(__DIR__ . '/template');
         $builder->setGenerator($this->generator);
@@ -436,7 +450,8 @@ class Generator
         $builder->writeOnDisk($this->root_dir . '/' . $this->test_path);
     }
 
-    private function validateStepAnnotation($annotation): bool {
+    private function validateStepAnnotation($annotation): bool
+    {
         return $annotation instanceof Validate || $annotation instanceof Service || $annotation instanceof Call || $annotation instanceof Collection;
     }
 }
