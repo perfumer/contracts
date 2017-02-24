@@ -5,27 +5,6 @@ namespace Perfumer\Component\Bdd\Annotations;
 /**
  * @Annotation
  */
-class Custom
-{
-    /**
-     * @var string
-     */
-    public $name;
-
-    /**
-     * @var array
-     */
-    public $arguments = [];
-
-    /**
-     * @var string
-     */
-    public $return;
-}
-
-/**
- * @Annotation
- */
 class Extend
 {
     public $class;

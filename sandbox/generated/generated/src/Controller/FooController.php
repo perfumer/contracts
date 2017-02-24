@@ -5,7 +5,6 @@ namespace Generated\Perfumer\Component\Bdd\Sandbox\Controller;
 abstract class FooController extends \Perfumer\Component\Bdd\Sandbox\ParentController
 {
     protected $staff;
-    protected $param3;
     protected $foobar;
 
     final private function validatorsIntType($param1)
@@ -18,7 +17,6 @@ abstract class FooController extends \Perfumer\Component\Bdd\Sandbox\ParentContr
         $context = new \Perfumer\Component\Bdd\Sandbox\Contexts\FooContext();
         return $context->sum($param1, $param2);
     }
-    abstract protected function getSomeStaff($param3);
 
     final public function bar($param1, $param2)
     {
@@ -36,9 +34,6 @@ abstract class FooController extends \Perfumer\Component\Bdd\Sandbox\ParentContr
         }
         if ($_error === null) {
             $sum = $this->validatorsSum($param1, $param2);
-        }
-        if ($_error === null) {
-            $this->staff = $this->getSomeStaff($this->param3);
         }
         if ($_error === null) {
             $sandbox = parent::sandboxActionTwo($sum, $this->staff);
@@ -70,9 +65,6 @@ abstract class FooController extends \Perfumer\Component\Bdd\Sandbox\ParentContr
         }
         if ($_error === null) {
             $sum = $this->validatorsSum($param1, $param2);
-        }
-        if ($_error === null) {
-            $this->staff = $this->getSomeStaff($this->param3);
         }
         if ($_error === null) {
             $sandbox = parent::sandboxActionTwo($sum, $this->staff);

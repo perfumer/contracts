@@ -232,7 +232,7 @@ class Generator
                 $method_annotations = $reader->getMethodAnnotations($method);
 
                 foreach ($method_annotations as $annotation) {
-                    if (!$annotation instanceof Validate && !$annotation instanceof Custom && !$annotation instanceof Service && !$annotation instanceof Call) {
+                    if (!$annotation instanceof Validate && !$annotation instanceof Service && !$annotation instanceof Call) {
                         continue;
                     }
 
@@ -253,11 +253,7 @@ class Generator
                         }
                     }
 
-                    if ($annotation instanceof Custom) {
-                        $runtime_step->setFunctionName($annotation->name);
-                    }
-
-                    if ($annotation instanceof Call || $annotation instanceof Service || $annotation instanceof Custom) {
+                    if ($annotation instanceof Call || $annotation instanceof Service) {
                         if ($annotation->return) {
                             $runtime_step->setReturnExpression($this->step_parser->parseReturn($annotation->return));
 
