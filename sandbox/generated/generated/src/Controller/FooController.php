@@ -25,15 +25,16 @@ abstract class FooController extends \Perfumer\Component\Bdd\Sandbox\ParentContr
         $sum = null;
         $sandbox = null;
 
+    // Some new local variables added
+    $a = 1;
+    $b = 1;
+    $c = 1;
 
         if ($_error === null) {
             $_error = $this->validatorsIntType($param1);
         }
         if ($_error === null) {
             $_error = $this->validatorsIntType($param2);
-        }
-        if ($_error === null) {
-            $sum = $this->validatorsSum($param1, $param2);
         }
         if ($_error === null) {
             $sum = $this->validatorsSum($param1, $param2);
@@ -59,6 +60,10 @@ abstract class FooController extends \Perfumer\Component\Bdd\Sandbox\ParentContr
         $sum = null;
         $sandbox = null;
 
+    // Some new local variables added
+    $a = 1;
+    $b = 1;
+    $c = 1;
 
         if ($_error === null) {
             $_error = $this->validatorsIntType($param1);

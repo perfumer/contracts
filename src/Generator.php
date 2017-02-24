@@ -9,6 +9,7 @@ use Perfumer\Component\Bdd\Annotations\Context;
 use Perfumer\Component\Bdd\Annotations\Extend;
 use Perfumer\Component\Bdd\Annotations\Call;
 use Perfumer\Component\Bdd\Annotations\Service;
+use Perfumer\Component\Bdd\Annotations\Template;
 use Perfumer\Component\Bdd\Annotations\Test;
 use Perfumer\Component\Bdd\Annotations\Validate;
 
@@ -75,12 +76,18 @@ class Generator
     private $step_parser;
 
     /**
+     * @var array
+     */
+    private $template_directories = [];
+
+    /**
      * @param StepParser $step_parser
      * @param string $root_dir
      * @param array $options
      */
     public function __construct(StepParser $step_parser, $root_dir, $options = [])
     {
+        $this->addTemplateDirectory(__DIR__ . '/template');
         $this->addAnnotations(__DIR__ . '/Annotations.php');
 
         $this->generator = new \TwigGenerator\Builder\Generator();
@@ -119,6 +126,14 @@ class Generator
         if (isset($options['test_path'])) {
             $this->test_path = (string) $options['test_path'];
         }
+    }
+
+    /**
+     * @param string $directory
+     */
+    public function addTemplateDirectory(string $directory)
+    {
+        $this->template_directories[] = $directory;
     }
 
     /**
@@ -218,6 +233,10 @@ class Generator
             $runtime_context->setClassName($reflection->getShortName());
 
             foreach ($class_annotations as $annotation) {
+                if ($annotation instanceof Template) {
+                    $runtime_context->setTemplate($annotation->name);
+                }
+
                 if ($annotation instanceof Extend) {
                     $runtime_context->setExtendsClass($annotation->class);
                 }
@@ -362,8 +381,8 @@ class Generator
 
         $builder = new Builder();
         $builder->setMustOverwriteIfExists(true);
-        $builder->setTemplateName('BaseClassBuilder.php.twig');
-        $builder->addTemplateDir(__DIR__ . '/template');
+        $builder->setTemplateName($runtime_context->getTemplate() . '.php.twig');
+        $builder->setTemplateDirs($this->template_directories);
         $builder->setGenerator($this->generator);
         $builder->setOutputName($output_name);
         $builder->setVariables([
@@ -390,7 +409,7 @@ class Generator
         $builder = new Builder();
         $builder->setMustOverwriteIfExists(false);
         $builder->setTemplateName('ClassBuilder.php.twig');
-        $builder->addTemplateDir(__DIR__ . '/template');
+        $builder->setTemplateDirs($this->template_directories);
         $builder->setGenerator($this->generator);
         $builder->setOutputName($output_name);
         $builder->setVariables([
@@ -417,7 +436,7 @@ class Generator
         $builder = new Builder();
         $builder->setMustOverwriteIfExists(true);
         $builder->setTemplateName('BaseContextTestBuilder.php.twig');
-        $builder->addTemplateDir(__DIR__ . '/template');
+        $builder->setTemplateDirs($this->template_directories);
         $builder->setGenerator($this->generator);
         $builder->setOutputName($output_name);
         $builder->setVariables([
@@ -444,7 +463,7 @@ class Generator
         $builder = new Builder();
         $builder->setMustOverwriteIfExists(false);
         $builder->setTemplateName('ContextTestBuilder.php.twig');
-        $builder->addTemplateDir(__DIR__ . '/template');
+        $builder->setTemplateDirs($this->template_directories);
         $builder->setGenerator($this->generator);
         $builder->setOutputName($output_name);
         $builder->setVariables([

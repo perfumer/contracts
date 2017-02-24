@@ -102,6 +102,17 @@ class Service extends \Perfumer\Component\Bdd\Step
 /**
  * @Annotation
  */
+class Template implements \Perfumer\Component\Bdd\Annotation
+{
+    /**
+     * @var string
+     */
+    public $name;
+}
+
+/**
+ * @Annotation
+ */
 class Test implements \Perfumer\Component\Bdd\Annotation
 {
 }

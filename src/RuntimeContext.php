@@ -7,6 +7,11 @@ class RuntimeContext
     /**
      * @var string
      */
+    protected $template = 'BaseClassBuilder';
+
+    /**
+     * @var string
+     */
     protected $namespace;
 
     /**
@@ -38,6 +43,22 @@ class RuntimeContext
      * @var array
      */
     protected $actions = [];
+
+    /**
+     * @return string
+     */
+    public function getTemplate(): string
+    {
+        return $this->template;
+    }
+
+    /**
+     * @param string $template
+     */
+    public function setTemplate(string $template)
+    {
+        $this->template = $template;
+    }
 
     /**
      * @return string

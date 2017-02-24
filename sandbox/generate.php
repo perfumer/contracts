@@ -12,6 +12,8 @@ $generator = new \Perfumer\Component\Bdd\Generator(new \Perfumer\Component\Bdd\S
     'class_prefix' => 'Perfumer\\Component\\Bdd\\Sandbox'
 ]);
 
+$generator->addTemplateDirectory(__DIR__ . '/templates');
+
 $generator->addContext('\\Perfumer\\Component\\Bdd\\Sandbox\\Contexts\\FooContext');
 $generator->generateContexts();
 
