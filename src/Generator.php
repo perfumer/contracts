@@ -456,6 +456,6 @@ class Generator
 
     private function validateStepAnnotation($annotation): bool
     {
-        return $annotation instanceof Validate || $annotation instanceof Service || $annotation instanceof Call || $annotation instanceof Collection;
+        return $annotation instanceof Step;
     }
 }

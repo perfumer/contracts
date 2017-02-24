@@ -5,7 +5,7 @@ namespace Perfumer\Component\Bdd\Annotations;
 /**
  * @Annotation
  */
-class Call
+class Call implements \Perfumer\Component\Bdd\Step
 {
     /**
      * @var string
@@ -47,7 +47,7 @@ class Call
 /**
  * @Annotation
  */
-class Collection
+class Collection implements \Perfumer\Component\Bdd\Step
 {
     /**
      * @var array
@@ -74,7 +74,7 @@ class Collection
 /**
  * @Annotation
  */
-class Context
+class Context implements \Perfumer\Component\Bdd\Annotation
 {
     public $name;
 
@@ -84,7 +84,7 @@ class Context
 /**
  * @Annotation
  */
-class Extend
+class Extend implements \Perfumer\Component\Bdd\Annotation
 {
     public $class;
 }
@@ -92,7 +92,7 @@ class Extend
 /**
  * @Annotation
  */
-class Service
+class Service implements \Perfumer\Component\Bdd\Step
 {
     /**
      * @var string
@@ -134,14 +134,14 @@ class Service
 /**
  * @Annotation
  */
-class Test
+class Test implements \Perfumer\Component\Bdd\Annotation
 {
 }
 
 /**
  * @Annotation
  */
-class Validate
+class Validate implements \Perfumer\Component\Bdd\Step
 {
     /**
      * @var string
