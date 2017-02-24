@@ -200,7 +200,7 @@ class Generator
                         $runtime_step->setContext($class);
 
                         foreach ($method->getParameters() as $parameter) {
-                            $runtime_step->addMethodArgument('$' . $parameter->name);
+                            $runtime_step->addHeaderArgument('$' . $parameter->name);
                         }
 
                         $runtime_context->addStep($runtime_step->getFunctionName(), $runtime_step);
@@ -251,7 +251,7 @@ class Generator
                 $runtime_action->setMethodName($method->name);
 
                 foreach ($method->getParameters() as $parameter) {
-                    $runtime_action->addMethodArgument('$' . $parameter->name);
+                    $runtime_action->addHeaderArgument('$' . $parameter->name);
                 }
 
                 $method_annotations = $reader->getMethodAnnotations($method);
@@ -292,13 +292,13 @@ class Generator
     }
 
     /**
-     * @param mixed $annotation
+     * @param Annotation $annotation
      * @param RuntimeStep $runtime_step
      * @param RuntimeAction $runtime_action
      * @param RuntimeContext $runtime_context
      * @param array $contexts
      */
-    private function processStepAnnotation($annotation, RuntimeStep $runtime_step, RuntimeAction $runtime_action, RuntimeContext $runtime_context, array $contexts)
+    private function processStepAnnotation(Annotation $annotation, RuntimeStep $runtime_step, RuntimeAction $runtime_action, RuntimeContext $runtime_context, array $contexts)
     {
         if ($annotation instanceof Service || $annotation instanceof Call || $annotation instanceof Validate) {
             $runtime_step->setPrependCode($annotation->prepend());
@@ -345,11 +345,11 @@ class Generator
             $argument_var = $this->step_parser->parseHeaderArgument($argument);
             $argument_value = $this->step_parser->parseBodyArgument($argument);
 
-            $runtime_step->addMethodArgument($argument_var);
-            $runtime_step->addCallArgument($argument_value);
+            $runtime_step->addHeaderArgument($argument_var);
+            $runtime_step->addBodyArgument($argument_value);
 
             if (
-                !in_array($argument_var, $runtime_action->getMethodArguments()) &&
+                !in_array($argument_var, $runtime_action->getHeaderArguments()) &&
                 !$runtime_action->hasLocalVariable($argument_var) &&
                 substr($argument, 0, 5) !== 'this.'
             ) {
@@ -476,7 +476,11 @@ class Generator
         $builder->writeOnDisk($this->root_dir . '/' . $this->test_path);
     }
 
-    private function validateStepAnnotation($annotation): bool
+    /**
+     * @param Annotation $annotation
+     * @return bool
+     */
+    private function validateStepAnnotation(Annotation $annotation): bool
     {
         return $annotation instanceof Step || $annotation instanceof Collection;
     }

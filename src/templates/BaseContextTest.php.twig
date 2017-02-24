@@ -16,11 +16,11 @@ abstract class {{ context.className }}Test extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider {{ step.functionName }}DataProvider
      */
-    final public function test_{{ step.functionName }}({% if step.methodArguments %}{{ step.methodArguments|join(', ') }}, {% endif %}$result)
+    final public function test_{{ step.functionName }}({% if step.headerArguments %}{{ step.headerArguments|join(', ') }}, {% endif %}$result)
     {
         $_class_instance = new {{ step.context }}();
 
-        $this->assertEquals($_class_instance->{{ step.functionName }}({{ step.methodArguments|join(', ') }}), $result);
+        $this->assertEquals($_class_instance->{{ step.functionName }}({{ step.headerArguments|join(', ') }}), $result);
     }
 
 {% endfor %}

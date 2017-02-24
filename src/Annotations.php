@@ -2,8 +2,11 @@
 
 namespace Perfumer\Component\Bdd\Annotations;
 
+use Doctrine\Common\Annotations\Annotation\Target;
+
 /**
  * @Annotation
+ * @Target({"METHOD", "ANNOTATION"})
  */
 class Call extends \Perfumer\Component\Bdd\Step
 {
@@ -30,6 +33,7 @@ class Call extends \Perfumer\Component\Bdd\Step
 
 /**
  * @Annotation
+ * @Target("METHOD")
  */
 class Collection implements \Perfumer\Component\Bdd\Annotation
 {
@@ -57,6 +61,7 @@ class Collection implements \Perfumer\Component\Bdd\Annotation
 
 /**
  * @Annotation
+ * @Target("CLASS")
  */
 class Context implements \Perfumer\Component\Bdd\Annotation
 {
@@ -67,6 +72,7 @@ class Context implements \Perfumer\Component\Bdd\Annotation
 
 /**
  * @Annotation
+ * @Target("CLASS")
  */
 class Extend implements \Perfumer\Component\Bdd\Annotation
 {
@@ -75,6 +81,7 @@ class Extend implements \Perfumer\Component\Bdd\Annotation
 
 /**
  * @Annotation
+ * @Target({"METHOD", "ANNOTATION"})
  */
 class Service extends \Perfumer\Component\Bdd\Step
 {
@@ -101,6 +108,7 @@ class Service extends \Perfumer\Component\Bdd\Step
 
 /**
  * @Annotation
+ * @Target("CLASS")
  */
 class Template implements \Perfumer\Component\Bdd\Annotation
 {
@@ -112,6 +120,7 @@ class Template implements \Perfumer\Component\Bdd\Annotation
 
 /**
  * @Annotation
+ * @Target("METHOD")
  */
 class Test implements \Perfumer\Component\Bdd\Annotation
 {
@@ -119,6 +128,7 @@ class Test implements \Perfumer\Component\Bdd\Annotation
 
 /**
  * @Annotation
+ * @Target({"METHOD", "ANNOTATION"})
  */
 class Validate extends \Perfumer\Component\Bdd\Step
 {

@@ -21,9 +21,9 @@ interface FooController
      * @Validate(name = "validators", method = "intType", arguments = {"param1"})
      * @Validate(name = "validators", method = "intType", arguments = {"param2"})
      * @Collection(steps = {
-     *   @Call(name = "validators", method = "sum", arguments = {"param1", "param2"}, return = "sum"),
-     *   @Service(name = "_parent", method = "sandboxActionTwo", arguments = {"sum", "this.staff"}, return = "sandbox"),
-     *   @Service(name = "foobar", method = "baz", arguments = {"sandbox"}, return = "_return")
+     *   @Call(   name = "validators", method = "sum",              arguments = {"param1", "param2"},  return = "sum"),
+     *   @Service(name = "_parent",    method = "sandboxActionTwo", arguments = {"sum", "this.staff"}, return = "sandbox"),
+     *   @Service(name = "foobar",     method = "baz",              arguments = {"sandbox"},           return = "_return")
      * })
      *
      * @param int $param1
@@ -33,11 +33,11 @@ interface FooController
     public function bar(int $param1, int $param2);
 
     /**
-     * @Validate(name = "validators", method = "intType", arguments = {"param1"})
-     * @Validate(name = "validators", method = "intType", arguments = {"param2"})
-     * @Call(name = "validators", method = "sum", arguments = {"param1", "param2"}, return = "sum")
-     * @Service(name = "_parent", method = "sandboxActionTwo", arguments = {"sum", "this.staff"}, return = "sandbox")
-     * @Service(name = "foobar", method = "baz", arguments = {"sandbox"}, return = "_return")
+     * @Validate(name = "validators", method = "intType",          arguments = {"param1"})
+     * @Validate(name = "validators", method = "intType",          arguments = {"param2"})
+     * @Call    (name = "validators", method = "sum",              arguments = {"param1", "param2"},  return = "sum")
+     * @Service (name = "_parent",    method = "sandboxActionTwo", arguments = {"sum", "this.staff"}, return = "sandbox")
+     * @Service (name = "foobar",     method = "baz",              arguments = {"sandbox"},           return = "_return")
      *
      * @param int $param1
      * @param int $param2

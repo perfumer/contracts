@@ -12,7 +12,7 @@ class RuntimeAction
     /**
      * @var array
      */
-    protected $method_arguments = [];
+    protected $header_arguments = [];
 
     /**
      * @var array
@@ -43,25 +43,25 @@ class RuntimeAction
     /**
      * @return array
      */
-    public function getMethodArguments()
+    public function getHeaderArguments(): array
     {
-        return $this->method_arguments;
+        return $this->header_arguments;
     }
 
     /**
-     * @param array $method_arguments
+     * @param array $header_arguments
      */
-    public function setMethodArguments($method_arguments)
+    public function setHeaderArguments(array $header_arguments)
     {
-        $this->method_arguments = $method_arguments;
+        $this->header_arguments = $header_arguments;
     }
 
     /**
-     * @param string $method_argument
+     * @param string $header_argument
      */
-    public function addMethodArgument($method_argument)
+    public function addHeaderArgument($header_argument)
     {
-        $this->method_arguments[] = $method_argument;
+        $this->header_arguments[] = $header_argument;
     }
 
     /**

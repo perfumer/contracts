@@ -14,22 +14,22 @@ abstract class {{ context.className }}
 
 {% for step in context.steps %}
 {% if step.service is null and step.context is null %}
-    abstract protected function {{ step.functionName }}({{ step.methodArguments|join(', ') }});
+    abstract protected function {{ step.functionName }}({{ step.headerArguments|join(', ') }});
 {% endif %}
 {% if step.context %}
-    final private function {{ step.functionName }}({{ step.methodArguments|join(', ') }})
+    final private function {{ step.functionName }}({{ step.headerArguments|join(', ') }})
     {
         if ($this->_context_{{ step.contextName }} === null) {
             $this->_context_{{ step.contextName }} = new {{ step.context }}();
         }
 
-        {% if step.returnExpression %}return {% endif %}$this->_context_{{ step.contextName }}->{{ step.method }}({{ step.methodArguments|join(', ') }});
+        {% if step.returnExpression %}return {% endif %}$this->_context_{{ step.contextName }}->{{ step.method }}({{ step.headerArguments|join(', ') }});
     }
 {% endif %}
 {% endfor %}
 
 {% for action in context.actions %}
-    final public function {{ action.methodName }}({{ action.methodArguments|join(', ') }})
+    final public function {{ action.methodName }}({{ action.headerArguments|join(', ') }})
     {
         $_error = null;
         $_return = null;
@@ -51,11 +51,11 @@ abstract class {{ context.className }}
 
 {% endif %}
 {% if step.functionName is not null %}
-            {{ step.returnExpression }}$this->{{ step.functionName }}({{ step.callArguments|join(', ') }});
+            {{ step.returnExpression }}$this->{{ step.functionName }}({{ step.bodyArguments|join(', ') }});
 {% elseif step.service == '_parent' %}
-            {{ step.returnExpression }}parent::{{ step.method }}({{ step.callArguments|join(', ') }});
+            {{ step.returnExpression }}parent::{{ step.method }}({{ step.bodyArguments|join(', ') }});
 {% else %}
-            {{ step.returnExpression }}$this->{{ step.service }}->{{ step.method }}({{ step.callArguments|join(', ') }});
+            {{ step.returnExpression }}$this->{{ step.service }}->{{ step.method }}({{ step.bodyArguments|join(', ') }});
 {% endif %}
 {% if step.appendCode %}
 

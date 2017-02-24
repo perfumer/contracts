@@ -32,12 +32,12 @@ class RuntimeStep
     /**
      * @var array
      */
-    protected $call_arguments = [];
+    protected $header_arguments = [];
 
     /**
      * @var array
      */
-    protected $method_arguments = [];
+    protected $body_arguments = [];
 
     /**
      * @var string
@@ -147,49 +147,49 @@ class RuntimeStep
     /**
      * @return array
      */
-    public function getCallArguments()
+    public function getHeaderArguments(): array
     {
-        return $this->call_arguments;
+        return $this->header_arguments;
     }
 
     /**
-     * @param array $call_arguments
+     * @param array $header_arguments
      */
-    public function setCallArguments($call_arguments)
+    public function setHeaderArguments(array $header_arguments)
     {
-        $this->call_arguments = $call_arguments;
+        $this->header_arguments = $header_arguments;
     }
 
     /**
      * @param string $argument
      */
-    public function addCallArgument($argument)
+    public function addHeaderArgument($argument)
     {
-        $this->call_arguments[] = $argument;
+        $this->header_arguments[] = $argument;
     }
 
     /**
      * @return array
      */
-    public function getMethodArguments()
+    public function getBodyArguments(): array
     {
-        return $this->method_arguments;
+        return $this->body_arguments;
     }
 
     /**
-     * @param array $method_arguments
+     * @param array $body_arguments
      */
-    public function setMethodArguments($method_arguments)
+    public function setBodyArguments(array $body_arguments)
     {
-        $this->method_arguments = $method_arguments;
+        $this->body_arguments = $body_arguments;
     }
 
     /**
      * @param string $argument
      */
-    public function addMethodArgument($argument)
+    public function addBodyArgument($argument)
     {
-        $this->method_arguments[] = $argument;
+        $this->body_arguments[] = $argument;
     }
 
     /**
