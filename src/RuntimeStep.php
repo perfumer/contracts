@@ -17,6 +17,11 @@ class RuntimeStep
     /**
      * @var string
      */
+    protected $context_name;
+
+    /**
+     * @var string
+     */
     protected $service;
 
     /**
@@ -89,6 +94,22 @@ class RuntimeStep
     public function setContext($context)
     {
         $this->context = $context;
+    }
+
+    /**
+     * @return string
+     */
+    public function getContextName()
+    {
+        return $this->context_name;
+    }
+
+    /**
+     * @param string $context_name
+     */
+    public function setContextName(string $context_name)
+    {
+        $this->context_name = $context_name;
     }
 
     /**

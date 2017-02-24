@@ -306,7 +306,10 @@ class Generator
         }
 
         if ($annotation instanceof Call || $annotation instanceof Validate) {
+            $runtime_context->addProperty('_context_' . $annotation->name);
+
             $runtime_step->setContext($contexts[$annotation->name]);
+            $runtime_step->setContextName($annotation->name);
             $runtime_step->setMethod($annotation->method);
             $runtime_step->setFunctionName($annotation->name . ucfirst($annotation->method));
         }

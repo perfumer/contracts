@@ -4,18 +4,25 @@ namespace Generated\Perfumer\Component\Bdd\Example\Controller;
 
 abstract class FooController extends \Perfumer\Component\Bdd\Example\ParentController
 {
+    protected $_context_validators;
     protected $staff;
     protected $foobar;
 
     final private function validatorsIntType($param1)
     {
-        $context = new \Perfumer\Component\Bdd\Example\Context\FooContext();
-        return $context->intType($param1);
+        if ($this->_context_validators === null) {
+            $this->_context_validators = new \Perfumer\Component\Bdd\Example\Context\FooContext();
+        }
+
+        return $this->_context_validators->intType($param1);
     }
     final private function validatorsSum($param1, $param2)
     {
-        $context = new \Perfumer\Component\Bdd\Example\Context\FooContext();
-        return $context->sum($param1, $param2);
+        if ($this->_context_validators === null) {
+            $this->_context_validators = new \Perfumer\Component\Bdd\Example\Context\FooContext();
+        }
+
+        return $this->_context_validators->sum($param1, $param2);
     }
 
     final public function bar($param1, $param2)

@@ -19,8 +19,11 @@ abstract class {{ context.className }}
 {% if step.context %}
     final private function {{ step.functionName }}({{ step.methodArguments|join(', ') }})
     {
-        $context = new {{ step.context }}();
-        {% if step.returnExpression %}return {% endif %}$context->{{ step.method }}({{ step.methodArguments|join(', ') }});
+        if ($this->_context_{{ step.contextName }} === null) {
+            $this->_context_{{ step.contextName }} = new {{ step.context }}();
+        }
+
+        {% if step.returnExpression %}return {% endif %}$this->_context_{{ step.contextName }}->{{ step.method }}({{ step.methodArguments|join(', ') }});
     }
 {% endif %}
 {% endfor %}
