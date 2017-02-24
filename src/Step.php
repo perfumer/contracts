@@ -7,7 +7,7 @@ abstract class Step implements Annotation
     /**
      * @return string
      */
-    public function prependCode()
+    public function prepend()
     {
         return '';
     }
@@ -15,7 +15,7 @@ abstract class Step implements Annotation
     /**
      * @return string
      */
-    public function appendCode()
+    public function append()
     {
         return '';
     }

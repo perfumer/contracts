@@ -41,7 +41,7 @@ class Collection implements \Perfumer\Component\Bdd\Annotation
     /**
      * @return string
      */
-    public function beforeCode()
+    public function before()
     {
         return '';
     }
@@ -49,7 +49,7 @@ class Collection implements \Perfumer\Component\Bdd\Annotation
     /**
      * @return string
      */
-    public function afterCode()
+    public function after()
     {
         return '';
     }

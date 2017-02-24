@@ -266,11 +266,11 @@ class Generator
                             $runtime_step = new RuntimeStep();
 
                             if ($index === 0) {
-                                $runtime_step->setBeforeCode($annotation->beforeCode());
+                                $runtime_step->setBeforeCode($annotation->before());
                             }
 
                             if ($index === count($annotation->steps) - 1) {
-                                $runtime_step->setAfterCode($annotation->afterCode());
+                                $runtime_step->setAfterCode($annotation->after());
                             }
 
                             $this->processStepAnnotation($step, $runtime_step, $runtime_action, $runtime_context, $contexts);
@@ -301,8 +301,8 @@ class Generator
     private function processStepAnnotation($annotation, RuntimeStep $runtime_step, RuntimeAction $runtime_action, RuntimeContext $runtime_context, array $contexts)
     {
         if ($annotation instanceof Service || $annotation instanceof Call || $annotation instanceof Validate) {
-            $runtime_step->setPrependCode($annotation->prependCode());
-            $runtime_step->setAppendCode($annotation->appendCode());
+            $runtime_step->setPrependCode($annotation->prepend());
+            $runtime_step->setAppendCode($annotation->append());
         }
 
         if ($annotation instanceof Call || $annotation instanceof Validate) {

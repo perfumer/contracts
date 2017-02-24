@@ -42,12 +42,12 @@ abstract class {{ context.className }}
 
 {% for step in action.steps %}
 {% if step.beforeCode %}
-        {{ step.beforeCode }}
+        {{ step.before }}
 
 {% endif %}
         if ($_error === null) {
 {% if step.prependCode %}
-            {{ step.prependCode }}
+            {{ step.prepend }}
 
 {% endif %}
 {% if step.functionName is not null %}
@@ -59,12 +59,12 @@ abstract class {{ context.className }}
 {% endif %}
 {% if step.appendCode %}
 
-            {{ step.appendCode }}
+            {{ step.append }}
 {% endif %}
         }
 {% if step.afterCode %}
 
-        {{ step.afterCode }}
+        {{ step.after }}
 {% endif %}
 {% endfor %}
 
