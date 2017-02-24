@@ -7,7 +7,7 @@ class RuntimeContext
     /**
      * @var string
      */
-    protected $template = 'BaseClassBuilder';
+    protected $template = 'BaseClass';
 
     /**
      * @var string

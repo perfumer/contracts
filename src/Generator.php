@@ -87,7 +87,7 @@ class Generator
      */
     public function __construct(StepParser $step_parser, $root_dir, $options = [])
     {
-        $this->addTemplateDirectory(__DIR__ . '/template');
+        $this->addTemplateDirectory(__DIR__ . '/templates');
         $this->addAnnotations(__DIR__ . '/Annotations.php');
 
         $this->generator = new \TwigGenerator\Builder\Generator();
@@ -408,7 +408,7 @@ class Generator
 
         $builder = new Builder();
         $builder->setMustOverwriteIfExists(false);
-        $builder->setTemplateName('ClassBuilder.php.twig');
+        $builder->setTemplateName('Class.php.twig');
         $builder->setTemplateDirs($this->template_directories);
         $builder->setGenerator($this->generator);
         $builder->setOutputName($output_name);
@@ -435,7 +435,7 @@ class Generator
 
         $builder = new Builder();
         $builder->setMustOverwriteIfExists(true);
-        $builder->setTemplateName('BaseContextTestBuilder.php.twig');
+        $builder->setTemplateName('BaseContextTest.php.twig');
         $builder->setTemplateDirs($this->template_directories);
         $builder->setGenerator($this->generator);
         $builder->setOutputName($output_name);
@@ -462,7 +462,7 @@ class Generator
 
         $builder = new Builder();
         $builder->setMustOverwriteIfExists(false);
-        $builder->setTemplateName('ContextTestBuilder.php.twig');
+        $builder->setTemplateName('ContextTest.php.twig');
         $builder->setTemplateDirs($this->template_directories);
         $builder->setGenerator($this->generator);
         $builder->setOutputName($output_name);
