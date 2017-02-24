@@ -1,6 +1,6 @@
 <?php
 
-namespace Generated\Tests\Perfumer\Component\Bdd\Sandbox\Contexts;
+namespace Generated\Tests\Perfumer\Component\Bdd\Example\Context;
 
 abstract class FooContextTest extends \PHPUnit_Framework_TestCase
 {
@@ -13,7 +13,7 @@ abstract class FooContextTest extends \PHPUnit_Framework_TestCase
      */
     final public function test_intType($value, $result)
     {
-        $_class_instance = new \Perfumer\Component\Bdd\Sandbox\Contexts\FooContext();
+        $_class_instance = new \Perfumer\Component\Bdd\Example\Context\FooContext();
 
         $this->assertEquals($_class_instance->intType($value), $result);
     }
@@ -23,7 +23,7 @@ abstract class FooContextTest extends \PHPUnit_Framework_TestCase
      */
     final public function test_sum($a, $b, $result)
     {
-        $_class_instance = new \Perfumer\Component\Bdd\Sandbox\Contexts\FooContext();
+        $_class_instance = new \Perfumer\Component\Bdd\Example\Context\FooContext();
 
         $this->assertEquals($_class_instance->sum($a, $b), $result);
     }

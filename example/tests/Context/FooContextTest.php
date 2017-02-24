@@ -1,8 +1,8 @@
 <?php
 
-namespace Tests\Perfumer\Component\Bdd\Sandbox\Contexts;
+namespace Tests\Perfumer\Component\Bdd\Example\Context;
 
-class FooContextTest extends \Generated\Tests\Perfumer\Component\Bdd\Sandbox\Contexts\FooContextTest
+class FooContextTest extends \Generated\Tests\Perfumer\Component\Bdd\Example\Context\FooContextTest
 {
     /**
      * @return array

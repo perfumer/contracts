@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Component\Bdd\Sandbox\Contexts;
+namespace Perfumer\Component\Bdd\Example\Context;
 
 use Perfumer\Component\Bdd\Annotations\Test;
 use Perfumer\Component\Bdd\Context;

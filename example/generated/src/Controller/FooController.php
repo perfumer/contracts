@@ -1,20 +1,20 @@
 <?php
 
-namespace Generated\Perfumer\Component\Bdd\Sandbox\Controller;
+namespace Generated\Perfumer\Component\Bdd\Example\Controller;
 
-abstract class FooController extends \Perfumer\Component\Bdd\Sandbox\ParentController
+abstract class FooController extends \Perfumer\Component\Bdd\Example\ParentController
 {
     protected $staff;
     protected $foobar;
 
     final private function validatorsIntType($param1)
     {
-        $context = new \Perfumer\Component\Bdd\Sandbox\Contexts\FooContext();
+        $context = new \Perfumer\Component\Bdd\Example\Context\FooContext();
         return $context->intType($param1);
     }
     final private function validatorsSum($param1, $param2)
     {
-        $context = new \Perfumer\Component\Bdd\Sandbox\Contexts\FooContext();
+        $context = new \Perfumer\Component\Bdd\Example\Context\FooContext();
         return $context->sum($param1, $param2);
     }
 

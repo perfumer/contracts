@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Component\Bdd\Sandbox\Contracts\Controller;
+namespace Perfumer\Component\Bdd\Example\Contract\Controller;
 
 use Perfumer\Component\Bdd\Annotations\Call;
 use Perfumer\Component\Bdd\Annotations\Collection;
@@ -12,8 +12,8 @@ use Perfumer\Component\Bdd\Annotations\Validate;
 
 /**
  * @Template(name = "Controller")
- * @Extend(class = "\Perfumer\Component\Bdd\Sandbox\ParentController")
- * @Context(name = "validators", class = "\Perfumer\Component\Bdd\Sandbox\Contexts\FooContext")
+ * @Extend(class = "\Perfumer\Component\Bdd\Example\ParentController")
+ * @Context(name = "validators", class = "\Perfumer\Component\Bdd\Example\Context\FooContext")
  */
 interface FooController
 {
