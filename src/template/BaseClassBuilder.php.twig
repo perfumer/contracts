@@ -38,7 +38,11 @@ abstract class {{ context.className }}
 {% endblock %}
 
 {% for step in action.steps %}
+        {{ step.beforeCode }}
+
         if ($_error === null) {
+            {{ step.prependCode }}
+
 {% if step.functionName is not null %}
             {{ step.returnExpression }}$this->{{ step.functionName }}({{ step.callArguments|join(', ') }});
 {% elseif step.service == '_parent' %}
@@ -46,7 +50,11 @@ abstract class {{ context.className }}
 {% else %}
             {{ step.returnExpression }}$this->{{ step.service }}->{{ step.method }}({{ step.callArguments|join(', ') }});
 {% endif %}
+
+            {{ step.appendCode }}
         }
+
+        {{ step.afterCode }}
 {% endfor %}
 
 {% block _action_error_expression %}

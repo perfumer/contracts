@@ -40,6 +40,26 @@ class RuntimeStep
     protected $return_expression;
 
     /**
+     * @var string
+     */
+    protected $before_code;
+
+    /**
+     * @var string
+     */
+    protected $after_code;
+
+    /**
+     * @var string
+     */
+    protected $append_code;
+
+    /**
+     * @var string
+     */
+    protected $prepend_code;
+
+    /**
      * @return string
      */
     public function getFunctionName()
@@ -165,5 +185,69 @@ class RuntimeStep
     public function setReturnExpression($return_expression)
     {
         $this->return_expression = $return_expression;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBeforeCode()
+    {
+        return $this->before_code;
+    }
+
+    /**
+     * @param string $before_code
+     */
+    public function setBeforeCode(string $before_code)
+    {
+        $this->before_code = $before_code;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAfterCode()
+    {
+        return $this->after_code;
+    }
+
+    /**
+     * @param string $after_code
+     */
+    public function setAfterCode(string $after_code)
+    {
+        $this->after_code = $after_code;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAppendCode()
+    {
+        return $this->append_code;
+    }
+
+    /**
+     * @param string $append_code
+     */
+    public function setAppendCode(string $append_code)
+    {
+        $this->append_code = $append_code;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPrependCode()
+    {
+        return $this->prepend_code;
+    }
+
+    /**
+     * @param string $prepend_code
+     */
+    public function setPrependCode(string $prepend_code)
+    {
+        $this->prepend_code = $prepend_code;
     }
 }

@@ -4,6 +4,7 @@ namespace Perfumer\Component\Bdd;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
+use Perfumer\Component\Bdd\Annotations\Collection;
 use Perfumer\Component\Bdd\Annotations\Context;
 use Perfumer\Component\Bdd\Annotations\Custom;
 use Perfumer\Component\Bdd\Annotations\Extend;
@@ -232,70 +233,30 @@ class Generator
                 $method_annotations = $reader->getMethodAnnotations($method);
 
                 foreach ($method_annotations as $annotation) {
-                    if (!$annotation instanceof Validate && !$annotation instanceof Service && !$annotation instanceof Call) {
+                    if (!$this->validateStepAnnotation($annotation)) {
                         continue;
                     }
 
-                    $runtime_step = new RuntimeStep();
+                    if ($annotation instanceof Collection) {
+                        foreach ($annotation->steps as $index => $step) {
+                            $runtime_step = new RuntimeStep();
 
-                    if ($annotation instanceof Call || $annotation instanceof Validate) {
-                        $runtime_step->setContext($contexts[$annotation->name]);
-                        $runtime_step->setMethod($annotation->method);
-                        $runtime_step->setFunctionName($annotation->name . ucfirst($annotation->method));
-                    }
-
-                    if ($annotation instanceof Service && $annotation->name) {
-                        $runtime_step->setService($this->step_parser->parseServiceName($annotation->name));
-                        $runtime_step->setMethod($annotation->method);
-
-                        if ($annotation->name !== '_parent') {
-                            $runtime_context->addProperty($annotation->name);
-                        }
-                    }
-
-                    if ($annotation instanceof Call || $annotation instanceof Service) {
-                        if ($annotation->return) {
-                            $runtime_step->setReturnExpression($this->step_parser->parseReturn($annotation->return));
-
-                            if ($annotation->return != '_return') {
-                                if (substr($annotation->return, 0, 5) == 'this.') {
-                                    $runtime_context->addProperty(substr($annotation->return, 5));
-                                } else {
-                                    $runtime_action->addLocalVariable('$' . $annotation->return, null);
-                                }
+                            if ($index === 0) {
+                                $runtime_step->setBeforeCode($annotation->getBeforeCode());
                             }
+
+                            if ($index === count($annotation->steps) - 1) {
+                                $runtime_step->setAfterCode($annotation->getAfterCode());
+                            }
+
+                            $this->processStepAnnotation($step, $runtime_step, $runtime_action, $runtime_context, $contexts);
                         }
+                    } else {
+                        $runtime_step = new RuntimeStep();
+
+                        $this->processStepAnnotation($annotation, $runtime_step, $runtime_action, $runtime_context, $contexts);
                     }
 
-                    if ($annotation instanceof Validate) {
-                        $runtime_step->setReturnExpression('$_error = ');
-                    }
-
-                    foreach ($annotation->arguments as $argument) {
-                        $argument_var = $this->step_parser->parseForMethod($argument);
-                        $argument_value = $this->step_parser->parseForCall($argument);
-
-                        $runtime_step->addMethodArgument($argument_var);
-                        $runtime_step->addCallArgument($argument_value);
-
-                        if (
-                            !in_array($argument_var, $runtime_action->getMethodArguments()) &&
-                            !$runtime_action->hasLocalVariable($argument_var) &&
-                            substr($argument, 0, 5) !== 'this.'
-                        ) {
-                            $runtime_action->addLocalVariable($argument_var, $argument_value);
-                        }
-
-                        if (substr($argument, 0, 5) == 'this.') {
-                            $runtime_context->addProperty(substr($argument, 5));
-                        }
-                    }
-
-                    if (!$runtime_context->hasStep($runtime_step->getFunctionName())) {
-                        $runtime_context->addStep($runtime_step->getFunctionName(), $runtime_step);
-                    }
-
-                    $runtime_action->addStep($runtime_step);
                 }
 
                 $runtime_context->addAction($runtime_action);
@@ -304,6 +265,67 @@ class Generator
             $this->generateBaseClass($reflection, $runtime_context);
             $this->generateClass($reflection, $runtime_context);
         }
+    }
+
+    private function processStepAnnotation($annotation, RuntimeStep $runtime_step, RuntimeAction $runtime_action, RuntimeContext $runtime_context, array $contexts) {
+        if ($annotation instanceof Call || $annotation instanceof Validate) {
+            $runtime_step->setContext($contexts[$annotation->name]);
+            $runtime_step->setMethod($annotation->method);
+            $runtime_step->setFunctionName($annotation->name . ucfirst($annotation->method));
+        }
+
+        if ($annotation instanceof Service && $annotation->name) {
+            $runtime_step->setService($this->step_parser->parseServiceName($annotation->name));
+            $runtime_step->setMethod($annotation->method);
+
+            if ($annotation->name !== '_parent') {
+                $runtime_context->addProperty($annotation->name);
+            }
+        }
+
+        if ($annotation instanceof Call || $annotation instanceof Service) {
+            if ($annotation->return) {
+                $runtime_step->setReturnExpression($this->step_parser->parseReturn($annotation->return));
+
+                if ($annotation->return != '_return') {
+                    if (substr($annotation->return, 0, 5) == 'this.') {
+                        $runtime_context->addProperty(substr($annotation->return, 5));
+                    } else {
+                        $runtime_action->addLocalVariable('$' . $annotation->return, null);
+                    }
+                }
+            }
+        }
+
+        if ($annotation instanceof Validate) {
+            $runtime_step->setReturnExpression('$_error = ');
+        }
+
+        foreach ($annotation->arguments as $argument) {
+            $argument_var = $this->step_parser->parseForMethod($argument);
+            $argument_value = $this->step_parser->parseForCall($argument);
+
+            $runtime_step->addMethodArgument($argument_var);
+            $runtime_step->addCallArgument($argument_value);
+
+            if (
+                !in_array($argument_var, $runtime_action->getMethodArguments()) &&
+                !$runtime_action->hasLocalVariable($argument_var) &&
+                substr($argument, 0, 5) !== 'this.'
+            ) {
+                $runtime_action->addLocalVariable($argument_var, $argument_value);
+            }
+
+            if (substr($argument, 0, 5) == 'this.') {
+                $runtime_context->addProperty(substr($argument, 5));
+            }
+        }
+
+        if (!$runtime_context->hasStep($runtime_step->getFunctionName())) {
+            $runtime_context->addStep($runtime_step->getFunctionName(), $runtime_step);
+        }
+
+        $runtime_action->addStep($runtime_step);
     }
 
     /**
@@ -412,5 +434,9 @@ class Generator
         ]);
 
         $builder->writeOnDisk($this->root_dir . '/' . $this->test_path);
+    }
+
+    private function validateStepAnnotation($annotation): bool {
+        return $annotation instanceof Validate || $annotation instanceof Service || $annotation instanceof Call || $annotation instanceof Collection;
     }
 }

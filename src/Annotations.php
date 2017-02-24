@@ -39,6 +39,33 @@ class Call
 /**
  * @Annotation
  */
+class Collection
+{
+    /**
+     * @var array
+     */
+    public $steps = [];
+
+    /**
+     * @return string
+     */
+    public function getBeforeCode()
+    {
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getAfterCode()
+    {
+        return '';
+    }
+}
+
+/**
+ * @Annotation
+ */
 class Context
 {
     public $name;

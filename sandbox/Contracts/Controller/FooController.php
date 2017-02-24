@@ -3,6 +3,7 @@
 namespace Perfumer\Component\Bdd\Sandbox\Contracts\Controller;
 
 use Perfumer\Component\Bdd\Annotations\Call;
+use Perfumer\Component\Bdd\Annotations\Collection;
 use Perfumer\Component\Bdd\Annotations\Context;
 use Perfumer\Component\Bdd\Annotations\Extend;
 use Perfumer\Component\Bdd\Annotations\Service;
@@ -18,6 +19,9 @@ interface FooController
      * @Validate(name = "validators", method = "intType", arguments = {"param1"})
      * @Validate(name = "validators", method = "intType", arguments = {"param2"})
      * @Call(name = "validators", method = "sum", arguments = {"param1", "param2"}, return = "sum")
+     * @Collection(steps={
+         @Call(name = "validators", method = "sum", arguments = {"param1", "param2"}, return = "sum")
+     * })
      * @Service(name = "_parent", method = "sandboxActionTwo", arguments = {"sum", "this.staff"}, return = "sandbox")
      * @Service(name = "foobar", method = "baz", arguments = {"sandbox"}, return = "_return")
      *

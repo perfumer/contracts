@@ -26,21 +26,72 @@ abstract class FooController extends \Perfumer\Component\Bdd\Sandbox\ParentContr
         $sandbox = null;
 
 
+        
+
         if ($_error === null) {
+            
+
             $_error = $this->validatorsIntType($param1);
+
+            
         }
+
+        
+        
+
         if ($_error === null) {
+            
+
             $_error = $this->validatorsIntType($param2);
+
+            
         }
+
+        
+        
+
         if ($_error === null) {
+            
+
             $sum = $this->validatorsSum($param1, $param2);
+
+            
         }
+
+        
+        
+
         if ($_error === null) {
+            
+
+            $sum = $this->validatorsSum($param1, $param2);
+
+            
+        }
+
+        
+        
+
+        if ($_error === null) {
+            
+
             $sandbox = parent::sandboxActionTwo($sum, $this->staff);
+
+            
         }
+
+        
+        
+
         if ($_error === null) {
+            
+
             $_return = $this->foobar->baz($sandbox);
+
+            
         }
+
+        
 
         if ($_error !== null) {
             return $_error;
@@ -57,21 +108,61 @@ abstract class FooController extends \Perfumer\Component\Bdd\Sandbox\ParentContr
         $sandbox = null;
 
 
+        
+
         if ($_error === null) {
+            
+
             $_error = $this->validatorsIntType($param1);
+
+            
         }
+
+        
+        
+
         if ($_error === null) {
+            
+
             $_error = $this->validatorsIntType($param2);
+
+            
         }
+
+        
+        
+
         if ($_error === null) {
+            
+
             $sum = $this->validatorsSum($param1, $param2);
+
+            
         }
+
+        
+        
+
         if ($_error === null) {
+            
+
             $sandbox = parent::sandboxActionTwo($sum, $this->staff);
+
+            
         }
+
+        
+        
+
         if ($_error === null) {
+            
+
             $_return = $this->foobar->baz($sandbox);
+
+            
         }
+
+        
 
         if ($_error !== null) {
             return $_error;
