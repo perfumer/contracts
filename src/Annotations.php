@@ -5,14 +5,6 @@ namespace Perfumer\Component\Bdd\Annotations;
 /**
  * @Annotation
  */
-class Extend
-{
-    public $class;
-}
-
-/**
- * @Annotation
- */
 class Call
 {
     /**
@@ -34,6 +26,22 @@ class Call
      * @var string
      */
     public $return;
+
+    /**
+     * @return string
+     */
+    public function prependCode()
+    {
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    public function appendCode()
+    {
+        return '';
+    }
 }
 
 /**
@@ -49,7 +57,7 @@ class Collection
     /**
      * @return string
      */
-    public function getBeforeCode()
+    public function beforeCode()
     {
         return '';
     }
@@ -57,7 +65,7 @@ class Collection
     /**
      * @return string
      */
-    public function getAfterCode()
+    public function afterCode()
     {
         return '';
     }
@@ -70,6 +78,14 @@ class Context
 {
     public $name;
 
+    public $class;
+}
+
+/**
+ * @Annotation
+ */
+class Extend
+{
     public $class;
 }
 
@@ -97,6 +113,29 @@ class Service
      * @var string
      */
     public $return;
+
+    /**
+     * @return string
+     */
+    public function prependCode()
+    {
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    public function appendCode()
+    {
+        return '';
+    }
+}
+
+/**
+ * @Annotation
+ */
+class Test
+{
 }
 
 /**
@@ -118,11 +157,20 @@ class Validate
      * @var array
      */
     public $arguments = [];
-}
 
-/**
- * @Annotation
- */
-class Test
-{
+    /**
+     * @return string
+     */
+    public function prependCode()
+    {
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    public function appendCode()
+    {
+        return '';
+    }
 }

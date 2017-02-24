@@ -4,11 +4,4 @@ namespace {{ context.namespace }};
 
 class {{ context.className }} extends \Generated\{{ context.namespace }}\{{ context.className }}
 {
-{% for step in context.steps if step.service is null and step.context is null %}
-    protected function {{ step.functionName }}({{ step.methodArguments|join(', ') }})
-    {
-        throw new \Exception('"{{ step.functionName }}" is not implemented.');
-    }
-    
-{% endfor %}
 }
