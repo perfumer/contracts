@@ -2,6 +2,21 @@
 
 namespace Perfumer\Component\Bdd;
 
-interface Step extends Annotation
+abstract class Step implements Annotation
 {
+    /**
+     * @return string
+     */
+    public function prependCode()
+    {
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    public function appendCode()
+    {
+        return '';
+    }
 }

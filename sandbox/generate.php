@@ -7,7 +7,7 @@ $generator = new \Perfumer\Component\Bdd\Generator(new \Perfumer\Component\Bdd\S
     'base_test_path' => 'sandbox/generated/generated/tests',
     'src_path' => 'sandbox/generated/src',
     'test_path' => 'sandbox/generated/tests',
-    'interface_prefix' => 'Perfumer\\Component\\Bdd\\Sandbox\\Contracts',
+    'contract_prefix' => 'Perfumer\\Component\\Bdd\\Sandbox\\Contracts',
     'context_prefix' => 'Perfumer\\Component\\Bdd\\Sandbox',
     'class_prefix' => 'Perfumer\\Component\\Bdd\\Sandbox'
 ]);

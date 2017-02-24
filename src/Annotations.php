@@ -5,7 +5,7 @@ namespace Perfumer\Component\Bdd\Annotations;
 /**
  * @Annotation
  */
-class Call implements \Perfumer\Component\Bdd\Step
+class Call extends \Perfumer\Component\Bdd\Step
 {
     /**
      * @var string
@@ -26,28 +26,12 @@ class Call implements \Perfumer\Component\Bdd\Step
      * @var string
      */
     public $return;
-
-    /**
-     * @return string
-     */
-    public function prependCode()
-    {
-        return '';
-    }
-
-    /**
-     * @return string
-     */
-    public function appendCode()
-    {
-        return '';
-    }
 }
 
 /**
  * @Annotation
  */
-class Collection implements \Perfumer\Component\Bdd\Step
+class Collection implements \Perfumer\Component\Bdd\Annotation
 {
     /**
      * @var array
@@ -92,7 +76,7 @@ class Extend implements \Perfumer\Component\Bdd\Annotation
 /**
  * @Annotation
  */
-class Service implements \Perfumer\Component\Bdd\Step
+class Service extends \Perfumer\Component\Bdd\Step
 {
     /**
      * @var string
@@ -113,22 +97,6 @@ class Service implements \Perfumer\Component\Bdd\Step
      * @var string
      */
     public $return;
-
-    /**
-     * @return string
-     */
-    public function prependCode()
-    {
-        return '';
-    }
-
-    /**
-     * @return string
-     */
-    public function appendCode()
-    {
-        return '';
-    }
 }
 
 /**
@@ -141,7 +109,7 @@ class Test implements \Perfumer\Component\Bdd\Annotation
 /**
  * @Annotation
  */
-class Validate implements \Perfumer\Component\Bdd\Step
+class Validate extends \Perfumer\Component\Bdd\Step
 {
     /**
      * @var string
@@ -157,20 +125,4 @@ class Validate implements \Perfumer\Component\Bdd\Step
      * @var array
      */
     public $arguments = [];
-
-    /**
-     * @return string
-     */
-    public function prependCode()
-    {
-        return '';
-    }
-
-    /**
-     * @return string
-     */
-    public function appendCode()
-    {
-        return '';
-    }
 }

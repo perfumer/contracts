@@ -22,7 +22,7 @@ class Generator
     /**
      * @var string
      */
-    private $interface_prefix;
+    private $contract_prefix;
 
     /**
      * @var string
@@ -88,8 +88,8 @@ class Generator
 
         $this->root_dir = $root_dir;
 
-        if (isset($options['interface_prefix'])) {
-            $this->interface_prefix = (string) $options['interface_prefix'];
+        if (isset($options['contract_prefix'])) {
+            $this->contract_prefix = (string) $options['contract_prefix'];
         }
 
         if (isset($options['class_prefix'])) {
@@ -212,7 +212,7 @@ class Generator
 
             $runtime_context = new RuntimeContext();
 
-            $namespace = str_replace($this->interface_prefix, $this->class_prefix, $reflection->getNamespaceName());
+            $namespace = str_replace($this->contract_prefix, $this->class_prefix, $reflection->getNamespaceName());
 
             $runtime_context->setNamespace($namespace);
             $runtime_context->setClassName($reflection->getShortName());
@@ -352,7 +352,7 @@ class Generator
      */
     private function generateBaseClass(\ReflectionClass $reflection, RuntimeContext $runtime_context)
     {
-        $output_name = str_replace('\\', '/', trim(str_replace($this->interface_prefix, '', $reflection->getNamespaceName()), '\\'));
+        $output_name = str_replace('\\', '/', trim(str_replace($this->contract_prefix, '', $reflection->getNamespaceName()), '\\'));
 
         if ($output_name) {
             $output_name .= '/';
@@ -379,7 +379,7 @@ class Generator
      */
     private function generateClass(\ReflectionClass $reflection, RuntimeContext $runtime_context)
     {
-        $output_name = str_replace('\\', '/', trim(str_replace($this->interface_prefix, '', $reflection->getNamespaceName()), '\\'));
+        $output_name = str_replace('\\', '/', trim(str_replace($this->contract_prefix, '', $reflection->getNamespaceName()), '\\'));
 
         if ($output_name) {
             $output_name .= '/';
@@ -456,6 +456,6 @@ class Generator
 
     private function validateStepAnnotation($annotation): bool
     {
-        return $annotation instanceof Step;
+        return $annotation instanceof Step || $annotation instanceof Collection;
     }
 }
