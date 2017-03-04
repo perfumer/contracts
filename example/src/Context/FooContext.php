@@ -10,11 +10,11 @@ class FooContext
      * @Test
      *
      * @param $value
-     * @return null|string
+     * @return bool
      */
-    public function intType($value)
+    public function intType($value): bool
     {
-        return is_int($value) ? null : 'must be integer';
+        return is_int($value);
     }
 
     /**
@@ -38,5 +38,27 @@ class FooContext
     public function multiply(int $a, int $b)
     {
         return $a * $b;
+    }
+
+    /**
+     * @Test
+     *
+     * @param bool $param1_valid
+     * @param bool $param2_valid
+     * @return string
+     */
+    public function fooErrors(bool $param1_valid, bool $param2_valid)
+    {
+        $return = '';
+
+        if (!$param1_valid) {
+            $return = 'Param1 is not valid';
+        }
+
+        if (!$param2_valid) {
+            $return = 'Param2 is not valid';
+        }
+
+        return $return;
     }
 }

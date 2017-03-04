@@ -31,7 +31,7 @@ abstract class {{ context.className }}
 {% for action in context.actions %}
     final public function {{ action.methodName }}({{ action.headerArguments|join(', ') }})
     {
-        $_error = null;
+        $_valid = true;
         $_return = null;
 {% for variable_name, variable_value in action.localVariables %}
         {{ variable_name }} = {{ variable_value|default('null') }};
@@ -45,7 +45,7 @@ abstract class {{ context.className }}
         {{ step.beforeCode }}
 
 {% endif %}
-        if ($_error === null) {
+        if ($_valid === {{ step.isValid ? 'true' : 'false' }}) {
 {% if step.prependCode %}
             {{ step.prependCode }}
 
@@ -67,12 +67,6 @@ abstract class {{ context.className }}
         {{ step.afterCode }}
 {% endif %}
 {% endfor %}
-
-{% block _action_error_expression %}
-        if ($_error !== null) {
-            return $_error;
-        }
-{% endblock %}
 
 {% block _action_return_expression %}
         return $_return;

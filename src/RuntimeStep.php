@@ -65,6 +65,11 @@ class RuntimeStep
     protected $prepend_code;
 
     /**
+     * @var bool
+     */
+    protected $valid;
+
+    /**
      * @return string
      */
     public function getFunctionName()
@@ -270,5 +275,21 @@ class RuntimeStep
     public function setPrependCode(string $prepend_code)
     {
         $this->prepend_code = $prepend_code;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isValid(): bool
+    {
+        return $this->valid;
+    }
+
+    /**
+     * @param bool $valid
+     */
+    public function setValid(bool $valid)
+    {
+        $this->valid = $valid;
     }
 }

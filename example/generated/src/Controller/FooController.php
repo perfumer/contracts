@@ -24,37 +24,39 @@ abstract class FooController extends \Perfumer\Component\Bdd\Example\ParentContr
 
         return $this->_context_validators->sum($param1, $param2);
     }
+    final private function validatorsFooErrors($param1_valid, $param2_valid)
+    {
+        if ($this->_context_validators === null) {
+            $this->_context_validators = new \Perfumer\Component\Bdd\Example\Context\FooContext();
+        }
+
+        return $this->_context_validators->fooErrors($param1_valid, $param2_valid);
+    }
 
     final public function bar($param1, $param2)
     {
-        $_error = null;
+        $_valid = true;
         $_return = null;
+        $param1_valid = true;
+        $param2_valid = true;
         $sum = null;
         $sandbox = null;
 
-    // Some new local variables added
-    $a = 1;
-    $b = 1;
-    $c = 1;
 
-        if ($_error === null) {
-            $_error = $this->validatorsIntType($param1);
+        if ($_valid === true) {
+            $_valid = $param1_valid = $this->validatorsIntType($param1);
         }
-        if ($_error === null) {
-            $_error = $this->validatorsIntType($param2);
+        if ($_valid === true) {
+            $_valid = $param2_valid = $this->validatorsIntType($param2);
         }
-        if ($_error === null) {
+        if ($_valid === true) {
             $sum = $this->validatorsSum($param1, $param2);
         }
-        if ($_error === null) {
+        if ($_valid === true) {
             $sandbox = parent::sandboxActionTwo($sum, $this->staff);
         }
-        if ($_error === null) {
+        if ($_valid === true) {
             $_return = $this->foobar->baz($sandbox);
-        }
-
-        if ($_error !== null) {
-            return $_error;
         }
 
         return $_return;
@@ -62,34 +64,31 @@ abstract class FooController extends \Perfumer\Component\Bdd\Example\ParentContr
 
     final public function baz($param1, $param2)
     {
-        $_error = null;
+        $_valid = true;
         $_return = null;
+        $param1_valid = true;
+        $param2_valid = true;
         $sum = null;
         $sandbox = null;
 
-    // Some new local variables added
-    $a = 1;
-    $b = 1;
-    $c = 1;
 
-        if ($_error === null) {
-            $_error = $this->validatorsIntType($param1);
+        if ($_valid === true) {
+            $_valid = $param1_valid = $this->validatorsIntType($param1);
         }
-        if ($_error === null) {
-            $_error = $this->validatorsIntType($param2);
+        if ($_valid === true) {
+            $_valid = $param2_valid = $this->validatorsIntType($param2);
         }
-        if ($_error === null) {
+        if ($_valid === true) {
             $sum = $this->validatorsSum($param1, $param2);
         }
-        if ($_error === null) {
+        if ($_valid === true) {
             $sandbox = parent::sandboxActionTwo($sum, $this->staff);
         }
-        if ($_error === null) {
+        if ($_valid === true) {
             $_return = $this->foobar->baz($sandbox);
         }
-
-        if ($_error !== null) {
-            return $_error;
+        if ($_valid === false) {
+            $_return = $this->validatorsFooErrors($param1_valid, $param2_valid);
         }
 
         return $_return;

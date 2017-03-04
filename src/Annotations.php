@@ -72,6 +72,28 @@ class Context implements \Perfumer\Component\Bdd\Annotation
 
 /**
  * @Annotation
+ * @Target({"METHOD", "ANNOTATION"})
+ */
+class Errors extends \Perfumer\Component\Bdd\Step
+{
+    /**
+     * @var string
+     */
+    public $name;
+
+    /**
+     * @var string
+     */
+    public $method;
+
+    /**
+     * @var array
+     */
+    public $arguments = [];
+}
+
+/**
+ * @Annotation
  * @Target("CLASS")
  */
 class Extend implements \Perfumer\Component\Bdd\Annotation
@@ -146,4 +168,9 @@ class Validate extends \Perfumer\Component\Bdd\Step
      * @var array
      */
     public $arguments = [];
+
+    /**
+     * @var string
+     */
+    public $return;
 }

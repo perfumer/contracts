@@ -6,6 +6,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Perfumer\Component\Bdd\Annotations\Collection;
 use Perfumer\Component\Bdd\Annotations\Context;
+use Perfumer\Component\Bdd\Annotations\Errors;
 use Perfumer\Component\Bdd\Annotations\Extend;
 use Perfumer\Component\Bdd\Annotations\Call;
 use Perfumer\Component\Bdd\Annotations\Service;
@@ -305,7 +306,7 @@ class Generator
             $runtime_step->setAppendCode($annotation->append());
         }
 
-        if ($annotation instanceof Call || $annotation instanceof Validate) {
+        if ($annotation instanceof Call || $annotation instanceof Validate || $annotation instanceof Errors) {
             $runtime_context->addProperty('_context_' . $annotation->name);
 
             $runtime_step->setContext($contexts[$annotation->name]);
@@ -323,22 +324,26 @@ class Generator
             }
         }
 
-        if ($annotation instanceof Call || $annotation instanceof Service) {
-            if ($annotation->return) {
-                $runtime_step->setReturnExpression($this->step_parser->parseReturn($annotation->return));
+        if (($annotation instanceof Call || $annotation instanceof Service || $annotation instanceof Validate) && $annotation->return) {
+            $runtime_step->setReturnExpression($this->step_parser->parseReturn($annotation->return));
 
-                if ($annotation->return != '_return') {
-                    if (substr($annotation->return, 0, 5) == 'this.') {
-                        $runtime_context->addProperty(substr($annotation->return, 5));
-                    } else {
-                        $runtime_action->addLocalVariable('$' . $annotation->return, null);
-                    }
+            if ($annotation->return != '_return') {
+                if (substr($annotation->return, 0, 5) == 'this.') {
+                    $runtime_context->addProperty(substr($annotation->return, 5));
+                } else {
+                    $value = ($annotation instanceof Validate) ? 'true' : 'null';
+
+                    $runtime_action->addLocalVariable('$' . $annotation->return, $value);
                 }
             }
         }
 
+        if ($annotation instanceof Errors) {
+            $runtime_step->setReturnExpression('$_return = ');
+        }
+
         if ($annotation instanceof Validate) {
-            $runtime_step->setReturnExpression('$_error = ');
+            $runtime_step->setReturnExpression('$_valid = ' . $runtime_step->getReturnExpression());
         }
 
         foreach ($annotation->arguments as $argument) {
@@ -359,6 +364,12 @@ class Generator
             if (substr($argument, 0, 5) == 'this.') {
                 $runtime_context->addProperty(substr($argument, 5));
             }
+        }
+
+        if ($annotation instanceof Errors) {
+            $runtime_step->setValid(false);
+        } else {
+            $runtime_step->setValid(true);
         }
 
         if (!$runtime_context->hasStep($runtime_step->getFunctionName())) {

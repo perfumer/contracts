@@ -8,6 +8,8 @@ abstract class FooContextTest extends \PHPUnit_Framework_TestCase
 
     abstract public function sumDataProvider();
 
+    abstract public function fooErrorsDataProvider();
+
     /**
      * @dataProvider intTypeDataProvider
      */
@@ -26,6 +28,16 @@ abstract class FooContextTest extends \PHPUnit_Framework_TestCase
         $_class_instance = new \Perfumer\Component\Bdd\Example\Context\FooContext();
 
         $this->assertEquals($_class_instance->sum($a, $b), $result);
+    }
+
+    /**
+     * @dataProvider fooErrorsDataProvider
+     */
+    final public function test_fooErrors($param1_valid, $param2_valid, $result)
+    {
+        $_class_instance = new \Perfumer\Component\Bdd\Example\Context\FooContext();
+
+        $this->assertEquals($_class_instance->fooErrors($param1_valid, $param2_valid), $result);
     }
 
 }
