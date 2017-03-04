@@ -10,8 +10,8 @@ class FooContextTest extends \Generated\Tests\Perfumer\Component\Bdd\Example\Con
     public function intTypeDataProvider()
     {
         return [
-            [1, null],
-            ['qwerty', 'must be integer'],
+            [1, true],
+            ['qwerty', false],
         ];
     }
 
@@ -26,4 +26,13 @@ class FooContextTest extends \Generated\Tests\Perfumer\Component\Bdd\Example\Con
         ];
     }
 
+    public function fooErrorsDataProvider()
+    {
+        return [
+            [true, true, ''],
+            [false, true, 'Param1 is not valid'],
+            [true, false, 'Param2 is not valid'],
+            [false, false, 'Param1 and param2 are not valid'],
+        ];
+    }
 }

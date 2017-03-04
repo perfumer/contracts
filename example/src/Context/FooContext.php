@@ -51,12 +51,16 @@ class FooContext
     {
         $return = '';
 
-        if (!$param1_valid) {
+        if (!$param1_valid && $param2_valid) {
             $return = 'Param1 is not valid';
         }
 
-        if (!$param2_valid) {
+        if ($param1_valid && !$param2_valid) {
             $return = 'Param2 is not valid';
+        }
+
+        if (!$param1_valid && !$param2_valid) {
+            $return = 'Param1 and param2 are not valid';
         }
 
         return $return;
