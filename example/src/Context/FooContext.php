@@ -3,9 +3,8 @@
 namespace Perfumer\Component\Bdd\Example\Context;
 
 use Perfumer\Component\Bdd\Annotations\Test;
-use Perfumer\Component\Bdd\Context;
 
-class FooContext implements Context
+class FooContext
 {
     /**
      * @Test
