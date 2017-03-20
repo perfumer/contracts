@@ -45,7 +45,7 @@ abstract class {{ context.className }}
         {{ step.beforeCode }}
 
 {% endif %}
-        if ($_valid === {{ step.isValid ? 'true' : 'false' }}) {
+        if ($_valid === {{ step.isValid ? 'true' : 'false' }}{% if step.condition %} && {{ step.condition }}{% endif %}) {
 {% if step.prependCode %}
             {{ step.prependCode }}
 

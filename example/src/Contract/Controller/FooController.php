@@ -20,12 +20,12 @@ interface FooController
 {
     /**
      * @Validate (name = "validators", method = "intType",          arguments = {"param1"},            return = "param1_valid")
-     * @Validate (name = "validators", method = "intType",          arguments = {"param2"},            return = "param2_valid")
+     * @Validate (name = "validators", method = "intType",          arguments = {"param2"},            return = "param2_valid", if = "param1_valid")
      * @Collection(steps = {
      *   @Call   (name = "validators", method = "sum",              arguments = {"param1", "param2"},  return = "sum"),
      *   @Custom (                     method = "sumDoubled",       arguments = {"sum"},               return = "double_sum"),
-     *   @Service(name = "_parent",    method = "sandboxActionTwo", arguments = {"sum", "this.staff"}, return = "sandbox"),
-     *   @Service(name = "foobar",     method = "baz",              arguments = {"sandbox"},           return = "_return")
+     *   @Service(name = "_parent",    method = "sandboxActionTwo", arguments = {"sum", "this.staff"}, return = {"sand", "box"}),
+     *   @Service(name = "foobar",     method = "baz",              arguments = {"sand", "box"},       return = "_return")
      * })
      *
      * @param int $param1

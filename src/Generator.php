@@ -330,6 +330,14 @@ class Generator
             }
         }
 
+        if (($annotation instanceof Call || $annotation instanceof Custom || $annotation instanceof Service || $annotation instanceof Validate) && $annotation->if) {
+            $runtime_step->setCondition($this->step_parser->parseBodyArgument($annotation->if));
+
+            if (!$runtime_action->hasLocalVariable('$' . $annotation->if)) {
+                $runtime_action->addLocalVariable('$' . $annotation->if, null);
+            }
+        }
+
         if (($annotation instanceof Call || $annotation instanceof Custom || $annotation instanceof Service || $annotation instanceof Validate) && $annotation->return) {
             $runtime_step->setReturnExpression($this->step_parser->parseReturn($annotation->return));
 

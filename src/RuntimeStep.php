@@ -70,6 +70,11 @@ class RuntimeStep
     protected $valid;
 
     /**
+     * @var string
+     */
+    protected $condition;
+
+    /**
      * @return string
      */
     public function getFunctionName()
@@ -291,5 +296,21 @@ class RuntimeStep
     public function setValid(bool $valid)
     {
         $this->valid = $valid;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCondition()
+    {
+        return $this->condition;
+    }
+
+    /**
+     * @param string $condition
+     */
+    public function setCondition(string $condition)
+    {
+        $this->condition = $condition;
     }
 }

@@ -26,9 +26,14 @@ class Call extends \Perfumer\Component\Contracts\Step
     public $arguments = [];
 
     /**
-     * @var string
+     * @var string|array
      */
     public $return;
+
+    /**
+     * @var string
+     */
+    public $if;
 }
 
 /**
@@ -87,9 +92,14 @@ class Custom extends \Perfumer\Component\Contracts\Step
     public $arguments = [];
 
     /**
-     * @var string
+     * @var string|array
      */
     public $return;
+
+    /**
+     * @var string
+     */
+    public $if;
 }
 
 /**
@@ -145,9 +155,14 @@ class Service extends \Perfumer\Component\Contracts\Step
     public $arguments = [];
 
     /**
-     * @var string
+     * @var string|array
      */
     public $return;
+
+    /**
+     * @var string
+     */
+    public $if;
 }
 
 /**
@@ -195,4 +210,9 @@ class Validate extends \Perfumer\Component\Contracts\Step
      * @var string
      */
     public $return;
+
+    /**
+     * @var string
+     */
+    public $if;
 }
