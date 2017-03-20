@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Component\Bdd\Example;
+namespace Perfumer\Component\Contracts\Example;
 
 class ParentController
 {

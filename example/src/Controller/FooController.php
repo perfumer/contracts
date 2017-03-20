@@ -1,7 +1,7 @@
 <?php
 
-namespace Perfumer\Component\Bdd\Example\Controller;
+namespace Perfumer\Component\Contracts\Example\Controller;
 
-class FooController extends \Generated\Perfumer\Component\Bdd\Example\Controller\FooController
+class FooController extends \Generated\Perfumer\Component\Contracts\Example\Controller\FooController
 {
 }

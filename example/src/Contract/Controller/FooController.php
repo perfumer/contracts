@@ -1,19 +1,19 @@
 <?php
 
-namespace Perfumer\Component\Bdd\Example\Contract\Controller;
+namespace Perfumer\Component\Contracts\Example\Contract\Controller;
 
-use Perfumer\Component\Bdd\Annotations\Call;
-use Perfumer\Component\Bdd\Annotations\Collection;
-use Perfumer\Component\Bdd\Annotations\Context;
-use Perfumer\Component\Bdd\Annotations\Errors;
-use Perfumer\Component\Bdd\Annotations\Extend;
-use Perfumer\Component\Bdd\Annotations\Service;
-use Perfumer\Component\Bdd\Annotations\Template;
-use Perfumer\Component\Bdd\Annotations\Validate;
+use Perfumer\Component\Contracts\Annotations\Call;
+use Perfumer\Component\Contracts\Annotations\Collection;
+use Perfumer\Component\Contracts\Annotations\Context;
+use Perfumer\Component\Contracts\Annotations\Errors;
+use Perfumer\Component\Contracts\Annotations\Extend;
+use Perfumer\Component\Contracts\Annotations\Service;
+use Perfumer\Component\Contracts\Annotations\Template;
+use Perfumer\Component\Contracts\Annotations\Validate;
 
 /**
- * @Extend(class = "\Perfumer\Component\Bdd\Example\ParentController")
- * @Context(name = "validators", class = "\Perfumer\Component\Bdd\Example\Context\FooContext")
+ * @Extend(class = "\Perfumer\Component\Contracts\Example\ParentController")
+ * @Context(name = "validators", class = "\Perfumer\Component\Contracts\Example\Context\FooContext")
  */
 interface FooController
 {

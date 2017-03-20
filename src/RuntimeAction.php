@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Component\Bdd;
+namespace Perfumer\Component\Contracts;
 
 class RuntimeAction
 {

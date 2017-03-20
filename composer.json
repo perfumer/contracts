@@ -1,9 +1,9 @@
 {
-  "name": "perfumer/bdd",
+  "name": "perfumer/contracts",
   "type": "library",
-  "description": "BDD generating tool",
-  "keywords": ["bdd", "generator"],
-  "homepage": "https://github.com/perfumer/bdd",
+  "description": "Code generating tool",
+  "keywords": ["generator"],
+  "homepage": "https://github.com/perfumer/contracts",
   "license": "MIT",
   "authors": [
     {
@@ -20,15 +20,15 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Perfumer\\Component\\Bdd\\Example\\": "example/src/",
-      "Tests\\Perfumer\\Component\\Bdd\\Example\\": "example/tests/",
-      "Generated\\Perfumer\\Component\\Bdd\\Example\\": "example/generated/src/",
-      "Generated\\Tests\\Perfumer\\Component\\Bdd\\Example\\": "example/generated/tests/"
+      "Perfumer\\Component\\Contracts\\Example\\": "example/src/",
+      "Tests\\Perfumer\\Component\\Contracts\\Example\\": "example/tests/",
+      "Generated\\Perfumer\\Component\\Contracts\\Example\\": "example/generated/src/",
+      "Generated\\Tests\\Perfumer\\Component\\Contracts\\Example\\": "example/generated/tests/"
     }
   },
   "autoload": {
     "psr-4": {
-      "Perfumer\\Component\\Bdd\\": "src/"
+      "Perfumer\\Component\\Contracts\\": "src/"
     }
   },
   "config": {

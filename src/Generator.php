@@ -1,18 +1,18 @@
 <?php
 
-namespace Perfumer\Component\Bdd;
+namespace Perfumer\Component\Contracts;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
-use Perfumer\Component\Bdd\Annotations\Collection;
-use Perfumer\Component\Bdd\Annotations\Context;
-use Perfumer\Component\Bdd\Annotations\Errors;
-use Perfumer\Component\Bdd\Annotations\Extend;
-use Perfumer\Component\Bdd\Annotations\Call;
-use Perfumer\Component\Bdd\Annotations\Service;
-use Perfumer\Component\Bdd\Annotations\Template;
-use Perfumer\Component\Bdd\Annotations\Test;
-use Perfumer\Component\Bdd\Annotations\Validate;
+use Perfumer\Component\Contracts\Annotations\Collection;
+use Perfumer\Component\Contracts\Annotations\Context;
+use Perfumer\Component\Contracts\Annotations\Errors;
+use Perfumer\Component\Contracts\Annotations\Extend;
+use Perfumer\Component\Contracts\Annotations\Call;
+use Perfumer\Component\Contracts\Annotations\Service;
+use Perfumer\Component\Contracts\Annotations\Template;
+use Perfumer\Component\Contracts\Annotations\Test;
+use Perfumer\Component\Contracts\Annotations\Validate;
 
 class Generator
 {

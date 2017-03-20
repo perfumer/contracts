@@ -1,8 +1,8 @@
 <?php
 
-namespace Generated\Perfumer\Component\Bdd\Example\Controller;
+namespace Generated\Perfumer\Component\Contracts\Example\Controller;
 
-abstract class FooController extends \Perfumer\Component\Bdd\Example\ParentController
+abstract class FooController extends \Perfumer\Component\Contracts\Example\ParentController
 {
     protected $_context_validators;
     protected $staff;
@@ -11,7 +11,7 @@ abstract class FooController extends \Perfumer\Component\Bdd\Example\ParentContr
     final private function validatorsIntType($param1)
     {
         if ($this->_context_validators === null) {
-            $this->_context_validators = new \Perfumer\Component\Bdd\Example\Context\FooContext();
+            $this->_context_validators = new \Perfumer\Component\Contracts\Example\Context\FooContext();
         }
 
         return $this->_context_validators->intType($param1);
@@ -19,7 +19,7 @@ abstract class FooController extends \Perfumer\Component\Bdd\Example\ParentContr
     final private function validatorsSum($param1, $param2)
     {
         if ($this->_context_validators === null) {
-            $this->_context_validators = new \Perfumer\Component\Bdd\Example\Context\FooContext();
+            $this->_context_validators = new \Perfumer\Component\Contracts\Example\Context\FooContext();
         }
 
         return $this->_context_validators->sum($param1, $param2);
@@ -27,7 +27,7 @@ abstract class FooController extends \Perfumer\Component\Bdd\Example\ParentContr
     final private function validatorsFooErrors($param1_valid, $param2_valid)
     {
         if ($this->_context_validators === null) {
-            $this->_context_validators = new \Perfumer\Component\Bdd\Example\Context\FooContext();
+            $this->_context_validators = new \Perfumer\Component\Contracts\Example\Context\FooContext();
         }
 
         return $this->_context_validators->fooErrors($param1_valid, $param2_valid);

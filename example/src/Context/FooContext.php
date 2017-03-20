@@ -1,8 +1,8 @@
 <?php
 
-namespace Perfumer\Component\Bdd\Example\Context;
+namespace Perfumer\Component\Contracts\Example\Context;
 
-use Perfumer\Component\Bdd\Annotations\Test;
+use Perfumer\Component\Contracts\Annotations\Test;
 
 class FooContext
 {
