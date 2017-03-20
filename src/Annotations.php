@@ -3,6 +3,7 @@
 namespace Perfumer\Component\Contracts\Annotations;
 
 use Doctrine\Common\Annotations\Annotation\Target;
+use Perfumer\Component\Contracts\ContractsException;
 
 /**
  * @Annotation
@@ -164,15 +165,38 @@ class Extend implements \Perfumer\Component\Contracts\Annotation
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Output implements \Perfumer\Component\Contracts\Annotation
+class Output implements \Perfumer\Component\Contracts\Variable
 {
+    /**
+     * @throws ContractsException
+     */
+    public function asArg()
+    {
+        throw new ContractsException('@Output annotation can not be used for "args".');
+    }
+
+    /**
+     * @throws ContractsException
+     */
+    public function asHeader()
+    {
+        throw new ContractsException('@Output annotation can not be used for "args".');
+    }
+
+    /**
+     * @return string
+     */
+    public function asReturn()
+    {
+        return '$_return = ';
+    }
 }
 
 /**
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Property implements \Perfumer\Component\Contracts\Annotation
+class Property implements \Perfumer\Component\Contracts\Variable
 {
     /**
      * @var string
@@ -185,6 +209,30 @@ class Property implements \Perfumer\Component\Contracts\Annotation
     public function __construct($values)
     {
         $this->name = $values['value'];
+    }
+
+    /**
+     * @return string
+     */
+    public function asArg()
+    {
+        return '$this->' . $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function asHeader()
+    {
+        return '$' . $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function asReturn()
+    {
+        return '$this->' . $this->name . ' = ';
     }
 }
 

@@ -339,15 +339,28 @@ class Generator
         }
 
         if (($annotation instanceof Call || $annotation instanceof Custom || $annotation instanceof Service || $annotation instanceof Validate || $annotation instanceof Ancestor) && $annotation->if) {
-            $runtime_step->setCondition($this->step_parser->parseBodyArgument($annotation->if));
+            $local_variable = $annotation->if instanceof Variable ? $annotation->if->asHeader() : '$' . $annotation->if;
+            $body_argument = $annotation->if instanceof Variable ? $annotation->if->asArg() : '$' . $annotation->if;
 
-            if (!$runtime_action->hasLocalVariable('$' . $annotation->if)) {
-                $runtime_action->addLocalVariable('$' . $annotation->if, null);
+            $runtime_step->setCondition($body_argument);
+
+            if (!$runtime_action->hasLocalVariable($local_variable)) {
+                $runtime_action->addLocalVariable($local_variable, null);
             }
         }
 
         if (($annotation instanceof Call || $annotation instanceof Custom || $annotation instanceof Service || $annotation instanceof Validate || $annotation instanceof Ancestor) && $annotation->return) {
-            $runtime_step->setReturnExpression($this->step_parser->parseReturn($annotation->return));
+            if (is_array($annotation->return)) {
+                $vars = array_map(function ($v) {
+                    return '$' . $v;
+                }, $annotation->return);
+
+                $expression = 'list(' . implode(', ', $vars) . ') = ';
+            } else {
+                $expression = $annotation->return instanceof Variable ? $annotation->return->asReturn() : '$' . $annotation->return . ' = ';
+            }
+
+            $runtime_step->setReturnExpression($expression);
 
             if (!$annotation->return instanceof Output) {
                 if (is_array($annotation->return)) {
@@ -373,8 +386,8 @@ class Generator
         }
 
         foreach ($annotation->args as $argument) {
-            $argument_var = $this->step_parser->parseHeaderArgument($argument);
-            $argument_value = $this->step_parser->parseBodyArgument($argument);
+            $argument_var = $argument instanceof Variable ? $argument->asHeader() : '$' . $argument;
+            $argument_value = $argument instanceof Variable ? $argument->asArg() : '$' . $argument;
 
             $runtime_step->addHeaderArgument($argument_var);
             $runtime_step->addBodyArgument($argument_value);
