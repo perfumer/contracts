@@ -91,7 +91,7 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         return $this->getValidatorsContext()->fooErrors($param1_valid, $param2_valid);
     }
 
-    final private function getValidatorsContext()
+    final private function getValidatorsContext(): \Perfumer\Component\Contracts\Example\Context\FooContext
     {
         if ($this->_context_validators === null) {
             $this->_context_validators = new \Perfumer\Component\Contracts\Example\Context\FooContext();

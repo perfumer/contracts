@@ -70,7 +70,7 @@ abstract class {{ context.className }}
 
 {% endfor %}
 {% for name, class in context.contexts %}
-    final private function get{{ name | capitalize }}Context()
+    final private function get{{ name | capitalize }}Context(): {{ class }}
     {
         if ($this->_context_{{ name }} === null) {
             $this->_context_{{ name }} = new {{ class }}();
