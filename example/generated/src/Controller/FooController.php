@@ -42,7 +42,8 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         $param2_valid = true;
         $sum = null;
         $double_sum = null;
-        $sandbox = null;
+        $sand = null;
+        $box = null;
 
 
         if ($_valid === true) {
@@ -58,10 +59,10 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
             $double_sum = $this->sumDoubled($sum);
         }
         if ($_valid === true) {
-            $sandbox = parent::sandboxActionTwo($sum, $this->staff);
+            list($sand, $box) = parent::sandboxActionTwo($sum, $this->staff);
         }
         if ($_valid === true) {
-            $_return = $this->foobar->baz($sandbox);
+            $_return = $this->foobar->baz($sand, $box);
         }
 
         return $_return;

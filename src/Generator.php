@@ -342,7 +342,11 @@ class Generator
             $runtime_step->setReturnExpression($this->step_parser->parseReturn($annotation->return));
 
             if ($annotation->return != '_return') {
-                if (substr($annotation->return, 0, 5) == 'this.') {
+                if (is_array($annotation->return)) {
+                    foreach ($annotation->return as $var) {
+                        $runtime_action->addLocalVariable('$' . $var, null);
+                    }
+                } elseif (substr($annotation->return, 0, 5) == 'this.') {
                     $runtime_context->addProperty(substr($annotation->return, 5));
                 } else {
                     $value = ($annotation instanceof Validate) ? 'true' : 'null';

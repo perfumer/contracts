@@ -40,6 +40,12 @@ class StepParser
     {
         if (!$value) {
             return '';
+        } elseif (is_array($value)) {
+            $vars = array_map(function ($v) {
+                return '$' . $v;
+            }, $value);
+
+            return 'list(' . implode(', ', $vars) . ') = ';
         } elseif (substr($value, 0, 5) == 'this.') {
             $value = substr($value, 5);
 

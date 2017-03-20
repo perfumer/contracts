@@ -26,7 +26,7 @@ class Call extends \Perfumer\Component\Contracts\Step
     public $arguments = [];
 
     /**
-     * @var string|array
+     * @var mixed
      */
     public $return;
 
@@ -92,7 +92,7 @@ class Custom extends \Perfumer\Component\Contracts\Step
     public $arguments = [];
 
     /**
-     * @var string|array
+     * @var mixed
      */
     public $return;
 
@@ -155,7 +155,7 @@ class Service extends \Perfumer\Component\Contracts\Step
     public $arguments = [];
 
     /**
-     * @var string|array
+     * @var mixed
      */
     public $return;
 
