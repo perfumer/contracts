@@ -372,7 +372,7 @@ class Generator
             $runtime_step->setReturnExpression('$_valid = ' . $runtime_step->getReturnExpression());
         }
 
-        foreach ($annotation->arguments as $argument) {
+        foreach ($annotation->args as $argument) {
             $argument_var = $this->step_parser->parseHeaderArgument($argument);
             $argument_value = $this->step_parser->parseBodyArgument($argument);
 

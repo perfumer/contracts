@@ -5,6 +5,7 @@ namespace Generated\Perfumer\Component\Contracts\Example\Controller;
 abstract class FooController extends \Perfumer\Component\Contracts\Example\ParentController
 {
     protected $_context_validators;
+    protected $sum;
     protected $staff;
     protected $foobar;
 
@@ -40,7 +41,6 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         $_return = null;
         $param1_valid = true;
         $param2_valid = true;
-        $sum = null;
         $double_sum = null;
         $sand = null;
         $box = null;
@@ -53,13 +53,13 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
             $_valid = $param2_valid = $this->validatorsIntType($param2);
         }
         if ($_valid === true) {
-            $sum = $this->validatorsSum($param1, $param2);
+            $this->sum = $this->validatorsSum($param1, $param2);
         }
         if ($_valid === true) {
-            $double_sum = $this->sumDoubled($sum);
+            $double_sum = $this->sumDoubled($this->sum);
         }
         if ($_valid === true) {
-            list($sand, $box) = parent::sandboxActionTwo($sum, $this->staff);
+            list($sand, $box) = parent::sandboxActionTwo($this->sum, $this->staff);
         }
         if ($_valid === true) {
             $_return = $this->foobar->baz($sand, $box);

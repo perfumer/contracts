@@ -18,7 +18,7 @@ class Ancestor extends \Perfumer\Component\Contracts\Step
     /**
      * @var array
      */
-    public $arguments = [];
+    public $args = [];
 
     /**
      * @var mixed
@@ -50,7 +50,7 @@ class Call extends \Perfumer\Component\Contracts\Step
     /**
      * @var array
      */
-    public $arguments = [];
+    public $args = [];
 
     /**
      * @var mixed
@@ -116,7 +116,7 @@ class Custom extends \Perfumer\Component\Contracts\Step
     /**
      * @var array
      */
-    public $arguments = [];
+    public $args = [];
 
     /**
      * @var mixed
@@ -148,7 +148,7 @@ class Errors extends \Perfumer\Component\Contracts\Step
     /**
      * @var array
      */
-    public $arguments = [];
+    public $args = [];
 }
 
 /**
@@ -207,7 +207,7 @@ class Service extends \Perfumer\Component\Contracts\Step
     /**
      * @var array
      */
-    public $arguments = [];
+    public $args = [];
 
     /**
      * @var mixed
@@ -259,7 +259,7 @@ class Validate extends \Perfumer\Component\Contracts\Step
     /**
      * @var array
      */
-    public $arguments = [];
+    public $args = [];
 
     /**
      * @var string

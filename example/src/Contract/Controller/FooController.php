@@ -16,19 +16,19 @@ use Perfumer\Component\Contracts\Annotations\Template;
 use Perfumer\Component\Contracts\Annotations\Validate;
 
 /**
- * @Extend(class = "\Perfumer\Component\Contracts\Example\ParentController")
- * @Context(name = "validators", class = "\Perfumer\Component\Contracts\Example\Context\FooContext")
+ * @Extend(class="\Perfumer\Component\Contracts\Example\ParentController")
+ * @Context(name="validators", class="\Perfumer\Component\Contracts\Example\Context\FooContext")
  */
 interface FooController
 {
     /**
-     * @Validate (name = "validators", method = "intType",          arguments = {"param1"},                  return = "param1_valid")
-     * @Validate (name = "validators", method = "intType",          arguments = {"param2"},                  return = "param2_valid", if = "param1_valid")
-     * @Collection(steps = {
-     *   @Call   (name = "validators", method = "sum",              arguments = {"param1", "param2"},        return = "sum"),
-     *   @Custom (                     method = "sumDoubled",       arguments = {"sum"},                     return = "double_sum"),
-     *   @Ancestor(                    method = "sandboxActionTwo", arguments = {"sum", @Property("staff")}, return = {"sand", "box"}),
-     *   @Service(name = "foobar",     method = "baz",              arguments = {"sand", "box"},             return = @Output)
+     * @Validate (name="validators", method="intType", args={"param1"}, return="param1_valid")
+     * @Validate (name="validators", method="intType", args={"param2"}, return="param2_valid", if="param1_valid")
+     * @Collection(steps={
+     *   @Call    (name="validators", method="sum",              args={"param1", "param2"},                   return=@Property("sum")),
+     *   @Custom  (                   method="sumDoubled",       args={@Property("sum")},                     return="double_sum"),
+     *   @Ancestor(                   method="sandboxActionTwo", args={@Property("sum"), @Property("staff")}, return={"sand", "box"}),
+     *   @Service (name="foobar",     method="baz",              args={"sand", "box"},                        return=@Output)
      * })
      *
      * @param int $param1
@@ -38,12 +38,12 @@ interface FooController
     public function bar(int $param1, int $param2);
 
     /**
-     * @Validate(name = "validators", method = "intType",          arguments = {"param1"},            return="param1_valid")
-     * @Validate(name = "validators", method = "intType",          arguments = {"param2"},            return="param2_valid")
-     * @Call    (name = "validators", method = "sum",              arguments = {"param1", "param2"},  return = "sum")
-     * @Ancestor(                     method = "sandboxActionTwo", arguments = {"sum", @Property("staff")}, return = "sandbox")
-     * @Service (name = "foobar",     method = "baz",              arguments = {"sandbox"},           return = @Output)
-     * @Errors  (name = "validators", method = "fooErrors",        arguments = {"param1_valid", "param2_valid"})
+     * @Validate(name="validators", method="intType",          args={"param1"},                  return="param1_valid")
+     * @Validate(name="validators", method="intType",          args={"param2"},                  return="param2_valid")
+     * @Call    (name="validators", method="sum",              args={"param1", "param2"},        return = "sum")
+     * @Ancestor(                   method="sandboxActionTwo", args={"sum", @Property("staff")}, return = "sandbox")
+     * @Service (name="foobar",     method="baz",              args={"sandbox"},                 return = @Output)
+     * @Errors  (name="validators", method="fooErrors",        args={"param1_valid", "param2_valid"})
      *
      * @param int $param1
      * @param int $param2
