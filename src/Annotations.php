@@ -164,6 +164,14 @@ class Extend implements \Perfumer\Component\Contracts\Annotation
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
+class Output implements \Perfumer\Component\Contracts\Annotation
+{
+}
+
+/**
+ * @Annotation
+ * @Target({"METHOD", "ANNOTATION"})
+ */
 class Service extends \Perfumer\Component\Contracts\Step
 {
     /**

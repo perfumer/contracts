@@ -11,6 +11,7 @@ use Perfumer\Component\Contracts\Annotations\Custom;
 use Perfumer\Component\Contracts\Annotations\Errors;
 use Perfumer\Component\Contracts\Annotations\Extend;
 use Perfumer\Component\Contracts\Annotations\Call;
+use Perfumer\Component\Contracts\Annotations\Output;
 use Perfumer\Component\Contracts\Annotations\Service;
 use Perfumer\Component\Contracts\Annotations\Template;
 use Perfumer\Component\Contracts\Annotations\Test;
@@ -347,7 +348,7 @@ class Generator
         if (($annotation instanceof Call || $annotation instanceof Custom || $annotation instanceof Service || $annotation instanceof Validate || $annotation instanceof Ancestor) && $annotation->return) {
             $runtime_step->setReturnExpression($this->step_parser->parseReturn($annotation->return));
 
-            if ($annotation->return != '_return') {
+            if (!$annotation->return instanceof Output) {
                 if (is_array($annotation->return)) {
                     foreach ($annotation->return as $var) {
                         $runtime_action->addLocalVariable('$' . $var, null);

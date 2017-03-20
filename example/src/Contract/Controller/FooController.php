@@ -9,6 +9,7 @@ use Perfumer\Component\Contracts\Annotations\Context;
 use Perfumer\Component\Contracts\Annotations\Custom;
 use Perfumer\Component\Contracts\Annotations\Errors;
 use Perfumer\Component\Contracts\Annotations\Extend;
+use Perfumer\Component\Contracts\Annotations\Output;
 use Perfumer\Component\Contracts\Annotations\Service;
 use Perfumer\Component\Contracts\Annotations\Template;
 use Perfumer\Component\Contracts\Annotations\Validate;
@@ -26,7 +27,7 @@ interface FooController
      *   @Call   (name = "validators", method = "sum",              arguments = {"param1", "param2"},  return = "sum"),
      *   @Custom (                     method = "sumDoubled",       arguments = {"sum"},               return = "double_sum"),
      *   @Ancestor(                    method = "sandboxActionTwo", arguments = {"sum", "this.staff"}, return = {"sand", "box"}),
-     *   @Service(name = "foobar",     method = "baz",              arguments = {"sand", "box"},       return = "_return")
+     *   @Service(name = "foobar",     method = "baz",              arguments = {"sand", "box"},       return = @Output)
      * })
      *
      * @param int $param1
@@ -40,7 +41,7 @@ interface FooController
      * @Validate(name = "validators", method = "intType",          arguments = {"param2"},            return="param2_valid")
      * @Call    (name = "validators", method = "sum",              arguments = {"param1", "param2"},  return = "sum")
      * @Ancestor(                     method = "sandboxActionTwo", arguments = {"sum", "this.staff"}, return = "sandbox")
-     * @Service (name = "foobar",     method = "baz",              arguments = {"sandbox"},           return = "_return")
+     * @Service (name = "foobar",     method = "baz",              arguments = {"sandbox"},           return = @Output)
      * @Errors  (name = "validators", method = "fooErrors",        arguments = {"param1_valid", "param2_valid"})
      *
      * @param int $param1

@@ -2,6 +2,8 @@
 
 namespace Perfumer\Component\Contracts;
 
+use Perfumer\Component\Contracts\Annotations\Output;
+
 class StepParser
 {
     /**
@@ -40,6 +42,8 @@ class StepParser
     {
         if (!$value) {
             return '';
+        } elseif ($value instanceof Output) {
+            return '$_return = ';
         } elseif (is_array($value)) {
             $vars = array_map(function ($v) {
                 return '$' . $v;
@@ -50,8 +54,6 @@ class StepParser
             $value = substr($value, 5);
 
             return '$this->' . $value . ' = ';
-        } elseif ($value === '_return') {
-            return '$_return = ';
         } else {
             return '$' . $value . ' = ';
         }
