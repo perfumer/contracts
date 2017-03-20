@@ -4,6 +4,7 @@ namespace Perfumer\Component\Contracts;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
+use Perfumer\Component\Contracts\Annotations\Ancestor;
 use Perfumer\Component\Contracts\Annotations\Collection;
 use Perfumer\Component\Contracts\Annotations\Context;
 use Perfumer\Component\Contracts\Annotations\Custom;
@@ -302,7 +303,7 @@ class Generator
      */
     private function processStepAnnotation(Annotation $annotation, RuntimeStep $runtime_step, RuntimeAction $runtime_action, RuntimeContext $runtime_context, array $contexts)
     {
-        if ($annotation instanceof Service || $annotation instanceof Call || $annotation instanceof Custom || $annotation instanceof Validate) {
+        if ($annotation instanceof Service || $annotation instanceof Call || $annotation instanceof Custom || $annotation instanceof Validate || $annotation instanceof Ancestor) {
             $runtime_step->setPrependCode($annotation->prepend());
             $runtime_step->setAppendCode($annotation->append());
         }
@@ -321,7 +322,7 @@ class Generator
             $runtime_step->setFunctionName($annotation->method);
         }
 
-        if ($annotation instanceof Service && $annotation->name) {
+        if ($annotation instanceof Service) {
             $runtime_step->setService($this->step_parser->parseServiceName($annotation->name));
             $runtime_step->setMethod($annotation->method);
 
@@ -330,7 +331,12 @@ class Generator
             }
         }
 
-        if (($annotation instanceof Call || $annotation instanceof Custom || $annotation instanceof Service || $annotation instanceof Validate) && $annotation->if) {
+        if ($annotation instanceof Ancestor) {
+            $runtime_step->setService('_parent');
+            $runtime_step->setMethod($annotation->method);
+        }
+
+        if (($annotation instanceof Call || $annotation instanceof Custom || $annotation instanceof Service || $annotation instanceof Validate || $annotation instanceof Ancestor) && $annotation->if) {
             $runtime_step->setCondition($this->step_parser->parseBodyArgument($annotation->if));
 
             if (!$runtime_action->hasLocalVariable('$' . $annotation->if)) {
@@ -338,7 +344,7 @@ class Generator
             }
         }
 
-        if (($annotation instanceof Call || $annotation instanceof Custom || $annotation instanceof Service || $annotation instanceof Validate) && $annotation->return) {
+        if (($annotation instanceof Call || $annotation instanceof Custom || $annotation instanceof Service || $annotation instanceof Validate || $annotation instanceof Ancestor) && $annotation->return) {
             $runtime_step->setReturnExpression($this->step_parser->parseReturn($annotation->return));
 
             if ($annotation->return != '_return') {

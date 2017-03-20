@@ -8,6 +8,33 @@ use Doctrine\Common\Annotations\Annotation\Target;
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
+class Ancestor extends \Perfumer\Component\Contracts\Step
+{
+    /**
+     * @var string
+     */
+    public $method;
+
+    /**
+     * @var array
+     */
+    public $arguments = [];
+
+    /**
+     * @var mixed
+     */
+    public $return;
+
+    /**
+     * @var string
+     */
+    public $if;
+}
+
+/**
+ * @Annotation
+ * @Target({"METHOD", "ANNOTATION"})
+ */
 class Call extends \Perfumer\Component\Contracts\Step
 {
     /**
