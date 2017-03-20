@@ -76,27 +76,20 @@ class Generator
     private $contexts = [];
 
     /**
-     * @var StepParser
-     */
-    private $step_parser;
-
-    /**
      * @var array
      */
     private $template_directories = [];
 
     /**
-     * @param StepParser $step_parser
      * @param string $root_dir
      * @param array $options
      */
-    public function __construct(StepParser $step_parser, $root_dir, $options = [])
+    public function __construct($root_dir, $options = [])
     {
         $this->addTemplateDirectory(__DIR__ . '/templates');
         $this->addAnnotations(__DIR__ . '/Annotations.php');
 
         $this->generator = new \TwigGenerator\Builder\Generator();
-        $this->step_parser = $step_parser;
 
         $this->root_dir = $root_dir;
 
@@ -325,12 +318,9 @@ class Generator
         }
 
         if ($annotation instanceof Service) {
-            $runtime_step->setService($this->step_parser->parseServiceName($annotation->name));
+            $runtime_step->setService($annotation->getName());
             $runtime_step->setMethod($annotation->method);
-
-            if ($annotation->name !== '_parent') {
-                $runtime_context->addProperty($annotation->name);
-            }
+            $runtime_context->addProperty($annotation->name);
         }
 
         if ($annotation instanceof Ancestor) {

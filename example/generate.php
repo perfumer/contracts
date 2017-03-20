@@ -2,7 +2,7 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$generator = new \Perfumer\Component\Contracts\Generator(new \Perfumer\Component\Contracts\StepParser(), __DIR__ . '/..', [
+$generator = new \Perfumer\Component\Contracts\Generator(__DIR__ . '/..', [
     'base_src_path' => 'example/generated/src',
     'base_test_path' => 'example/generated/tests',
     'src_path' => 'example/src',

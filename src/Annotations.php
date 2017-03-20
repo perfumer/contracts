@@ -266,6 +266,14 @@ class Service extends \Perfumer\Component\Contracts\Step
      * @var string
      */
     public $if;
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return '$this->' . $this->name;
+    }
 }
 
 /**

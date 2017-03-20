@@ -55,7 +55,7 @@ abstract class {{ context.className }}
 {% elseif step.service == '_parent' %}
             {{ step.returnExpression }}parent::{{ step.method }}({{ step.bodyArguments|join(', ') }});
 {% else %}
-            {{ step.returnExpression }}$this->{{ step.service }}->{{ step.method }}({{ step.bodyArguments|join(', ') }});
+            {{ step.returnExpression }}{{ step.service }}->{{ step.method }}({{ step.bodyArguments|join(', ') }});
 {% endif %}
 {% if step.appendCode %}
 
