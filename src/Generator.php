@@ -12,6 +12,7 @@ use Perfumer\Component\Contracts\Annotations\Errors;
 use Perfumer\Component\Contracts\Annotations\Extend;
 use Perfumer\Component\Contracts\Annotations\Call;
 use Perfumer\Component\Contracts\Annotations\Output;
+use Perfumer\Component\Contracts\Annotations\Property;
 use Perfumer\Component\Contracts\Annotations\Service;
 use Perfumer\Component\Contracts\Annotations\Template;
 use Perfumer\Component\Contracts\Annotations\Test;
@@ -353,8 +354,8 @@ class Generator
                     foreach ($annotation->return as $var) {
                         $runtime_action->addLocalVariable('$' . $var, null);
                     }
-                } elseif (substr($annotation->return, 0, 5) == 'this.') {
-                    $runtime_context->addProperty(substr($annotation->return, 5));
+                } elseif ($annotation->return instanceof Property) {
+                    $runtime_context->addProperty($annotation->return->name);
                 } else {
                     $value = ($annotation instanceof Validate) ? 'true' : 'null';
 
@@ -381,13 +382,13 @@ class Generator
             if (
                 !in_array($argument_var, $runtime_action->getHeaderArguments()) &&
                 !$runtime_action->hasLocalVariable($argument_var) &&
-                substr($argument, 0, 5) !== 'this.'
+                !$argument instanceof Property
             ) {
                 $runtime_action->addLocalVariable($argument_var, $argument_value);
             }
 
-            if (substr($argument, 0, 5) == 'this.') {
-                $runtime_context->addProperty(substr($argument, 5));
+            if ($argument instanceof Property) {
+                $runtime_context->addProperty($argument->name);
             }
         }
 

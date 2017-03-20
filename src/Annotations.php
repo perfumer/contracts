@@ -172,6 +172,26 @@ class Output implements \Perfumer\Component\Contracts\Annotation
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
+class Property implements \Perfumer\Component\Contracts\Annotation
+{
+    /**
+     * @var string
+     */
+    public $name;
+
+    /**
+     * @param array $values
+     */
+    public function __construct($values)
+    {
+        $this->name = $values['value'];
+    }
+}
+
+/**
+ * @Annotation
+ * @Target({"METHOD", "ANNOTATION"})
+ */
 class Service extends \Perfumer\Component\Contracts\Step
 {
     /**

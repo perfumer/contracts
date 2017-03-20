@@ -3,6 +3,7 @@
 namespace Perfumer\Component\Contracts;
 
 use Perfumer\Component\Contracts\Annotations\Output;
+use Perfumer\Component\Contracts\Annotations\Property;
 
 class StepParser
 {
@@ -12,11 +13,7 @@ class StepParser
      */
     public function parseHeaderArgument($value)
     {
-        if (substr($value, 0, 5) == 'this.') {
-            $value = substr($value, 5);
-        }
-
-        return '$' . $value;
+        return '$' . ($value instanceof Property ? $value->name : $value);
     }
 
     /**
@@ -25,13 +22,7 @@ class StepParser
      */
     public function parseBodyArgument($value)
     {
-        if (substr($value, 0, 5) == 'this.') {
-            $value = substr($value, 5);
-
-            return '$this->' . $value;
-        } else {
-            return '$' . $value;
-        }
+        return $value instanceof Property ? '$this->' . $value->name : '$' . $value;
     }
 
     /**
@@ -50,10 +41,8 @@ class StepParser
             }, $value);
 
             return 'list(' . implode(', ', $vars) . ') = ';
-        } elseif (substr($value, 0, 5) == 'this.') {
-            $value = substr($value, 5);
-
-            return '$this->' . $value . ' = ';
+        } elseif ($value instanceof Property) {
+            return '$this->' . $value->name . ' = ';
         } else {
             return '$' . $value . ' = ';
         }
