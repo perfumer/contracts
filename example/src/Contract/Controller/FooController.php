@@ -5,6 +5,7 @@ namespace Perfumer\Component\Contracts\Example\Contract\Controller;
 use Perfumer\Component\Contracts\Annotations\Call;
 use Perfumer\Component\Contracts\Annotations\Collection;
 use Perfumer\Component\Contracts\Annotations\Context;
+use Perfumer\Component\Contracts\Annotations\Custom;
 use Perfumer\Component\Contracts\Annotations\Errors;
 use Perfumer\Component\Contracts\Annotations\Extend;
 use Perfumer\Component\Contracts\Annotations\Service;
@@ -22,6 +23,7 @@ interface FooController
      * @Validate (name = "validators", method = "intType",          arguments = {"param2"},            return = "param2_valid")
      * @Collection(steps = {
      *   @Call   (name = "validators", method = "sum",              arguments = {"param1", "param2"},  return = "sum"),
+     *   @Custom (                     method = "sumDoubled",       arguments = {"sum"},               return = "double_sum"),
      *   @Service(name = "_parent",    method = "sandboxActionTwo", arguments = {"sum", "this.staff"}, return = "sandbox"),
      *   @Service(name = "foobar",     method = "baz",              arguments = {"sandbox"},           return = "_return")
      * })

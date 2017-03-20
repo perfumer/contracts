@@ -4,4 +4,12 @@ namespace {{ context.namespace }};
 
 class {{ context.className }} extends \Generated\{{ context.namespace }}\{{ context.className }}
 {
+{% for step in context.steps %}
+{% if step.service is null and step.context is null %}
+    protected function {{ step.functionName }}({{ step.headerArguments|join(', ') }})
+    {
+        throw new \Exception('Method "{{ step.functionName }}" is not implemented yet.');
+    }
+{% endif %}
+{% endfor %}
 }

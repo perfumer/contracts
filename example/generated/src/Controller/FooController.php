@@ -24,6 +24,7 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
 
         return $this->_context_validators->sum($param1, $param2);
     }
+    abstract protected function sumDoubled($sum);
     final private function validatorsFooErrors($param1_valid, $param2_valid)
     {
         if ($this->_context_validators === null) {
@@ -40,6 +41,7 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         $param1_valid = true;
         $param2_valid = true;
         $sum = null;
+        $double_sum = null;
         $sandbox = null;
 
 
@@ -51,6 +53,9 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         }
         if ($_valid === true) {
             $sum = $this->validatorsSum($param1, $param2);
+        }
+        if ($_valid === true) {
+            $double_sum = $this->sumDoubled($sum);
         }
         if ($_valid === true) {
             $sandbox = parent::sandboxActionTwo($sum, $this->staff);

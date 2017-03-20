@@ -6,6 +6,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Perfumer\Component\Contracts\Annotations\Collection;
 use Perfumer\Component\Contracts\Annotations\Context;
+use Perfumer\Component\Contracts\Annotations\Custom;
 use Perfumer\Component\Contracts\Annotations\Errors;
 use Perfumer\Component\Contracts\Annotations\Extend;
 use Perfumer\Component\Contracts\Annotations\Call;
@@ -301,7 +302,7 @@ class Generator
      */
     private function processStepAnnotation(Annotation $annotation, RuntimeStep $runtime_step, RuntimeAction $runtime_action, RuntimeContext $runtime_context, array $contexts)
     {
-        if ($annotation instanceof Service || $annotation instanceof Call || $annotation instanceof Validate) {
+        if ($annotation instanceof Service || $annotation instanceof Call || $annotation instanceof Custom || $annotation instanceof Validate) {
             $runtime_step->setPrependCode($annotation->prepend());
             $runtime_step->setAppendCode($annotation->append());
         }
@@ -315,6 +316,11 @@ class Generator
             $runtime_step->setFunctionName($annotation->name . ucfirst($annotation->method));
         }
 
+        if ($annotation instanceof Custom) {
+            $runtime_step->setMethod($annotation->method);
+            $runtime_step->setFunctionName($annotation->method);
+        }
+
         if ($annotation instanceof Service && $annotation->name) {
             $runtime_step->setService($this->step_parser->parseServiceName($annotation->name));
             $runtime_step->setMethod($annotation->method);
@@ -324,7 +330,7 @@ class Generator
             }
         }
 
-        if (($annotation instanceof Call || $annotation instanceof Service || $annotation instanceof Validate) && $annotation->return) {
+        if (($annotation instanceof Call || $annotation instanceof Custom || $annotation instanceof Service || $annotation instanceof Validate) && $annotation->return) {
             $runtime_step->setReturnExpression($this->step_parser->parseReturn($annotation->return));
 
             if ($annotation->return != '_return') {

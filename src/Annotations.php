@@ -74,6 +74,28 @@ class Context implements \Perfumer\Component\Contracts\Annotation
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
+class Custom extends \Perfumer\Component\Contracts\Step
+{
+    /**
+     * @var string
+     */
+    public $method;
+
+    /**
+     * @var array
+     */
+    public $arguments = [];
+
+    /**
+     * @var string
+     */
+    public $return;
+}
+
+/**
+ * @Annotation
+ * @Target({"METHOD", "ANNOTATION"})
+ */
 class Errors extends \Perfumer\Component\Contracts\Step
 {
     /**
