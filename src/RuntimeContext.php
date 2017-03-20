@@ -45,6 +45,11 @@ class RuntimeContext
     protected $actions = [];
 
     /**
+     * @var array
+     */
+    protected $contexts = [];
+
+    /**
      * @return string
      */
     public function getTemplate(): string
@@ -196,5 +201,21 @@ class RuntimeContext
     public function addAction(RuntimeAction $action)
     {
         $this->actions[] = $action;
+    }
+
+    /**
+     * @return array
+     */
+    public function getContexts(): array
+    {
+        return $this->contexts;
+    }
+
+    /**
+     * @param array $contexts
+     */
+    public function setContexts(array $contexts)
+    {
+        $this->contexts = $contexts;
     }
 }

@@ -94,13 +94,43 @@ class Collection implements \Perfumer\Component\Contracts\Annotation
 
 /**
  * @Annotation
- * @Target("CLASS")
+ * @Target({"CLASS", "METHOD", "ANNOTATION"})
  */
-class Context implements \Perfumer\Component\Contracts\Annotation
+class Context implements \Perfumer\Component\Contracts\Variable
 {
+    /**
+     * @var string
+     */
     public $name;
 
+    /**
+     * @var string
+     */
     public $class;
+
+    /**
+     * @return string
+     */
+    public function asArg()
+    {
+        return '$this->get' . ucfirst($this->name) . 'Context()';
+    }
+
+    /**
+     * @return string
+     */
+    public function asHeader()
+    {
+        return '$' . $this->name;
+    }
+
+    /**
+     * @throws ContractsException
+     */
+    public function asReturn()
+    {
+        throw new ContractsException('@Context annotation can not be used for "return".');
+    }
 }
 
 /**

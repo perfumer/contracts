@@ -244,6 +244,8 @@ class Generator
                 }
             }
 
+            $runtime_context->setContexts($contexts);
+
             foreach ($reflection->getMethods() as $method) {
                 $runtime_action = new RuntimeAction();
                 $runtime_action->setMethodName($method->name);
@@ -381,14 +383,6 @@ class Generator
 
             $runtime_step->addHeaderArgument($argument_var);
             $runtime_step->addBodyArgument($argument_value);
-
-            if (
-                !in_array($argument_var, $runtime_action->getHeaderArguments()) &&
-                !$runtime_action->hasLocalVariable($argument_var) &&
-                !$argument instanceof Property
-            ) {
-                $runtime_action->addLocalVariable($argument_var, $argument_value);
-            }
 
             if ($argument instanceof Property) {
                 $runtime_context->addProperty($argument->name);

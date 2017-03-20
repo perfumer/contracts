@@ -12,22 +12,10 @@ abstract class {{ context.className }}
     protected ${{ variable }};
 {% endfor %}
 
-{% for step in context.steps %}
-{% if step.service is null and step.context is null %}
+{% for step in context.steps if step.service is null and step.context is null %}
     abstract protected function {{ step.functionName }}({{ step.headerArguments|join(', ') }});
-{% endif %}
-{% if step.context %}
-    final private function {{ step.functionName }}({{ step.headerArguments|join(', ') }})
-    {
-        if ($this->_context_{{ step.contextName }} === null) {
-            $this->_context_{{ step.contextName }} = new {{ step.context }}();
-        }
 
-        {% if step.returnExpression %}return {% endif %}$this->_context_{{ step.contextName }}->{{ step.method }}({{ step.headerArguments|join(', ') }});
-    }
-{% endif %}
 {% endfor %}
-
 {% for action in context.actions %}
     final public function {{ action.methodName }}({{ action.headerArguments|join(', ') }})
     {
@@ -71,6 +59,24 @@ abstract class {{ context.className }}
 {% block _action_return_expression %}
         return $_return;
 {% endblock %}
+    }
+
+{% endfor %}
+{% for step in context.steps if step.context %}
+    final private function {{ step.functionName }}({{ step.headerArguments|join(', ') }})
+    {
+        {% if step.returnExpression %}return {% endif %}$this->get{{ step.contextName | capitalize }}Context()->{{ step.method }}({{ step.headerArguments|join(', ') }});
+    }
+
+{% endfor %}
+{% for name, class in context.contexts %}
+    final private function get{{ name | capitalize }}Context()
+    {
+        if ($this->_context_{{ name }} === null) {
+            $this->_context_{{ name }} = new {{ class }}();
+        }
+
+        return $this->_context_{{ name }};
     }
 
 {% endfor %}
