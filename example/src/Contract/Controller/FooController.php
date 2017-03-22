@@ -42,7 +42,7 @@ interface FooController
      * @Call           (name="validators", method="sum",              arguments={"param1", "param2"},        return="sum")
      * @ServiceParent  (                   method="sandboxActionTwo", arguments={"sum", @Property("staff")}, return="sandbox")
      * @ServiceProperty(name="foobar",     method="baz",              arguments={@Context("validators")},    return=@Output)
-     * @Error          (name="validators", method="fooErrors", unless="param1_valid"})
+     * @Error          (name="validators", method="fooErrors", unless="param1_valid")
      *
      * @param int $param1
      * @param int $param2

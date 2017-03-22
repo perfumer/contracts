@@ -208,7 +208,7 @@ class ServiceProperty extends \Perfumer\Component\Contracts\Service
      */
     public function getExpression()
     {
-        return '$this->' . $this->na . '->';
+        return '$this->' . $this->name . '->';
     }
 }
 
@@ -238,7 +238,7 @@ class ServiceStatic extends \Perfumer\Component\Contracts\Service
      */
     public function getExpression()
     {
-        return $this->na . '::';
+        return $this->name . '::';
     }
 }
 

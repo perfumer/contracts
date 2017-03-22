@@ -69,8 +69,8 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         if ($_valid === true) {
             $_return = $this->foobar->baz($this->getValidatorsContext());
         }
-        if ($_valid === false) {
-            $_return = $this->validatorsFooErrors($param1_valid, $param2_valid);
+        if ($_valid === false && !$param1_valid) {
+            $_return = $this->validatorsFooErrors();
         }
 
         return $_return;
@@ -86,9 +86,9 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         return $this->getValidatorsContext()->sum($param1, $param2);
     }
 
-    final private function validatorsFooErrors($param1_valid, $param2_valid)
+    final private function validatorsFooErrors()
     {
-        return $this->getValidatorsContext()->fooErrors($param1_valid, $param2_valid);
+        return $this->getValidatorsContext()->fooErrors();
     }
 
     final private function getValidatorsContext(): \Perfumer\Component\Contracts\Example\Context\FooContext
