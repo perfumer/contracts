@@ -9,33 +9,6 @@ use Perfumer\Component\Contracts\ContractsException;
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Ancestor extends \Perfumer\Component\Contracts\Step
-{
-    /**
-     * @var string
-     */
-    public $method;
-
-    /**
-     * @var array
-     */
-    public $args = [];
-
-    /**
-     * @var mixed
-     */
-    public $return;
-
-    /**
-     * @var string
-     */
-    public $if;
-}
-
-/**
- * @Annotation
- * @Target({"METHOD", "ANNOTATION"})
- */
 class Call extends \Perfumer\Component\Contracts\Step
 {
     /**
@@ -96,7 +69,7 @@ class Collection implements \Perfumer\Component\Contracts\Annotation
  * @Annotation
  * @Target({"CLASS", "METHOD", "ANNOTATION"})
  */
-class Context implements \Perfumer\Component\Contracts\Variable
+class Context extends \Perfumer\Component\Contracts\Variable
 {
     /**
      * @var string
@@ -195,7 +168,7 @@ class Extend implements \Perfumer\Component\Contracts\Annotation
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Output implements \Perfumer\Component\Contracts\Variable
+class Output extends \Perfumer\Component\Contracts\Variable
 {
     /**
      * @throws ContractsException
@@ -226,7 +199,7 @@ class Output implements \Perfumer\Component\Contracts\Variable
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Property implements \Perfumer\Component\Contracts\Variable
+class Property extends \Perfumer\Component\Contracts\Variable
 {
     /**
      * @var string
@@ -270,7 +243,22 @@ class Property implements \Perfumer\Component\Contracts\Variable
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Service extends \Perfumer\Component\Contracts\Step
+class ServiceParent extends \Perfumer\Component\Contracts\Service
+{
+    /**
+     * @return string
+     */
+    public function getExpression()
+    {
+        return 'parent::';
+    }
+}
+
+/**
+ * @Annotation
+ * @Target({"METHOD", "ANNOTATION"})
+ */
+class ServiceProperty extends \Perfumer\Component\Contracts\Service
 {
     /**
      * @var string
@@ -278,31 +266,61 @@ class Service extends \Perfumer\Component\Contracts\Step
     public $name;
 
     /**
+     * @return string
+     */
+    public function getExpression()
+    {
+        return '$this->' . $this->name . '->';
+    }
+}
+
+/**
+ * @Annotation
+ * @Target({"METHOD", "ANNOTATION"})
+ */
+class ServiceSelf extends \Perfumer\Component\Contracts\Service
+{
+    /**
+     * @return string
+     */
+    public function getExpression()
+    {
+        return 'self::';
+    }
+}
+
+/**
+ * @Annotation
+ * @Target({"METHOD", "ANNOTATION"})
+ */
+class ServiceStatic extends \Perfumer\Component\Contracts\Service
+{
+    /**
      * @var string
      */
-    public $method;
-
-    /**
-     * @var array
-     */
-    public $args = [];
-
-    /**
-     * @var mixed
-     */
-    public $return;
-
-    /**
-     * @var string
-     */
-    public $if;
+    public $name;
 
     /**
      * @return string
      */
-    public function getName()
+    public function getExpression()
     {
-        return '$this->' . $this->name;
+        return $this->name . '::';
+    }
+}
+
+/**
+ * @Annotation
+ * @Target({"METHOD", "ANNOTATION"})
+ */
+class ServiceThis extends \Perfumer\Component\Contracts\Service
+{
+    /**
+     * @return string
+     */
+    public function getExpression()
+    {
+        return '$this->';
     }
 }
 

@@ -4,7 +4,6 @@ namespace Perfumer\Component\Contracts;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
-use Perfumer\Component\Contracts\Annotations\Ancestor;
 use Perfumer\Component\Contracts\Annotations\Collection;
 use Perfumer\Component\Contracts\Annotations\Context;
 use Perfumer\Component\Contracts\Annotations\Custom;
@@ -13,7 +12,7 @@ use Perfumer\Component\Contracts\Annotations\Extend;
 use Perfumer\Component\Contracts\Annotations\Call;
 use Perfumer\Component\Contracts\Annotations\Output;
 use Perfumer\Component\Contracts\Annotations\Property;
-use Perfumer\Component\Contracts\Annotations\Service;
+use Perfumer\Component\Contracts\Annotations\ServiceProperty;
 use Perfumer\Component\Contracts\Annotations\Template;
 use Perfumer\Component\Contracts\Annotations\Test;
 use Perfumer\Component\Contracts\Annotations\Validate;
@@ -300,7 +299,7 @@ class Generator
      */
     private function processStepAnnotation(Annotation $annotation, RuntimeStep $runtime_step, RuntimeAction $runtime_action, RuntimeContext $runtime_context, array $contexts)
     {
-        if ($annotation instanceof Service || $annotation instanceof Call || $annotation instanceof Custom || $annotation instanceof Validate || $annotation instanceof Ancestor) {
+        if ($annotation instanceof Step) {
             $runtime_step->setPrependCode($annotation->prepend());
             $runtime_step->setAppendCode($annotation->append());
         }
@@ -320,17 +319,15 @@ class Generator
         }
 
         if ($annotation instanceof Service) {
-            $runtime_step->setService($annotation->getName());
+            $runtime_step->setService($annotation->getExpression());
             $runtime_step->setMethod($annotation->method);
-            $runtime_context->addProperty($annotation->name);
+
+            if ($annotation instanceof ServiceProperty) {
+                $runtime_context->addProperty($annotation->name);
+            }
         }
 
-        if ($annotation instanceof Ancestor) {
-            $runtime_step->setService('_parent');
-            $runtime_step->setMethod($annotation->method);
-        }
-
-        if (($annotation instanceof Call || $annotation instanceof Custom || $annotation instanceof Service || $annotation instanceof Validate || $annotation instanceof Ancestor) && $annotation->if) {
+        if ($annotation instanceof Step && $annotation->if) {
             $local_variable = $annotation->if instanceof Variable ? $annotation->if->asHeader() : '$' . $annotation->if;
             $body_argument = $annotation->if instanceof Variable ? $annotation->if->asArg() : '$' . $annotation->if;
 
@@ -341,7 +338,7 @@ class Generator
             }
         }
 
-        if (($annotation instanceof Call || $annotation instanceof Custom || $annotation instanceof Service || $annotation instanceof Validate || $annotation instanceof Ancestor) && $annotation->return) {
+        if ($annotation instanceof Step && $annotation->return) {
             if (is_array($annotation->return)) {
                 $vars = array_map(function ($v) {
                     return '$' . $v;

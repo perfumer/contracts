@@ -40,10 +40,8 @@ abstract class {{ context.className }}
 {% endif %}
 {% if step.functionName is not null %}
             {{ step.returnExpression }}$this->{{ step.functionName }}({{ step.bodyArguments|join(', ') }});
-{% elseif step.service == '_parent' %}
-            {{ step.returnExpression }}parent::{{ step.method }}({{ step.bodyArguments|join(', ') }});
 {% else %}
-            {{ step.returnExpression }}{{ step.service }}->{{ step.method }}({{ step.bodyArguments|join(', ') }});
+            {{ step.returnExpression }}{{ step.service }}{{ step.method }}({{ step.bodyArguments|join(', ') }});
 {% endif %}
 {% if step.appendCode %}
 

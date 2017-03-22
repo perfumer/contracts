@@ -2,20 +2,20 @@
 
 namespace Perfumer\Component\Contracts;
 
-interface Variable extends Annotation
+abstract class Variable implements Annotation
 {
     /**
      * @return string
      */
-    public function asArg();
+    abstract public function asArg();
 
     /**
      * @return string
      */
-    public function asHeader();
+    abstract public function asHeader();
 
     /**
      * @return string
      */
-    public function asReturn();
+    abstract public function asReturn();
 }
