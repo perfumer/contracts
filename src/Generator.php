@@ -7,7 +7,7 @@ use Doctrine\Common\Annotations\AnnotationRegistry;
 use Perfumer\Component\Contracts\Annotations\Collection;
 use Perfumer\Component\Contracts\Annotations\Context;
 use Perfumer\Component\Contracts\Annotations\Custom;
-use Perfumer\Component\Contracts\Annotations\Errors;
+use Perfumer\Component\Contracts\Annotations\Error;
 use Perfumer\Component\Contracts\Annotations\Extend;
 use Perfumer\Component\Contracts\Annotations\Call;
 use Perfumer\Component\Contracts\Annotations\Output;
@@ -303,7 +303,7 @@ class Generator
             $runtime_step->setAppendCode($annotation->append());
         }
 
-        if ($annotation instanceof Call || $annotation instanceof Errors) {
+        if ($annotation instanceof Call || $annotation instanceof Error) {
             $runtime_context->addProperty('_context_' . $annotation->na);
 
             $runtime_step->setContext($contexts[$annotation->na]);
@@ -371,7 +371,7 @@ class Generator
             }
         }
 
-        if ($annotation instanceof Errors) {
+        if ($annotation instanceof Error) {
             $runtime_step->setReturnExpression('$_return = ');
         }
 
@@ -391,7 +391,7 @@ class Generator
             }
         }
 
-        if ($annotation instanceof Errors) {
+        if ($annotation instanceof Error) {
             $runtime_step->setValid(false);
         } else {
             $runtime_step->setValid(true);

@@ -94,7 +94,7 @@ class Custom extends \Perfumer\Component\Contracts\Step
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Errors extends \Perfumer\Component\Contracts\Step
+class Error extends \Perfumer\Component\Contracts\Step
 {
 }
 
