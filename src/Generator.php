@@ -305,25 +305,25 @@ class Generator
         }
 
         if ($annotation instanceof Call || $annotation instanceof Validate || $annotation instanceof Errors) {
-            $runtime_context->addProperty('_context_' . $annotation->name);
+            $runtime_context->addProperty('_context_' . $annotation->na);
 
-            $runtime_step->setContext($contexts[$annotation->name]);
-            $runtime_step->setContextName($annotation->name);
-            $runtime_step->setMethod($annotation->method);
-            $runtime_step->setFunctionName($annotation->name . ucfirst($annotation->method));
+            $runtime_step->setContext($contexts[$annotation->na]);
+            $runtime_step->setContextName($annotation->na);
+            $runtime_step->setMethod($annotation->me);
+            $runtime_step->setFunctionName($annotation->na . ucfirst($annotation->me));
         }
 
         if ($annotation instanceof Custom) {
-            $runtime_step->setMethod($annotation->method);
-            $runtime_step->setFunctionName($annotation->method);
+            $runtime_step->setMethod($annotation->me);
+            $runtime_step->setFunctionName($annotation->me);
         }
 
         if ($annotation instanceof Service) {
             $runtime_step->setService($annotation->getExpression());
-            $runtime_step->setMethod($annotation->method);
+            $runtime_step->setMethod($annotation->me);
 
             if ($annotation instanceof ServiceProperty) {
-                $runtime_context->addProperty($annotation->name);
+                $runtime_context->addProperty($annotation->na);
             }
         }
 
@@ -338,30 +338,30 @@ class Generator
             }
         }
 
-        if ($annotation instanceof Step && $annotation->return) {
-            if (is_array($annotation->return)) {
+        if ($annotation instanceof Step && $annotation->re) {
+            if (is_array($annotation->re)) {
                 $vars = array_map(function ($v) {
                     return '$' . $v;
-                }, $annotation->return);
+                }, $annotation->re);
 
                 $expression = 'list(' . implode(', ', $vars) . ') = ';
             } else {
-                $expression = $annotation->return instanceof Variable ? $annotation->return->asReturn() : '$' . $annotation->return . ' = ';
+                $expression = $annotation->re instanceof Variable ? $annotation->re->asReturn() : '$' . $annotation->re . ' = ';
             }
 
             $runtime_step->setReturnExpression($expression);
 
-            if (!$annotation->return instanceof Output) {
-                if (is_array($annotation->return)) {
-                    foreach ($annotation->return as $var) {
+            if (!$annotation->re instanceof Output) {
+                if (is_array($annotation->re)) {
+                    foreach ($annotation->re as $var) {
                         $runtime_action->addLocalVariable('$' . $var, null);
                     }
-                } elseif ($annotation->return instanceof Property) {
-                    $runtime_context->addProperty($annotation->return->name);
+                } elseif ($annotation->re instanceof Property) {
+                    $runtime_context->addProperty($annotation->re->name);
                 } else {
                     $value = ($annotation instanceof Validate) ? 'true' : 'null';
 
-                    $runtime_action->addLocalVariable('$' . $annotation->return, $value);
+                    $runtime_action->addLocalVariable('$' . $annotation->re, $value);
                 }
             }
         }
@@ -374,7 +374,7 @@ class Generator
             $runtime_step->setReturnExpression('$_valid = ' . $runtime_step->getReturnExpression());
         }
 
-        foreach ($annotation->args as $argument) {
+        foreach ($annotation->ar as $argument) {
             $argument_var = $argument instanceof Variable ? $argument->asHeader() : '$' . $argument;
             $argument_value = $argument instanceof Variable ? $argument->asArg() : '$' . $argument;
 

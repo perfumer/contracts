@@ -60,7 +60,7 @@ class Context extends \Perfumer\Component\Contracts\Variable
     /**
      * @return string
      */
-    public function asArg()
+    public function asArgument()
     {
         return '$this->get' . ucfirst($this->name) . 'Context()';
     }
@@ -116,7 +116,7 @@ class Output extends \Perfumer\Component\Contracts\Variable
     /**
      * @throws ContractsException
      */
-    public function asArg()
+    public function asArgument()
     {
         throw new ContractsException('@Output annotation can not be used for "args".');
     }
@@ -160,7 +160,7 @@ class Property extends \Perfumer\Component\Contracts\Variable
     /**
      * @return string
      */
-    public function asArg()
+    public function asArgument()
     {
         return '$this->' . $this->name;
     }

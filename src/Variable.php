@@ -7,7 +7,7 @@ abstract class Variable implements Annotation
     /**
      * @return string
      */
-    abstract public function asArg();
+    abstract public function asArgument();
 
     /**
      * @return string
