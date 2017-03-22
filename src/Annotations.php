@@ -11,30 +11,6 @@ use Perfumer\Component\Contracts\ContractsException;
  */
 class Call extends \Perfumer\Component\Contracts\Step
 {
-    /**
-     * @var string
-     */
-    public $name;
-
-    /**
-     * @var string
-     */
-    public $method;
-
-    /**
-     * @var array
-     */
-    public $args = [];
-
-    /**
-     * @var mixed
-     */
-    public $return;
-
-    /**
-     * @var string
-     */
-    public $if;
 }
 
 /**
@@ -112,25 +88,6 @@ class Context extends \Perfumer\Component\Contracts\Variable
  */
 class Custom extends \Perfumer\Component\Contracts\Step
 {
-    /**
-     * @var string
-     */
-    public $method;
-
-    /**
-     * @var array
-     */
-    public $args = [];
-
-    /**
-     * @var mixed
-     */
-    public $return;
-
-    /**
-     * @var string
-     */
-    public $if;
 }
 
 /**
@@ -139,20 +96,6 @@ class Custom extends \Perfumer\Component\Contracts\Step
  */
 class Errors extends \Perfumer\Component\Contracts\Step
 {
-    /**
-     * @var string
-     */
-    public $name;
-
-    /**
-     * @var string
-     */
-    public $method;
-
-    /**
-     * @var array
-     */
-    public $args = [];
 }
 
 /**
@@ -261,11 +204,6 @@ class ServiceParent extends \Perfumer\Component\Contracts\Service
 class ServiceProperty extends \Perfumer\Component\Contracts\Service
 {
     /**
-     * @var string
-     */
-    public $name;
-
-    /**
      * @return string
      */
     public function getExpression()
@@ -295,11 +233,6 @@ class ServiceSelf extends \Perfumer\Component\Contracts\Service
  */
 class ServiceStatic extends \Perfumer\Component\Contracts\Service
 {
-    /**
-     * @var string
-     */
-    public $name;
-
     /**
      * @return string
      */
@@ -350,28 +283,4 @@ class Test implements \Perfumer\Component\Contracts\Annotation
  */
 class Validate extends \Perfumer\Component\Contracts\Step
 {
-    /**
-     * @var string
-     */
-    public $name;
-
-    /**
-     * @var string
-     */
-    public $method;
-
-    /**
-     * @var array
-     */
-    public $args = [];
-
-    /**
-     * @var string
-     */
-    public $return;
-
-    /**
-     * @var string
-     */
-    public $if;
 }
