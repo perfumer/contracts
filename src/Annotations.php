@@ -208,7 +208,7 @@ class ServiceProperty extends \Perfumer\Component\Contracts\Service
      */
     public function getExpression()
     {
-        return '$this->' . $this->name . '->';
+        return '$this->' . $this->na . '->';
     }
 }
 
@@ -238,7 +238,7 @@ class ServiceStatic extends \Perfumer\Component\Contracts\Service
      */
     public function getExpression()
     {
-        return $this->name . '::';
+        return $this->na . '::';
     }
 }
 
@@ -274,13 +274,5 @@ class Template implements \Perfumer\Component\Contracts\Annotation
  * @Target("METHOD")
  */
 class Test implements \Perfumer\Component\Contracts\Annotation
-{
-}
-
-/**
- * @Annotation
- * @Target({"METHOD", "ANNOTATION"})
- */
-class Validate extends \Perfumer\Component\Contracts\Step
 {
 }

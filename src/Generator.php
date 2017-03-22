@@ -15,7 +15,6 @@ use Perfumer\Component\Contracts\Annotations\Property;
 use Perfumer\Component\Contracts\Annotations\ServiceProperty;
 use Perfumer\Component\Contracts\Annotations\Template;
 use Perfumer\Component\Contracts\Annotations\Test;
-use Perfumer\Component\Contracts\Annotations\Validate;
 
 class Generator
 {
@@ -304,7 +303,7 @@ class Generator
             $runtime_step->setAppendCode($annotation->append());
         }
 
-        if ($annotation instanceof Call || $annotation instanceof Validate || $annotation instanceof Errors) {
+        if ($annotation instanceof Call || $annotation instanceof Errors) {
             $runtime_context->addProperty('_context_' . $annotation->na);
 
             $runtime_step->setContext($contexts[$annotation->na]);
@@ -329,7 +328,7 @@ class Generator
 
         if ($annotation instanceof Step && $annotation->if) {
             $local_variable = $annotation->if instanceof Variable ? $annotation->if->asHeader() : '$' . $annotation->if;
-            $body_argument = $annotation->if instanceof Variable ? $annotation->if->asArg() : '$' . $annotation->if;
+            $body_argument = $annotation->if instanceof Variable ? $annotation->if->asArgument() : '$' . $annotation->if;
 
             $runtime_step->setCondition($body_argument);
 
@@ -359,7 +358,7 @@ class Generator
                 } elseif ($annotation->re instanceof Property) {
                     $runtime_context->addProperty($annotation->re->name);
                 } else {
-                    $value = ($annotation instanceof Validate) ? 'true' : 'null';
+                    $value = $annotation->va ? 'true' : 'null';
 
                     $runtime_action->addLocalVariable('$' . $annotation->re, $value);
                 }
@@ -370,13 +369,13 @@ class Generator
             $runtime_step->setReturnExpression('$_return = ');
         }
 
-        if ($annotation instanceof Validate) {
+        if ($annotation->va) {
             $runtime_step->setReturnExpression('$_valid = ' . $runtime_step->getReturnExpression());
         }
 
         foreach ($annotation->ar as $argument) {
             $argument_var = $argument instanceof Variable ? $argument->asHeader() : '$' . $argument;
-            $argument_value = $argument instanceof Variable ? $argument->asArg() : '$' . $argument;
+            $argument_value = $argument instanceof Variable ? $argument->asArgument() : '$' . $argument;
 
             $runtime_step->addHeaderArgument($argument_var);
             $runtime_step->addBodyArgument($argument_value);

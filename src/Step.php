@@ -35,6 +35,11 @@ abstract class Step implements Annotation
     public $un;
 
     /**
+     * @var bool
+     */
+    public $va = false;
+
+    /**
      * @return string
      */
     public function prepend()
