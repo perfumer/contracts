@@ -29,10 +29,7 @@ class FooContextTest extends \Generated\Tests\Perfumer\Component\Contracts\Examp
     public function fooErrorsDataProvider()
     {
         return [
-            [true, true, ''],
-            [false, true, 'Param1 is not valid'],
-            [true, false, 'Param2 is not valid'],
-            [false, false, 'Param1 and param2 are not valid'],
+            ['Param1 is not valid'],
         ];
     }
 }
