@@ -326,9 +326,15 @@ class Generator
             }
         }
 
-        if ($annotation instanceof Step && $annotation->if) {
-            $local_variable = $annotation->if instanceof Variable ? $annotation->if->asHeader() : '$' . $annotation->if;
-            $body_argument = $annotation->if instanceof Variable ? $annotation->if->asArgument() : '$' . $annotation->if;
+        if ($annotation instanceof Step && ($annotation->if || $annotation->un)) {
+            $condition = $annotation->if ?: $annotation->un;
+
+            $local_variable = $condition instanceof Variable ? $condition->asHeader() : '$' . $condition;
+            $body_argument = $condition instanceof Variable ? $condition->asArgument() : '$' . $condition;
+
+            if ($annotation->un) {
+                $body_argument = '!' . $body_argument;
+            }
 
             $runtime_step->setCondition($body_argument);
 
