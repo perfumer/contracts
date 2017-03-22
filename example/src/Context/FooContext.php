@@ -43,26 +43,10 @@ class FooContext
     /**
      * @Test
      *
-     * @param bool $param1_valid
-     * @param bool $param2_valid
      * @return string
      */
-    public function fooErrors(bool $param1_valid, bool $param2_valid)
+    public function fooErrors()
     {
-        $return = '';
-
-        if (!$param1_valid && $param2_valid) {
-            $return = 'Param1 is not valid';
-        }
-
-        if ($param1_valid && !$param2_valid) {
-            $return = 'Param2 is not valid';
-        }
-
-        if (!$param1_valid && !$param2_valid) {
-            $return = 'Param1 and param2 are not valid';
-        }
-
-        return $return;
+        return 'Param1 is not valid';
     }
 }

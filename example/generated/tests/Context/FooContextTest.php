@@ -33,11 +33,11 @@ abstract class FooContextTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider fooErrorsDataProvider
      */
-    final public function test_fooErrors($param1_valid, $param2_valid, $result)
+    final public function test_fooErrors($result)
     {
         $_class_instance = new \Perfumer\Component\Contracts\Example\Context\FooContext();
 
-        $this->assertEquals($_class_instance->fooErrors($param1_valid, $param2_valid), $result);
+        $this->assertEquals($_class_instance->fooErrors(), $result);
     }
 
 }

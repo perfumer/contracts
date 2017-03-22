@@ -134,7 +134,7 @@ class Output extends \Perfumer\Component\Contracts\Variable
      */
     public function asReturn()
     {
-        return '$_return = ';
+        return '$_return';
     }
 }
 
@@ -178,7 +178,7 @@ class Property extends \Perfumer\Component\Contracts\Variable
      */
     public function asReturn()
     {
-        return '$this->' . $this->name . ' = ';
+        return '$this->' . $this->name;
     }
 }
 

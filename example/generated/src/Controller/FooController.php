@@ -8,6 +8,7 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
     protected $sum;
     protected $staff;
     protected $foobar;
+    protected $box;
 
     abstract protected function sumDoubled($sum);
 
@@ -19,7 +20,6 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         $param2_valid = true;
         $double_sum = null;
         $sand = null;
-        $box = null;
 
 
         if ($_valid === true) {
@@ -35,10 +35,10 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
             $double_sum = $this->sumDoubled($this->sum);
         }
         if ($_valid === true) {
-            list($sand, $box) = parent::sandboxActionTwo($this->sum, $this->staff);
+            list($sand, $this->box) = parent::sandboxActionTwo($this->sum, $this->staff);
         }
         if ($_valid === true) {
-            $_return = $this->foobar->baz($sand, $box);
+            $_return = $this->foobar->baz($sand, $this->box);
         }
 
         return $_return;

@@ -26,8 +26,8 @@ interface FooController
      * @Collection(steps={
      *   @Call           (name="validators", method="sum",              arguments={"param1", "param2"},                   return=@Property("sum")),
      *   @Custom         (                   method="sumDoubled",       arguments={@Property("sum")},                     return="double_sum"),
-     *   @ServiceParent  (                   method="sandboxActionTwo", arguments={@Property("sum"), @Property("staff")}, return={"sand", "box"}),
-     *   @ServiceProperty(name="foobar",     method="baz",              arguments={"sand", "box"},                        return=@Output)
+     *   @ServiceParent  (                   method="sandboxActionTwo", arguments={@Property("sum"), @Property("staff")}, return={"sand", @Property("box")}),
+     *   @ServiceProperty(name="foobar",     method="baz",              arguments={"sand", @Property("box")},             return=@Output)
      * })
      *
      * @param int $param1

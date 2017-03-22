@@ -346,12 +346,12 @@ class Generator
         if ($annotation instanceof Step && $annotation->return) {
             if (is_array($annotation->return)) {
                 $vars = array_map(function ($v) {
-                    return '$' . $v;
+                    return $v instanceof Variable ? $v->asReturn() : '$' . $v;
                 }, $annotation->return);
 
-                $expression = 'list(' . implode(', ', $vars) . ') = ';
+                $expression = 'list(' . implode(', ', $vars) . ')';
             } else {
-                $expression = $annotation->return instanceof Variable ? $annotation->return->asReturn() : '$' . $annotation->return . ' = ';
+                $expression = $annotation->return instanceof Variable ? $annotation->return->asReturn() : '$' . $annotation->return;
             }
 
             $runtime_step->setReturnExpression($expression);
@@ -359,7 +359,9 @@ class Generator
             if (!$annotation->return instanceof Output) {
                 if (is_array($annotation->return)) {
                     foreach ($annotation->return as $var) {
-                        $runtime_action->addLocalVariable('$' . $var, null);
+                        if (!$var instanceof Variable) {
+                            $runtime_action->addLocalVariable('$' . $var, null);
+                        }
                     }
                 } elseif ($annotation->return instanceof Property) {
                     $runtime_context->addProperty($annotation->return->name);
@@ -372,7 +374,7 @@ class Generator
         }
 
         if ($annotation instanceof Error) {
-            $runtime_step->setReturnExpression('$_return = ');
+            $runtime_step->setReturnExpression('$_return');
         }
 
         if ($annotation->validate) {
