@@ -21,13 +21,13 @@ use Perfumer\Component\Contracts\Annotations\Template;
 interface FooController
 {
     /**
-     * @Call (na="validators", me="intType", ar={"param1"}, re="param1_valid",                    va=true)
-     * @Call (na="validators", me="intType", ar={"param2"}, re="param2_valid", if="param1_valid", va=true)
+     * @Call (name="validators", method="intType", arguments={"param1"}, return="param1_valid",                    validate=true)
+     * @Call (name="validators", method="intType", arguments={"param2"}, return="param2_valid", if="param1_valid", validate=true)
      * @Collection(steps={
-     *   @Call           (na="validators", me="sum",              ar={"param1", "param2"},                   re=@Property("sum")),
-     *   @Custom         (                 me="sumDoubled",       ar={@Property("sum")},                     re="double_sum"),
-     *   @ServiceParent  (                 me="sandboxActionTwo", ar={@Property("sum"), @Property("staff")}, re={"sand", "box"}),
-     *   @ServiceProperty(na="foobar",     me="baz",              ar={"sand", "box"},                        re=@Output)
+     *   @Call           (name="validators", method="sum",              arguments={"param1", "param2"},                   return=@Property("sum")),
+     *   @Custom         (                   method="sumDoubled",       arguments={@Property("sum")},                     return="double_sum"),
+     *   @ServiceParent  (                   method="sandboxActionTwo", arguments={@Property("sum"), @Property("staff")}, return={"sand", "box"}),
+     *   @ServiceProperty(name="foobar",     method="baz",              arguments={"sand", "box"},                        return=@Output)
      * })
      *
      * @param int $param1
@@ -37,12 +37,12 @@ interface FooController
     public function bar(int $param1, int $param2);
 
     /**
-     * @Call           (na="validators", me="intType",          ar={"param1"},                  re="param1_valid", va=true)
-     * @Call           (na="validators", me="intType",          ar={"param2"},                  re="param2_valid", va=true)
-     * @Call           (na="validators", me="sum",              ar={"param1", "param2"},        re="sum")
-     * @ServiceParent  (                 me="sandboxActionTwo", ar={"sum", @Property("staff")}, re="sandbox")
-     * @ServiceProperty(na="foobar",     me="baz",              ar={@Context("validators")},    re=@Output)
-     * @Error          (na="validators", me="fooErrors",        ar={"param1_valid", "param2_valid"})
+     * @Call           (name="validators", method="intType",          arguments={"param1"},                  return="param1_valid", validate=true)
+     * @Call           (name="validators", method="intType",          arguments={"param2"},                  return="param2_valid", validate=true)
+     * @Call           (name="validators", method="sum",              arguments={"param1", "param2"},        return="sum")
+     * @ServiceParent  (                   method="sandboxActionTwo", arguments={"sum", @Property("staff")}, return="sandbox")
+     * @ServiceProperty(name="foobar",     method="baz",              arguments={@Context("validators")},    return=@Output)
+     * @Error          (name="validators", method="fooErrors", unless="param1_valid"})
      *
      * @param int $param1
      * @param int $param2

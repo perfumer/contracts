@@ -7,22 +7,22 @@ abstract class Step implements Annotation
     /**
      * @var string
      */
-    public $na;
+    public $name;
 
     /**
      * @var string
      */
-    public $me;
+    public $method;
 
     /**
      * @var array
      */
-    public $ar = [];
+    public $arguments = [];
 
     /**
      * @var mixed
      */
-    public $re;
+    public $return;
 
     /**
      * @var string
@@ -32,12 +32,12 @@ abstract class Step implements Annotation
     /**
      * @var string
      */
-    public $un;
+    public $unless;
 
     /**
      * @var bool
      */
-    public $va = false;
+    public $validate = false;
 
     /**
      * @return string
