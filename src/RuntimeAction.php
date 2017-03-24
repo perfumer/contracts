@@ -15,6 +15,11 @@ class RuntimeAction
     protected $header_arguments = [];
 
     /**
+     * @var string
+     */
+    protected $return_type;
+
+    /**
      * @var array
      */
     protected $local_variables = [];
@@ -58,10 +63,27 @@ class RuntimeAction
 
     /**
      * @param string $header_argument
+     * @param string $typehint
      */
-    public function addHeaderArgument($header_argument)
+    public function addHeaderArgument($header_argument, $typehint = '')
     {
-        $this->header_arguments[] = $header_argument;
+        $this->header_arguments[$header_argument] = $typehint;
+    }
+
+    /**
+     * @return string
+     */
+    public function getReturnType()
+    {
+        return $this->return_type;
+    }
+
+    /**
+     * @param string $return_type
+     */
+    public function setReturnType($return_type)
+    {
+        $this->return_type = $return_type;
     }
 
     /**

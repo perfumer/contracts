@@ -12,7 +12,7 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
 
     abstract protected function sumDoubled($sum);
 
-    final public function bar($param1, $param2)
+    final public function bar(int $param1, \Perfumer\Component\Contracts\Annotations\Output $param2): string
     {
         $_valid = true;
         $_return = null;
@@ -44,7 +44,7 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         return $_return;
     }
 
-    final public function baz($param1, $param2)
+    final public function baz(int $param1, $param2): \DateTime
     {
         $_valid = true;
         $_return = null;

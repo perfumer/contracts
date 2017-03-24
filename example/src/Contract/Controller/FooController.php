@@ -34,7 +34,7 @@ interface FooController
      * @param int $param2
      * @return mixed
      */
-    public function bar(int $param1, int $param2);
+    public function bar(int $param1, Output $param2): string;
 
     /**
      * @Call           (name="validators", method="intType",          arguments={"param1"},                  return="param1_valid", validate=true)
@@ -48,5 +48,5 @@ interface FooController
      * @param int $param2
      * @return mixed
      */
-    public function baz(int $param1, int $param2);
+    public function baz(int $param1, $param2): \DateTime;
 }

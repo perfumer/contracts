@@ -17,7 +17,8 @@ abstract class {{ context.className }}
 
 {% endfor %}
 {% for action in context.actions %}
-    final public function {{ action.methodName }}({{ action.headerArguments|join(', ') }})
+    final public function {{ action.methodName }}({% for key, value in action.headerArguments %}{% if value %}{{ value }} {% endif %}{{ key }}{% if not loop.last %}, {% endif %}{% endfor %}){% if action.returnType %}: {{ action.returnType }}{% endif %}
+
     {
         $_valid = true;
         $_return = null;

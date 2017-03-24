@@ -248,8 +248,22 @@ class Generator
                 $runtime_action = new RuntimeAction();
                 $runtime_action->setMethodName($method->name);
 
+                $type = (string) $method->getReturnType();
+
+                if ($type && !$method->getReturnType()->isBuiltin()) {
+                    $type = '\\' . $type;
+                }
+                
+                $runtime_action->setReturnType($type);
+
                 foreach ($method->getParameters() as $parameter) {
-                    $runtime_action->addHeaderArgument('$' . $parameter->name);
+                    $type = (string) $parameter->getType();
+
+                    if ($type && !$parameter->getType()->isBuiltin()) {
+                        $type = '\\' . $type;
+                    }
+
+                    $runtime_action->addHeaderArgument('$' . $parameter->name, $type);
                 }
 
                 $method_annotations = $reader->getMethodAnnotations($method);
