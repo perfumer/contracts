@@ -1,0 +1,15 @@
+<?php
+
+namespace Generated\Tests\{{ context.namespace }};
+
+{% if context.extendsTest %}
+abstract class {{ context.className }}Test extends {{ context.extendsTest }}
+{% else %}
+abstract class {{ context.className }}Test extends \PHPUnit_Framework_TestCase
+{% endif %}
+{
+    final public function test_syntax()
+    {
+        new \ReflectionClass(\{{ context.namespace }}\{{ context.className }}::class);
+    }
+}

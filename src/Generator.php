@@ -286,6 +286,8 @@ class Generator
 
             $this->generateBaseClass($reflection, $runtime_context);
             $this->generateClass($reflection, $runtime_context);
+            $this->generateBaseClassTest($reflection, $runtime_context);
+            $this->generateClassTest($reflection, $runtime_context);
         }
     }
 
@@ -458,6 +460,60 @@ class Generator
         ]);
 
         $builder->writeOnDisk($this->root_dir . '/' . $this->src_path);
+    }
+
+    /**
+     * @param \ReflectionClass $reflection
+     * @param RuntimeContext $runtime_context
+     */
+    private function generateBaseClassTest(\ReflectionClass $reflection, RuntimeContext $runtime_context)
+    {
+        $output_name = str_replace('\\', '/', trim(str_replace($this->contract_prefix, '', $reflection->getNamespaceName()), '\\'));
+
+        if ($output_name) {
+            $output_name .= '/';
+        }
+
+        $output_name = $output_name . $reflection->getShortName() . 'Test.php';
+
+        $builder = new Builder();
+        $builder->setMustOverwriteIfExists(true);
+        $builder->setTemplateName('BaseClassTest.php.twig');
+        $builder->setTemplateDirs($this->template_directories);
+        $builder->setGenerator($this->generator);
+        $builder->setOutputName($output_name);
+        $builder->setVariables([
+            'context' => $runtime_context
+        ]);
+
+        $builder->writeOnDisk($this->root_dir . '/' . $this->base_test_path);
+    }
+
+    /**
+     * @param \ReflectionClass $reflection
+     * @param RuntimeContext $runtime_context
+     */
+    private function generateClassTest(\ReflectionClass $reflection, RuntimeContext $runtime_context)
+    {
+        $output_name = str_replace('\\', '/', trim(str_replace($this->contract_prefix, '', $reflection->getNamespaceName()), '\\'));
+
+        if ($output_name) {
+            $output_name .= '/';
+        }
+
+        $output_name = $output_name . $reflection->getShortName() . 'Test.php';
+
+        $builder = new Builder();
+        $builder->setMustOverwriteIfExists(false);
+        $builder->setTemplateName('ClassTest.php.twig');
+        $builder->setTemplateDirs($this->template_directories);
+        $builder->setGenerator($this->generator);
+        $builder->setOutputName($output_name);
+        $builder->setVariables([
+            'context' => $runtime_context
+        ]);
+
+        $builder->writeOnDisk($this->root_dir . '/' . $this->test_path);
     }
 
     /**
