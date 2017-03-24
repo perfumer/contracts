@@ -227,6 +227,7 @@ class Generator
 
             $runtime_context->setNamespace($namespace);
             $runtime_context->setClassName($reflection->getShortName());
+            $runtime_context->addInterface('\\' . $class);
 
             foreach ($class_annotations as $annotation) {
                 if ($annotation instanceof Template) {
@@ -253,7 +254,7 @@ class Generator
                 if ($type && !$method->getReturnType()->isBuiltin()) {
                     $type = '\\' . $type;
                 }
-                
+
                 $runtime_action->setReturnType($type);
 
                 foreach ($method->getParameters() as $parameter) {

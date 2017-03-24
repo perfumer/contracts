@@ -2,7 +2,7 @@
 
 namespace Generated\Perfumer\Component\Contracts\Example\Controller;
 
-abstract class FooController extends \Perfumer\Component\Contracts\Example\ParentController
+abstract class FooController extends \Perfumer\Component\Contracts\Example\ParentController implements \Perfumer\Component\Contracts\Example\Contract\Controller\FooController
 {
     protected $_context_validators;
     protected $sum;
@@ -44,7 +44,7 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         return $_return;
     }
 
-    final public function baz(int $param1, $param2): \DateTime
+    final public function baz(int $param1, int $param2): \DateTime
     {
         $_valid = true;
         $_return = null;

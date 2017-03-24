@@ -42,6 +42,11 @@ class RuntimeContext
     /**
      * @var array
      */
+    protected $interfaces = [];
+
+    /**
+     * @var array
+     */
     protected $actions = [];
 
     /**
@@ -177,6 +182,30 @@ class RuntimeContext
     public function hasStep($key)
     {
         return isset($this->steps[$key]);
+    }
+
+    /**
+     * @return array
+     */
+    public function getInterfaces(): array
+    {
+        return $this->interfaces;
+    }
+
+    /**
+     * @param array $interfaces
+     */
+    public function setInterfaces(array $interfaces)
+    {
+        $this->interfaces = $interfaces;
+    }
+
+    /**
+     * @param string $interface
+     */
+    public function addInterface(string $interface)
+    {
+        $this->interfaces[] = $interface;
     }
 
     /**

@@ -31,8 +31,8 @@ interface FooController
      * })
      *
      * @param int $param1
-     * @param int $param2
-     * @return mixed
+     * @param Output $param2
+     * @return string
      */
     public function bar(int $param1, Output $param2): string;
 
@@ -46,7 +46,7 @@ interface FooController
      *
      * @param int $param1
      * @param int $param2
-     * @return mixed
+     * @return \DateTime
      */
-    public function baz(int $param1, $param2): \DateTime;
+    public function baz(int $param1, int $param2): \DateTime;
 }

@@ -3,10 +3,11 @@
 namespace Generated\{{ context.namespace }};
 
 {% if context.extendsClass %}
-abstract class {{ context.className }} extends {{ context.extendsClass }}
+abstract class {{ context.className }} extends {{ context.extendsClass }}{% if context.interfaces %} implements {{ context.interfaces|join(', ') }}{% endif %}
 {% else %}
-abstract class {{ context.className }}
+abstract class {{ context.className }}{% if context.interfaces %} implements {{ context.interfaces|join(', ') }}{% endif %}
 {% endif %}
+
 {
 {% for variable in context.properties %}
     protected ${{ variable }};
