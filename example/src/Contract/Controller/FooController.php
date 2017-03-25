@@ -24,7 +24,7 @@ interface FooController
      * @Call (name="validators", method="intType", arguments={"param1"}, return="param1_valid",                    validate=true)
      * @Call (name="validators", method="intType", arguments={"param2"}, return="param2_valid", if="param1_valid", validate=true)
      * @Collection(steps={
-     *   @Call           (name="validators", method="sum",              arguments={"param1", "param2"},                   return=@Property("sum")),
+     *   @Call           (name="validators", method="sum",              arguments={"param1"},                             return=@Property("sum")),
      *   @Custom         (                   method="sumDoubled",       arguments={@Property("sum")},                     return="double_sum"),
      *   @ServiceParent  (                   method="sandboxActionTwo", arguments={@Property("sum"), @Property("staff")}, return={"sand", @Property("box")}),
      *   @ServiceProperty(name="foobar",     method="baz",              arguments={"sand", @Property("box")},             return=@Output)
@@ -39,7 +39,7 @@ interface FooController
     /**
      * @Call           (name="validators", method="intType",          arguments={"param1"},                  return="param1_valid", validate=true)
      * @Call           (name="validators", method="intType",          arguments={"param2"},                  return="param2_valid", validate=true)
-     * @Call           (name="validators", method="sum",              arguments={"param1", "param2"},        return="sum")
+     * @Call           (name="validators", method="sum",              arguments={"param1"},                  return="sum")
      * @ServiceParent  (                   method="sandboxActionTwo", arguments={"sum", @Property("staff")}, return="sandbox")
      * @ServiceProperty(name="foobar",     method="baz",              arguments={@Context("validators")},    return=@Output)
      * @Error          (name="validators", method="fooErrors", unless="param1_valid")

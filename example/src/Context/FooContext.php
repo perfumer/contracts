@@ -2,6 +2,8 @@
 
 namespace Perfumer\Component\Contracts\Example\Context;
 
+use Perfumer\Component\Contracts\Annotations\Inject;
+use Perfumer\Component\Contracts\Annotations\Property;
 use Perfumer\Component\Contracts\Annotations\Test;
 
 class FooContext
@@ -18,6 +20,7 @@ class FooContext
     }
 
     /**
+     * @Inject(name="b", variable=@Property("box"))
      * @Test
      *
      * @param int $a

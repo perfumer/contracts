@@ -3,13 +3,17 @@
 namespace Perfumer\Component\Contracts\Annotations;
 
 use Doctrine\Common\Annotations\Annotation\Target;
+use Perfumer\Component\Contracts\Annotation;
 use Perfumer\Component\Contracts\ContractsException;
+use Perfumer\Component\Contracts\Service;
+use Perfumer\Component\Contracts\Step;
+use Perfumer\Component\Contracts\Variable;
 
 /**
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Call extends \Perfumer\Component\Contracts\Step
+class Call extends Step
 {
 }
 
@@ -17,7 +21,7 @@ class Call extends \Perfumer\Component\Contracts\Step
  * @Annotation
  * @Target("METHOD")
  */
-class Collection implements \Perfumer\Component\Contracts\Annotation
+class Collection implements Annotation
 {
     /**
      * @var array
@@ -45,7 +49,7 @@ class Collection implements \Perfumer\Component\Contracts\Annotation
  * @Annotation
  * @Target({"CLASS", "METHOD", "ANNOTATION"})
  */
-class Context extends \Perfumer\Component\Contracts\Variable
+class Context extends Variable
 {
     /**
      * @var string
@@ -86,7 +90,7 @@ class Context extends \Perfumer\Component\Contracts\Variable
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Custom extends \Perfumer\Component\Contracts\Step
+class Custom extends Step
 {
 }
 
@@ -94,7 +98,7 @@ class Custom extends \Perfumer\Component\Contracts\Step
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Error extends \Perfumer\Component\Contracts\Step
+class Error extends Step
 {
 }
 
@@ -102,16 +106,33 @@ class Error extends \Perfumer\Component\Contracts\Step
  * @Annotation
  * @Target("CLASS")
  */
-class Extend implements \Perfumer\Component\Contracts\Annotation
+class Extend implements Annotation
 {
     public $class;
 }
 
 /**
  * @Annotation
+ * @Target("METHOD")
+ */
+class Inject implements Annotation
+{
+    /**
+     * @var string
+     */
+    public $name;
+
+    /**
+     * @var mixed
+     */
+    public $variable;
+}
+
+/**
+ * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Output extends \Perfumer\Component\Contracts\Variable
+class Output extends Variable
 {
     /**
      * @throws ContractsException
@@ -142,7 +163,7 @@ class Output extends \Perfumer\Component\Contracts\Variable
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Property extends \Perfumer\Component\Contracts\Variable
+class Property extends Variable
 {
     /**
      * @var string
@@ -186,7 +207,7 @@ class Property extends \Perfumer\Component\Contracts\Variable
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class ServiceParent extends \Perfumer\Component\Contracts\Service
+class ServiceParent extends Service
 {
     /**
      * @return string
@@ -201,7 +222,7 @@ class ServiceParent extends \Perfumer\Component\Contracts\Service
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class ServiceProperty extends \Perfumer\Component\Contracts\Service
+class ServiceProperty extends Service
 {
     /**
      * @return string
@@ -216,7 +237,7 @@ class ServiceProperty extends \Perfumer\Component\Contracts\Service
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class ServiceSelf extends \Perfumer\Component\Contracts\Service
+class ServiceSelf extends Service
 {
     /**
      * @return string
@@ -231,7 +252,7 @@ class ServiceSelf extends \Perfumer\Component\Contracts\Service
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class ServiceStatic extends \Perfumer\Component\Contracts\Service
+class ServiceStatic extends Service
 {
     /**
      * @return string
@@ -246,7 +267,7 @@ class ServiceStatic extends \Perfumer\Component\Contracts\Service
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class ServiceThis extends \Perfumer\Component\Contracts\Service
+class ServiceThis extends Service
 {
     /**
      * @return string
@@ -261,7 +282,7 @@ class ServiceThis extends \Perfumer\Component\Contracts\Service
  * @Annotation
  * @Target("CLASS")
  */
-class Template implements \Perfumer\Component\Contracts\Annotation
+class Template implements Annotation
 {
     /**
      * @var string
@@ -273,6 +294,6 @@ class Template implements \Perfumer\Component\Contracts\Annotation
  * @Annotation
  * @Target("METHOD")
  */
-class Test implements \Perfumer\Component\Contracts\Annotation
+class Test implements Annotation
 {
 }

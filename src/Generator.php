@@ -10,6 +10,7 @@ use Perfumer\Component\Contracts\Annotations\Custom;
 use Perfumer\Component\Contracts\Annotations\Error;
 use Perfumer\Component\Contracts\Annotations\Extend;
 use Perfumer\Component\Contracts\Annotations\Call;
+use Perfumer\Component\Contracts\Annotations\Inject;
 use Perfumer\Component\Contracts\Annotations\Output;
 use Perfumer\Component\Contracts\Annotations\Property;
 use Perfumer\Component\Contracts\Annotations\ServiceProperty;
@@ -398,7 +399,52 @@ class Generator
             $runtime_step->setReturnExpression('$_valid = ' . $runtime_step->getReturnExpression());
         }
 
-        foreach ($annotation->arguments as $argument) {
+        $annotation_arguments = $annotation->arguments;
+
+        if ($annotation instanceof Call || $annotation instanceof Error) {
+            $reflection_context = new \ReflectionClass($contexts[$annotation->name]);
+
+            foreach ($reflection_context->getMethods() as $method) {
+                if ($method->getName() !== $annotation->method) {
+                    continue;
+                }
+
+                $reader = new AnnotationReader();
+                $method_annotations = $reader->getMethodAnnotations($method);
+                $tmp_arguments = [];
+
+                foreach ($method->getParameters() as $parameter) {
+                    $found = false;
+
+                    foreach ($method_annotations as $method_annotation) {
+                        if ($method_annotation instanceof Inject && $parameter->getName() == $method_annotation->name) {
+                            $tmp_arguments[] = $method_annotation->variable;
+                            $found = true;
+                        }
+                    }
+
+                    if (!$found) {
+                        $tmp_arguments[] = array_shift($annotation_arguments);
+                    }
+                }
+
+                if (count($annotation_arguments) > 0) {
+                    throw new ContractsException(sprintf('%s\\%s -> %s -> %s.%s has excessive arguments.',
+                        $runtime_context->getNamespace(),
+                        $runtime_context->getClassName(),
+                        $runtime_action->getMethodName(),
+                        $annotation->name,
+                        $annotation->method
+                    ));
+                }
+
+                if ($tmp_arguments) {
+                    $annotation_arguments = $tmp_arguments;
+                }
+            }
+        }
+
+        foreach ($annotation_arguments as $argument) {
             $argument_var = $argument instanceof Variable ? $argument->asHeader() : '$' . $argument;
             $argument_value = $argument instanceof Variable ? $argument->asArgument() : '$' . $argument;
 
