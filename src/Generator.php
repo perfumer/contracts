@@ -374,19 +374,15 @@ class Generator
 
             $runtime_step->setReturnExpression($expression);
 
-            if (!$annotation->return instanceof Output) {
-                if (is_array($annotation->return)) {
-                    foreach ($annotation->return as $var) {
-                        if (!$var instanceof Variable) {
-                            $runtime_action->addLocalVariable('$' . $var, null);
-                        }
-                    }
-                } elseif ($annotation->return instanceof Property) {
-                    $runtime_context->addProperty($annotation->return->name);
-                } else {
+            $return_values = is_array($annotation->return) ? $annotation->return : [$annotation->return];
+
+            foreach ($return_values as $var) {
+                if (!$var instanceof Variable) {
                     $value = $annotation->validate ? 'true' : 'null';
 
-                    $runtime_action->addLocalVariable('$' . $annotation->return, $value);
+                    $runtime_action->addLocalVariable('$' . $var, $value);
+                } elseif ($var instanceof Property) {
+                    $runtime_context->addProperty($var->name);
                 }
             }
         }
