@@ -4,8 +4,38 @@ namespace Generated\Tests\Perfumer\Component\Contracts\Example\Controller;
 
 abstract class FooControllerTest extends \PHPUnit_Framework_TestCase
 {
-    final public function test_syntax()
+    final public function testSyntax()
     {
         new \ReflectionClass(\Perfumer\Component\Contracts\Example\Controller\FooController::class);
+    }
+
+    final public function testBarLocalVariables()
+    {
+        $param1 = true;
+        $param2 = true;
+        $this->assertNotEmpty($param1);
+        $param1_valid = true;
+        $this->assertNotEmpty($param1_valid);
+        $this->assertNotEmpty($param2);
+        $param2_valid = true;
+        $this->assertNotEmpty($param1);
+        $double_sum = true;
+        $sand = true;
+        $this->assertNotEmpty($sand);
+    }
+
+    final public function testBazLocalVariables()
+    {
+        $param1 = true;
+        $param2 = true;
+        $this->assertNotEmpty($param1);
+        $param1_valid = true;
+        $this->assertNotEmpty($param2);
+        $param2_valid = true;
+        $this->assertNotEmpty($param1);
+        $sum = true;
+        $this->assertNotEmpty($sum);
+        $sandbox = true;
+        $this->assertNotEmpty($param1_valid);
     }
 }

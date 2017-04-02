@@ -45,6 +45,16 @@ class RuntimeStep
     protected $return_expression;
 
     /**
+     * @var array
+     */
+    protected $local_dependencies = [];
+
+    /**
+     * @var array
+     */
+    protected $local_returns = [];
+
+    /**
      * @var string
      */
     protected $before_code;
@@ -312,5 +322,46 @@ class RuntimeStep
     public function setCondition(string $condition)
     {
         $this->condition = $condition;
+    }
+
+    /**
+     * @return array
+     */
+    public function getLocalDependencies(): array
+    {
+        return $this->local_dependencies;
+    }
+
+    /**
+     * @param string $local_dependency
+     */
+    public function addLocalDependency(string $local_dependency)
+    {
+        $this->local_dependencies[] = $local_dependency;
+    }
+
+    /**
+     * @param string $local_dependency
+     * @return bool
+     */
+    public function hasLocalDependency(string $local_dependency): bool
+    {
+        return in_array($local_dependency, $this->local_dependencies);
+    }
+
+    /**
+     * @return array
+     */
+    public function getLocalReturns(): array
+    {
+        return $this->local_returns;
+    }
+
+    /**
+     * @param string $local_return
+     */
+    public function addLocalReturn(string $local_return)
+    {
+        $this->local_returns[] = $local_return;
     }
 }

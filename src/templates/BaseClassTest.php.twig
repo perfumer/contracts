@@ -8,8 +8,25 @@ abstract class {{ context.className }}Test extends {{ context.extendsTest }}
 abstract class {{ context.className }}Test extends \PHPUnit_Framework_TestCase
 {% endif %}
 {
-    final public function test_syntax()
+    final public function testSyntax()
     {
         new \ReflectionClass(\{{ context.namespace }}\{{ context.className }}::class);
     }
+{% for action in context.actions %}
+
+    final public function test{{ action.methodName|capitalize }}LocalVariables()
+    {
+{% for argument, type in action.headerArguments %}
+        {{ argument }} = true;
+{% endfor %}
+{% for step in action.steps %}
+{% for argument in step.localDependencies %}
+        $this->assertNotEmpty({{ argument }});
+{% endfor %}
+{% for argument in step.localReturns %}
+        {{ argument }} = true;
+{% endfor %}
+{% endfor %}
+    }
+{% endfor %}
 }

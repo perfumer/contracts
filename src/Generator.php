@@ -313,6 +313,7 @@ class Generator
      * @param RuntimeAction $runtime_action
      * @param RuntimeContext $runtime_context
      * @param array $contexts
+     * @throws ContractsException
      */
     private function processStepAnnotation(Annotation $annotation, RuntimeStep $runtime_step, RuntimeAction $runtime_action, RuntimeContext $runtime_context, array $contexts)
     {
@@ -347,7 +348,6 @@ class Generator
         if ($annotation instanceof Step && ($annotation->if || $annotation->unless)) {
             $condition = $annotation->if ?: $annotation->unless;
 
-            $local_variable = $condition instanceof Variable ? $condition->asHeader() : '$' . $condition;
             $body_argument = $condition instanceof Variable ? $condition->asArgument() : '$' . $condition;
 
             if ($annotation->unless) {
@@ -356,8 +356,16 @@ class Generator
 
             $runtime_step->setCondition($body_argument);
 
-            if (!$runtime_action->hasLocalVariable($local_variable)) {
-                $runtime_action->addLocalVariable($local_variable, null);
+            if (!$condition instanceof Variable) {
+                $local_variable = '$' . $condition;
+
+                if (!$runtime_step->hasLocalDependency($local_variable)) {
+                    $runtime_step->addLocalDependency($local_variable);
+                }
+
+                if (!$runtime_action->hasLocalVariable($local_variable)) {
+                    $runtime_action->addLocalVariable($local_variable, null);
+                }
             }
         }
 
@@ -381,6 +389,8 @@ class Generator
                     $value = $annotation->validate ? 'true' : 'null';
 
                     $runtime_action->addLocalVariable('$' . $var, $value);
+
+                    $runtime_step->addLocalReturn('$' . $var);
                 } elseif ($var instanceof Property) {
                     $runtime_context->addProperty($var->name);
                 }
@@ -449,6 +459,10 @@ class Generator
 
             if ($argument instanceof Property) {
                 $runtime_context->addProperty($argument->name);
+            }
+
+            if (!$argument instanceof Variable && !$runtime_step->hasLocalDependency($argument_var)) {
+                $runtime_step->addLocalDependency($argument_var);
             }
         }
 
