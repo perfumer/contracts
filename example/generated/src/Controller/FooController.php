@@ -23,13 +23,13 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
 
 
         if ($_valid === true) {
-            $_valid = $param1_valid = $this->validatorsIntType($param1);
+            $_valid = $param1_valid = $this->getValidatorsContext()->intType($param1);
         }
         if ($_valid === true && $param1_valid) {
-            $_valid = $param2_valid = $this->validatorsIntType($param2);
+            $_valid = $param2_valid = $this->getValidatorsContext()->intType($param2);
         }
         if ($_valid === true) {
-            $this->sum = $this->validatorsSum($param1, $this->box);
+            $this->sum = $this->getValidatorsContext()->sum($param1, $this->box);
         }
         if ($_valid === true) {
             $double_sum = $this->sumDoubled($this->sum);
@@ -55,13 +55,13 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
 
 
         if ($_valid === true) {
-            $_valid = $param1_valid = $this->validatorsIntType($param1);
+            $_valid = $param1_valid = $this->getValidatorsContext()->intType($param1);
         }
         if ($_valid === true) {
-            $_valid = $param2_valid = $this->validatorsIntType($param2);
+            $_valid = $param2_valid = $this->getValidatorsContext()->intType($param2);
         }
         if ($_valid === true) {
-            $sum = $this->validatorsSum($param1, $this->box);
+            $sum = $this->getValidatorsContext()->sum($param1, $this->box);
         }
         if ($_valid === true) {
             $sandbox = parent::sandboxActionTwo($sum, $this->staff);
@@ -70,25 +70,10 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
             $_return = $this->foobar->baz($this->getValidatorsContext());
         }
         if ($_valid === false && !$param1_valid) {
-            $_return = $this->validatorsFooErrors();
+            $_return = $this->getValidatorsContext()->fooErrors();
         }
 
         return $_return;
-    }
-
-    final private function validatorsIntType($param1)
-    {
-        return $this->getValidatorsContext()->intType($param1);
-    }
-
-    final private function validatorsSum($param1, $box)
-    {
-        return $this->getValidatorsContext()->sum($param1, $box);
-    }
-
-    final private function validatorsFooErrors()
-    {
-        return $this->getValidatorsContext()->fooErrors();
     }
 
     final private function getValidatorsContext(): \Perfumer\Component\Contracts\Example\Context\FooContext

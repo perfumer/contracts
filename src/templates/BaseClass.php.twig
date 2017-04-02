@@ -40,7 +40,9 @@ abstract class {{ context.className }}{% if context.interfaces %} implements {{ 
             {{ step.prependCode }}
 
 {% endif %}
-{% if step.functionName is not null %}
+{% if step.contextName is not null %}
+            {% if step.returnExpression %}{{ step.returnExpression }} = {% endif %}$this->get{{ step.contextName | capitalize }}Context()->{{ step.method }}({{ step.bodyArguments|join(', ') }});
+{% elseif step.functionName is not null %}
             {% if step.returnExpression %}{{ step.returnExpression }} = {% endif %}$this->{{ step.functionName }}({{ step.bodyArguments|join(', ') }});
 {% else %}
             {% if step.returnExpression %}{{ step.returnExpression }} = {% endif %}{{ step.service }}{{ step.method }}({{ step.bodyArguments|join(', ') }});
@@ -59,13 +61,6 @@ abstract class {{ context.className }}{% if context.interfaces %} implements {{ 
 {% block _action_return_expression %}
         return $_return;
 {% endblock %}
-    }
-
-{% endfor %}
-{% for step in context.steps if step.context %}
-    final private function {{ step.functionName }}({{ step.headerArguments|join(', ') }})
-    {
-        {% if step.returnExpression %}return {% endif %}$this->get{{ step.contextName | capitalize }}Context()->{{ step.method }}({{ step.headerArguments|join(', ') }});
     }
 
 {% endfor %}
