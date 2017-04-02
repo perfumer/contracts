@@ -2,7 +2,9 @@
 
 namespace Generated\Tests\Perfumer\Component\Contracts\Example\Controller;
 
-abstract class FooControllerTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+abstract class FooControllerTest extends TestCase
 {
     final public function testSyntax()
     {

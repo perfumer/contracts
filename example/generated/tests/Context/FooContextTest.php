@@ -2,7 +2,9 @@
 
 namespace Generated\Tests\Perfumer\Component\Contracts\Example\Context;
 
-abstract class FooContextTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+abstract class FooContextTest extends TestCase
 {
     abstract public function intTypeDataProvider();
 

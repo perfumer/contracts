@@ -2,10 +2,12 @@
 
 namespace Generated\Tests\{{ context.namespace }};
 
+use PHPUnit\Framework\TestCase;
+
 {% if context.extendsTest %}
 abstract class {{ context.className }}Test extends {{ context.extendsTest }}
 {% else %}
-abstract class {{ context.className }}Test extends \PHPUnit_Framework_TestCase
+abstract class {{ context.className }}Test extends TestCase
 {% endif %}
 {
     final public function testSyntax()
