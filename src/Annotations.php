@@ -49,7 +49,7 @@ class Collection implements Annotation
  * @Annotation
  * @Target({"CLASS", "METHOD", "ANNOTATION"})
  */
-class Context extends Variable
+class Context implements Variable
 {
     /**
      * @var string
@@ -64,7 +64,7 @@ class Context extends Variable
     /**
      * @return string
      */
-    public function asArgument()
+    public function asArgument(): string
     {
         return '$this->get' . ucfirst($this->name) . 'Context()';
     }
@@ -72,7 +72,7 @@ class Context extends Variable
     /**
      * @return string
      */
-    public function asHeader()
+    public function asHeader(): string
     {
         return '$' . $this->name;
     }
@@ -80,7 +80,7 @@ class Context extends Variable
     /**
      * @throws ContractsException
      */
-    public function asReturn()
+    public function asReturn(): string
     {
         throw new ContractsException('@Context annotation can not be used for "return".');
     }
@@ -132,12 +132,12 @@ class Inject implements Annotation
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Output extends Variable
+class Output implements Variable
 {
     /**
      * @throws ContractsException
      */
-    public function asArgument()
+    public function asArgument(): string
     {
         throw new ContractsException('@Output annotation can not be used for "args".');
     }
@@ -145,7 +145,7 @@ class Output extends Variable
     /**
      * @throws ContractsException
      */
-    public function asHeader()
+    public function asHeader(): string
     {
         throw new ContractsException('@Output annotation can not be used for "args".');
     }
@@ -153,7 +153,7 @@ class Output extends Variable
     /**
      * @return string
      */
-    public function asReturn()
+    public function asReturn(): string
     {
         return '$_return';
     }
@@ -163,7 +163,7 @@ class Output extends Variable
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Property extends Variable
+class Property implements Variable
 {
     /**
      * @var string
@@ -181,7 +181,7 @@ class Property extends Variable
     /**
      * @return string
      */
-    public function asArgument()
+    public function asArgument(): string
     {
         return '$this->' . $this->name;
     }
@@ -189,7 +189,7 @@ class Property extends Variable
     /**
      * @return string
      */
-    public function asHeader()
+    public function asHeader(): string
     {
         return '$' . $this->name;
     }
@@ -197,7 +197,7 @@ class Property extends Variable
     /**
      * @return string
      */
-    public function asReturn()
+    public function asReturn(): string
     {
         return '$this->' . $this->name;
     }
@@ -207,12 +207,12 @@ class Property extends Variable
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class ServiceParent extends Service
+class ServiceParent extends Step implements Service
 {
     /**
      * @return string
      */
-    public function getExpression()
+    public function getExpression(): string
     {
         return 'parent::';
     }
@@ -222,12 +222,12 @@ class ServiceParent extends Service
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class ServiceProperty extends Service
+class ServiceProperty extends Step implements Service
 {
     /**
      * @return string
      */
-    public function getExpression()
+    public function getExpression(): string
     {
         return '$this->' . $this->name . '->';
     }
@@ -237,12 +237,12 @@ class ServiceProperty extends Service
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class ServiceSelf extends Service
+class ServiceSelf extends Step implements Service
 {
     /**
      * @return string
      */
-    public function getExpression()
+    public function getExpression(): string
     {
         return 'self::';
     }
@@ -252,12 +252,12 @@ class ServiceSelf extends Service
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class ServiceStatic extends Service
+class ServiceStatic extends Step implements Service
 {
     /**
      * @return string
      */
-    public function getExpression()
+    public function getExpression(): string
     {
         return $this->name . '::';
     }
@@ -267,12 +267,12 @@ class ServiceStatic extends Service
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class ServiceThis extends Service
+class ServiceThis extends Step implements Service
 {
     /**
      * @return string
      */
-    public function getExpression()
+    public function getExpression(): string
     {
         return '$this->';
     }

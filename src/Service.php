@@ -2,10 +2,10 @@
 
 namespace Perfumer\Component\Contracts;
 
-abstract class Service extends Step
+interface Service extends Annotation
 {
     /**
      * @return string
      */
-    abstract public function getExpression();
+    public function getExpression(): string;
 }
