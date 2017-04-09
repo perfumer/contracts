@@ -398,6 +398,17 @@ class Generator
                 if (!$var instanceof Variable) {
                     $value = $annotation->validate ? 'true' : 'null';
 
+                    if ($runtime_action->hasLocalVariable('$' . $var)) {
+                        throw new ContractsException(sprintf('%s\\%s -> %s -> %s.%s returns "%s" which is already in use.',
+                            $runtime_context->getNamespace(),
+                            $runtime_context->getClassName(),
+                            $runtime_action->getMethodName(),
+                            $annotation->name,
+                            $annotation->method,
+                            $var
+                        ));
+                    }
+
                     $runtime_action->addLocalVariable('$' . $var, $value);
 
                     $runtime_step->addLocalReturn('$' . $var);
