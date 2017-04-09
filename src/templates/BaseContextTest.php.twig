@@ -18,7 +18,7 @@ abstract class {{ context.className }}Test extends TestCase
     /**
      * @dataProvider {{ step.functionName }}DataProvider
      */
-    final public function test_{{ step.functionName }}({% if step.headerArguments %}{{ step.headerArguments|join(', ') }}, {% endif %}$result)
+    final public function test{{ step.functionName[:1]|upper ~ step.functionName[1:] }}({% if step.headerArguments %}{{ step.headerArguments|join(', ') }}, {% endif %}$result)
     {
         $_class_instance = new \{{ step.context }}();
 

@@ -15,7 +15,7 @@ abstract class FooContextTest extends TestCase
     /**
      * @dataProvider intTypeDataProvider
      */
-    final public function test_intType($value, $result)
+    final public function testIntType($value, $result)
     {
         $_class_instance = new \Perfumer\Component\Contracts\Example\Context\FooContext();
 
@@ -25,7 +25,7 @@ abstract class FooContextTest extends TestCase
     /**
      * @dataProvider sumDataProvider
      */
-    final public function test_sum($a, $b, $result)
+    final public function testSum($a, $b, $result)
     {
         $_class_instance = new \Perfumer\Component\Contracts\Example\Context\FooContext();
 
@@ -35,7 +35,7 @@ abstract class FooContextTest extends TestCase
     /**
      * @dataProvider fooErrorsDataProvider
      */
-    final public function test_fooErrors($result)
+    final public function testFooErrors($result)
     {
         $_class_instance = new \Perfumer\Component\Contracts\Example\Context\FooContext();
 
