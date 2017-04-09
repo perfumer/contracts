@@ -164,156 +164,164 @@ class Generator
 
     public function generateContexts()
     {
-        $reader = new AnnotationReader();
+        try {
+            $reader = new AnnotationReader();
 
-        foreach ($this->contexts as $class) {
-            $reflection = new \ReflectionClass($class);
-            $class_annotations = $reader->getClassAnnotations($reflection);
-            $tests = false;
+            foreach ($this->contexts as $class) {
+                $reflection = new \ReflectionClass($class);
+                $class_annotations = $reader->getClassAnnotations($reflection);
+                $tests = false;
 
-            $runtime_context = new RuntimeContext();
+                $runtime_context = new RuntimeContext();
 
-            $namespace = $reflection->getNamespaceName();
+                $namespace = $reflection->getNamespaceName();
 
-            $runtime_context->setNamespace($namespace);
-            $runtime_context->setClassName($reflection->getShortName());
+                $runtime_context->setNamespace($namespace);
+                $runtime_context->setClassName($reflection->getShortName());
 
-            foreach ($class_annotations as $annotation) {
-                if ($annotation instanceof Extend) {
-                    $runtime_context->setExtendsClass($annotation->class);
-                }
-            }
-
-            foreach ($reflection->getMethods() as $method) {
-                $method_annotations = $reader->getMethodAnnotations($method);
-
-                foreach ($method_annotations as $annotation) {
-                    if ($annotation instanceof Test) {
-                        $tests = true;
-
-                        $runtime_step = new RuntimeStep();
-                        $runtime_step->setFunctionName($method->name);
-                        $runtime_step->setContext($class);
-
-                        foreach ($method->getParameters() as $parameter) {
-                            $runtime_step->addHeaderArgument('$' . $parameter->name);
-                        }
-
-                        $runtime_context->addStep($runtime_step->getFunctionName(), $runtime_step);
+                foreach ($class_annotations as $annotation) {
+                    if ($annotation instanceof Extend) {
+                        $runtime_context->setExtendsClass($annotation->class);
                     }
                 }
-            }
 
-            if ($tests) {
-                $this->generateBaseContextTest($reflection, $runtime_context);
-                $this->generateContextTest($reflection, $runtime_context);
+                foreach ($reflection->getMethods() as $method) {
+                    $method_annotations = $reader->getMethodAnnotations($method);
+
+                    foreach ($method_annotations as $annotation) {
+                        if ($annotation instanceof Test) {
+                            $tests = true;
+
+                            $runtime_step = new RuntimeStep();
+                            $runtime_step->setFunctionName($method->name);
+                            $runtime_step->setContext($class);
+
+                            foreach ($method->getParameters() as $parameter) {
+                                $runtime_step->addHeaderArgument('$' . $parameter->name);
+                            }
+
+                            $runtime_context->addStep($runtime_step->getFunctionName(), $runtime_step);
+                        }
+                    }
+                }
+
+                if ($tests) {
+                    $this->generateBaseContextTest($reflection, $runtime_context);
+                    $this->generateContextTest($reflection, $runtime_context);
+                }
             }
+        } catch (ContractsException $e) {
+            exit($e->getMessage() . PHP_EOL);
         }
     }
 
     public function generateClasses()
     {
-        $reader = new AnnotationReader();
+        try {
+            $reader = new AnnotationReader();
 
-        foreach ($this->classes as $class) {
-            $contexts = [];
+            foreach ($this->classes as $class) {
+                $contexts = [];
 
-            $reflection = new \ReflectionClass($class);
-            $class_annotations = $reader->getClassAnnotations($reflection);
+                $reflection = new \ReflectionClass($class);
+                $class_annotations = $reader->getClassAnnotations($reflection);
 
-            $runtime_context = new RuntimeContext();
+                $runtime_context = new RuntimeContext();
 
-            $namespace = str_replace($this->contract_prefix, $this->class_prefix, $reflection->getNamespaceName());
+                $namespace = str_replace($this->contract_prefix, $this->class_prefix, $reflection->getNamespaceName());
 
-            $runtime_context->setNamespace($namespace);
-            $runtime_context->setClassName($reflection->getShortName());
-            $runtime_context->addInterface('\\' . $class);
+                $runtime_context->setNamespace($namespace);
+                $runtime_context->setClassName($reflection->getShortName());
+                $runtime_context->addInterface('\\' . $class);
 
-            foreach ($class_annotations as $annotation) {
-                if ($annotation instanceof Template) {
-                    $runtime_context->setTemplate($annotation->name);
+                foreach ($class_annotations as $annotation) {
+                    if ($annotation instanceof Template) {
+                        $runtime_context->setTemplate($annotation->name);
+                    }
+
+                    if ($annotation instanceof Extend) {
+                        $runtime_context->setExtendsClass($annotation->class);
+                    }
+
+                    if ($annotation instanceof Context) {
+                        $contexts[$annotation->name] = $annotation->class;
+                    }
                 }
 
-                if ($annotation instanceof Extend) {
-                    $runtime_context->setExtendsClass($annotation->class);
-                }
+                $runtime_context->setContexts($contexts);
 
-                if ($annotation instanceof Context) {
-                    $contexts[$annotation->name] = $annotation->class;
-                }
-            }
+                foreach ($reflection->getMethods() as $method) {
+                    $runtime_action = new RuntimeAction();
+                    $runtime_action->setMethodName($method->name);
 
-            $runtime_context->setContexts($contexts);
+                    $type = (string) $method->getReturnType();
 
-            foreach ($reflection->getMethods() as $method) {
-                $runtime_action = new RuntimeAction();
-                $runtime_action->setMethodName($method->name);
-
-                $type = (string) $method->getReturnType();
-
-                if ($type && !$method->getReturnType()->isBuiltin()) {
-                    $type = '\\' . $type;
-                }
-
-                $runtime_action->setReturnType($type);
-
-                foreach ($method->getParameters() as $parameter) {
-                    $type = (string) $parameter->getType();
-
-                    if ($type && !$parameter->getType()->isBuiltin()) {
+                    if ($type && !$method->getReturnType()->isBuiltin()) {
                         $type = '\\' . $type;
                     }
 
-                    $runtime_action->addHeaderArgument('$' . $parameter->name, $type);
-                }
+                    $runtime_action->setReturnType($type);
 
-                $method_annotations = $reader->getMethodAnnotations($method);
+                    foreach ($method->getParameters() as $parameter) {
+                        $type = (string) $parameter->getType();
 
-                // Set validate=true
-                foreach ($method_annotations as $annotation) {
-                    if ($annotation instanceof Error) {
-                        foreach ($method_annotations as $a) {
-                            if ($a instanceof Step && $a->return === $annotation->unless) {
-                                $a->validate = true;
+                        if ($type && !$parameter->getType()->isBuiltin()) {
+                            $type = '\\' . $type;
+                        }
+
+                        $runtime_action->addHeaderArgument('$' . $parameter->name, $type);
+                    }
+
+                    $method_annotations = $reader->getMethodAnnotations($method);
+
+                    // Set validate=true
+                    foreach ($method_annotations as $annotation) {
+                        if ($annotation instanceof Error) {
+                            foreach ($method_annotations as $a) {
+                                if ($a instanceof Step && $a->return === $annotation->unless) {
+                                    $a->validate = true;
+                                }
                             }
                         }
                     }
-                }
 
-                foreach ($method_annotations as $annotation) {
-                    if (!$this->validateStepAnnotation($annotation)) {
-                        continue;
-                    }
+                    foreach ($method_annotations as $annotation) {
+                        if (!$this->validateStepAnnotation($annotation)) {
+                            continue;
+                        }
 
-                    if ($annotation instanceof Collection) {
-                        foreach ($annotation->steps as $index => $step) {
+                        if ($annotation instanceof Collection) {
+                            foreach ($annotation->steps as $index => $step) {
+                                $runtime_step = new RuntimeStep();
+
+                                if ($index === 0) {
+                                    $runtime_step->setBeforeCode($annotation->before());
+                                }
+
+                                if ($index === count($annotation->steps) - 1) {
+                                    $runtime_step->setAfterCode($annotation->after());
+                                }
+
+                                $this->processStepAnnotation($step, $runtime_step, $runtime_action, $runtime_context, $contexts);
+                            }
+                        } else {
                             $runtime_step = new RuntimeStep();
 
-                            if ($index === 0) {
-                                $runtime_step->setBeforeCode($annotation->before());
-                            }
-
-                            if ($index === count($annotation->steps) - 1) {
-                                $runtime_step->setAfterCode($annotation->after());
-                            }
-
-                            $this->processStepAnnotation($step, $runtime_step, $runtime_action, $runtime_context, $contexts);
+                            $this->processStepAnnotation($annotation, $runtime_step, $runtime_action, $runtime_context, $contexts);
                         }
-                    } else {
-                        $runtime_step = new RuntimeStep();
 
-                        $this->processStepAnnotation($annotation, $runtime_step, $runtime_action, $runtime_context, $contexts);
                     }
 
+                    $runtime_context->addAction($runtime_action);
                 }
 
-                $runtime_context->addAction($runtime_action);
+                $this->generateBaseClass($reflection, $runtime_context);
+                $this->generateClass($reflection, $runtime_context);
+                $this->generateBaseClassTest($reflection, $runtime_context);
+                $this->generateClassTest($reflection, $runtime_context);
             }
-
-            $this->generateBaseClass($reflection, $runtime_context);
-            $this->generateClass($reflection, $runtime_context);
-            $this->generateBaseClassTest($reflection, $runtime_context);
-            $this->generateClassTest($reflection, $runtime_context);
+        } catch (ContractsException $e) {
+            exit($e->getMessage() . PHP_EOL);
         }
     }
 
