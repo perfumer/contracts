@@ -16,7 +16,7 @@ abstract class {{ context.className }}Test extends TestCase
     }
 {% for action in context.actions %}
 
-    final public function test{{ action.methodName|capitalize }}LocalVariables()
+    final public function test{{ action.methodName[:1]|upper ~ action.methodName[1:] }}LocalVariables()
     {
 {% for argument, type in action.headerArguments %}
         {{ argument }} = true;

@@ -12,21 +12,21 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
 
     abstract protected function sumDoubled($sum);
 
-    final public function bar(int $param1, \Perfumer\Component\Contracts\Annotations\Output $param2): string
+    final public function barAction(int $param1, \Perfumer\Component\Contracts\Annotations\Output $param2): string
     {
         $_valid = true;
         $_return = null;
-        $param1_valid = null;
-        $param2_valid = null;
+        $param1_valid = true;
+        $param2_valid = true;
         $double_sum = null;
         $sand = null;
 
 
         if ($_valid === true) {
-            $param1_valid = $this->getValidatorsContext()->intType($param1);
+            $_valid = $param1_valid = $this->getValidatorsContext()->intType($param1);
         }
         if ($_valid === true && $param1_valid) {
-            $param2_valid = $this->getValidatorsContext()->intType($param2);
+            $_valid = $param2_valid = $this->getValidatorsContext()->intType($param2);
         }
         if ($_valid === true) {
             $this->sum = $this->getValidatorsContext()->sum($param1, $this->box);
@@ -40,16 +40,22 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         if ($_valid === true) {
             $_return = $this->foobar->baz($sand, $this->box);
         }
+        if ($_valid === false && !$param1_valid) {
+            $_return = $this->getValidatorsContext()->fooErrors();
+        }
+        if ($_valid === false && !$param2_valid) {
+            $_return = $this->getValidatorsContext()->fooErrors();
+        }
 
         return $_return;
     }
 
-    final public function baz(int $param1, int $param2): \DateTime
+    final public function bazAction(int $param1, int $param2): \DateTime
     {
         $_valid = true;
         $_return = null;
         $param1_valid = true;
-        $param2_valid = null;
+        $param2_valid = true;
         $sum = null;
         $sandbox = null;
 
@@ -58,7 +64,7 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
             $_valid = $param1_valid = $this->getValidatorsContext()->intType($param1);
         }
         if ($_valid === true) {
-            $param2_valid = $this->getValidatorsContext()->intType($param2);
+            $_valid = $param2_valid = $this->getValidatorsContext()->intType($param2);
         }
         if ($_valid === true) {
             $sum = $this->getValidatorsContext()->sum($param1, $this->box);
@@ -70,6 +76,9 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
             $_return = $this->foobar->baz($this->getValidatorsContext());
         }
         if ($_valid === false && !$param1_valid) {
+            $_return = $this->getValidatorsContext()->fooErrors();
+        }
+        if ($_valid === false && !$param2_valid) {
             $_return = $this->getValidatorsContext()->fooErrors();
         }
 

@@ -11,7 +11,7 @@ abstract class FooControllerTest extends TestCase
         new \ReflectionClass(\Perfumer\Component\Contracts\Example\Controller\FooController::class);
     }
 
-    final public function testBarLocalVariables()
+    final public function testBarActionLocalVariables()
     {
         $param1 = true;
         $param2 = true;
@@ -24,9 +24,11 @@ abstract class FooControllerTest extends TestCase
         $double_sum = true;
         $sand = true;
         $this->assertNotEmpty($sand);
+        $this->assertNotEmpty($param1_valid);
+        $this->assertNotEmpty($param2_valid);
     }
 
-    final public function testBazLocalVariables()
+    final public function testBazActionLocalVariables()
     {
         $param1 = true;
         $param2 = true;
@@ -39,5 +41,6 @@ abstract class FooControllerTest extends TestCase
         $this->assertNotEmpty($sum);
         $sandbox = true;
         $this->assertNotEmpty($param1_valid);
+        $this->assertNotEmpty($param2_valid);
     }
 }

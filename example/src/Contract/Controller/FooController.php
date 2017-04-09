@@ -29,12 +29,14 @@ interface FooController
      *   @ServiceParent  (                   method="sandboxActionTwo", arguments={@Property("sum"), @Property("staff")}, return={"sand", @Property("box")}),
      *   @ServiceProperty(name="foobar",     method="baz",              arguments={"sand", @Property("box")},             return=@Output)
      * })
+     * @Error (name="validators", method="fooErrors", unless="param1_valid")
+     * @Error (name="validators", method="fooErrors", unless="param2_valid")
      *
      * @param int $param1
      * @param Output $param2
      * @return string
      */
-    public function bar(int $param1, Output $param2): string;
+    public function barAction(int $param1, Output $param2): string;
 
     /**
      * @Call           (name="validators", method="intType",          arguments={"param1"},                  return="param1_valid")
@@ -43,10 +45,11 @@ interface FooController
      * @ServiceParent  (                   method="sandboxActionTwo", arguments={"sum", @Property("staff")}, return="sandbox")
      * @ServiceProperty(name="foobar",     method="baz",              arguments={@Context("validators")},    return=@Output)
      * @Error          (name="validators", method="fooErrors", unless="param1_valid")
+     * @Error          (name="validators", method="fooErrors", unless="param2_valid")
      *
      * @param int $param1
      * @param int $param2
      * @return \DateTime
      */
-    public function baz(int $param1, int $param2): \DateTime;
+    public function bazAction(int $param1, int $param2): \DateTime;
 }
