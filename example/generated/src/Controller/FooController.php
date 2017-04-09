@@ -16,17 +16,17 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
     {
         $_valid = true;
         $_return = null;
-        $param1_valid = true;
-        $param2_valid = true;
+        $param1_valid = null;
+        $param2_valid = null;
         $double_sum = null;
         $sand = null;
 
 
         if ($_valid === true) {
-            $_valid = $param1_valid = $this->getValidatorsContext()->intType($param1);
+            $param1_valid = $this->getValidatorsContext()->intType($param1);
         }
         if ($_valid === true && $param1_valid) {
-            $_valid = $param2_valid = $this->getValidatorsContext()->intType($param2);
+            $param2_valid = $this->getValidatorsContext()->intType($param2);
         }
         if ($_valid === true) {
             $this->sum = $this->getValidatorsContext()->sum($param1, $this->box);
@@ -49,7 +49,7 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         $_valid = true;
         $_return = null;
         $param1_valid = true;
-        $param2_valid = true;
+        $param2_valid = null;
         $sum = null;
         $sandbox = null;
 
@@ -58,7 +58,7 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
             $_valid = $param1_valid = $this->getValidatorsContext()->intType($param1);
         }
         if ($_valid === true) {
-            $_valid = $param2_valid = $this->getValidatorsContext()->intType($param2);
+            $param2_valid = $this->getValidatorsContext()->intType($param2);
         }
         if ($_valid === true) {
             $sum = $this->getValidatorsContext()->sum($param1, $this->box);

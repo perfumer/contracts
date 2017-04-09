@@ -269,6 +269,17 @@ class Generator
 
                 $method_annotations = $reader->getMethodAnnotations($method);
 
+                // Set validate=true
+                foreach ($method_annotations as $annotation) {
+                    if ($annotation instanceof Error) {
+                        foreach ($method_annotations as $a) {
+                            if ($a instanceof Step && $a->return === $annotation->unless) {
+                                $a->validate = true;
+                            }
+                        }
+                    }
+                }
+
                 foreach ($method_annotations as $annotation) {
                     if (!$this->validateStepAnnotation($annotation)) {
                         continue;
