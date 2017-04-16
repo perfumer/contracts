@@ -22,7 +22,7 @@ abstract class {{ context.className }}{% if context.interfaces %} implements {{ 
     public function __construct({% for name, type in context.injected %}{{ type }} ${{ name }}{%  if not loop.last %}, {% endif %}{% endfor %})
     {
 {% for name, type in context.injected %}
-        $this->{{ name }} = ${{ name }};
+        $this->_injected_{{ name }} = ${{ name }};
 {% endfor %}
     }
 

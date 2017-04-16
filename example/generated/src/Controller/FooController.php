@@ -7,22 +7,22 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
     /**
      * @var \Perfumer\Component\Contracts\Example\Context\FooContext
      */
-    protected $validators;
+    protected $_context_validators;
 
     /**
      * @var \Iterator
      */
-    protected $iterator;
+    protected $_injected_iterator;
 
     /**
      * @var \DateTime
      */
-    protected $date;
+    protected $_injected_date;
 
     /**
      * @var string
      */
-    protected $some_string;
+    protected $_injected_some_string;
 
     protected $sum;
 
@@ -34,9 +34,9 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
 
     public function __construct(\Iterator $iterator, \DateTime $date, string $some_string)
     {
-        $this->iterator = $iterator;
-        $this->date = $date;
-        $this->some_string = $some_string;
+        $this->_injected_iterator = $iterator;
+        $this->_injected_date = $date;
+        $this->_injected_some_string = $some_string;
     }
 
     abstract protected function sumDoubled($sum);
@@ -52,7 +52,7 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
 
 
         if ($_valid === true) {
-            $this->date->format($this->sum);
+            $this->_injected_date->format($this->sum);
         }
         if ($_valid === true) {
             $_valid = $param1_valid = $this->getValidatorsContext()->intType($param1);
@@ -70,7 +70,7 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
             list($sand, $this->box) = parent::sandboxActionTwo($this->sum, $this->staff);
         }
         if ($_valid === true) {
-            $_return = $this->foobar->baz($this->date, $this->box);
+            $_return = $this->foobar->baz($this->_injected_date, $this->box);
         }
         if ($_valid === false && !$param1_valid) {
             $_return = $this->getValidatorsContext()->fooErrors();

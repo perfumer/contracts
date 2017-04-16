@@ -246,12 +246,12 @@ class Generator
 
                     if ($annotation instanceof Inject) {
                         $injected[$annotation->name] = $annotation->type;
-                        $runtime_context->addProperty($annotation->name, $annotation->type);
+                        $runtime_context->addProperty('_injected_' . $annotation->name, $annotation->type);
                     }
 
                     if ($annotation instanceof Context) {
                         $contexts[$annotation->name] = $annotation->class;
-                        $runtime_context->addProperty($annotation->name, $annotation->class);
+                        $runtime_context->addProperty('_context_' . $annotation->name, $annotation->class);
                     }
                 }
 
@@ -365,7 +365,7 @@ class Generator
                 $runtime_step->setMethod($annotation->method);
                 $runtime_step->setFunctionName($annotation->name . ucfirst($annotation->method));
             } else {
-                $runtime_step->setService("\$this->{$annotation->name}->");
+                $runtime_step->setService("\$this->_injected_{$annotation->name}->");
                 $runtime_step->setMethod($annotation->method);
             }
         }

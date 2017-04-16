@@ -137,7 +137,7 @@ class Inject implements Variable
      */
     public function asArgument(): string
     {
-        return '$this->' . $this->name;
+        return '$this->_injected_' . $this->name;
     }
 
     /**
