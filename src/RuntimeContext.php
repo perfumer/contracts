@@ -144,7 +144,7 @@ class RuntimeContext
      */
     public function getProperties()
     {
-        return array_unique($this->properties);
+        return $this->properties;
     }
 
     /**
@@ -157,10 +157,22 @@ class RuntimeContext
 
     /**
      * @param string $property
+     * @param mixed $type
      */
-    public function addProperty($property)
+    public function addProperty($property, $type = null)
     {
-        $this->properties[] = $property;
+        if (!$this->hasProperty($property)) {
+            $this->properties[$property] = $type;
+        }
+    }
+
+    /**
+     * @param string $property
+     * @return bool
+     */
+    public function hasProperty($property)
+    {
+        return isset($this->properties[$property]);
     }
 
     /**

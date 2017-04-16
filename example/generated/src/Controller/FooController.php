@@ -14,17 +14,27 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
      */
     protected $date;
 
-    public function __construct(\Iterator $iterator, \DateTime $date)
+    /**
+     * @var string
+     */
+    protected $some_string;
+
+    protected $sum;
+
+    protected $_context_validators;
+
+    protected $box;
+
+    protected $staff;
+
+    protected $foobar;
+
+    public function __construct(\Iterator $iterator, \DateTime $date, string $some_string)
     {
         $this->iterator = $iterator;
         $this->date = $date;
+        $this->some_string = $some_string;
     }
-
-    protected $sum;
-    protected $_context_validators;
-    protected $box;
-    protected $staff;
-    protected $foobar;
 
     abstract protected function sumDoubled($sum);
 

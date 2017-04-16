@@ -20,6 +20,7 @@ use Perfumer\Component\Contracts\Annotations\Template;
  * @Context(name="validators", class="\Perfumer\Component\Contracts\Example\Context\FooContext")
  * @Inject(name="iterator", type="\Iterator")
  * @Inject(name="date", type="\DateTime")
+ * @Inject(name="some_string", type="string")
  */
 interface FooController
 {

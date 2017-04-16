@@ -9,14 +9,16 @@ abstract class {{ context.className }}{% if context.interfaces %} implements {{ 
 {% endif %}
 
 {
-{% if context.injected|length > 0 %}
-{% for name, type in context.injected %}
+{% for name, type in context.properties %}
+{% if type %}
     /**
      * @var {{ type }}
      */
+{% endif %}
     protected ${{ name }};
 
 {% endfor %}
+{% if context.injected|length > 0 %}
     public function __construct({% for name, type in context.injected %}{{ type }} ${{ name }}{%  if not loop.last %}, {% endif %}{% endfor %})
     {
 {% for name, type in context.injected %}
@@ -25,10 +27,6 @@ abstract class {{ context.className }}{% if context.interfaces %} implements {{ 
     }
 
 {% endif %}
-{% for variable in context.properties %}
-    protected ${{ variable }};
-{% endfor %}
-
 {% for step in context.steps if step.service is null and step.context is null %}
     abstract protected function {{ step.functionName }}({{ step.headerArguments|join(', ') }});
 

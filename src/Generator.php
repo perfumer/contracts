@@ -250,6 +250,7 @@ class Generator
 
                     if ($annotation instanceof Inject) {
                         $injected[$annotation->name] = $annotation->type;
+                        $runtime_context->addProperty($annotation->name, $annotation->type);
                     }
                 }
 
