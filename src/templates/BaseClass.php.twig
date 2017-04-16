@@ -9,6 +9,22 @@ abstract class {{ context.className }}{% if context.interfaces %} implements {{ 
 {% endif %}
 
 {
+{% if context.injected|length > 0 %}
+{% for name, type in context.injected %}
+    /**
+     * @var {{ type }}
+     */
+    protected ${{ name }};
+
+{% endfor %}
+    public function __construct({% for name, type in context.injected %}{{ type }} ${{ name }}{%  if not loop.last %}, {% endif %}{% endfor %})
+    {
+{% for name, type in context.injected %}
+        $this->{{ name }} = ${{ name }};
+{% endfor %}
+    }
+
+{% endif %}
 {% for variable in context.properties %}
     protected ${{ variable }};
 {% endfor %}

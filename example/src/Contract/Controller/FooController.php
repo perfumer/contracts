@@ -8,6 +8,7 @@ use Perfumer\Component\Contracts\Annotations\Context;
 use Perfumer\Component\Contracts\Annotations\Custom;
 use Perfumer\Component\Contracts\Annotations\Error;
 use Perfumer\Component\Contracts\Annotations\Extend;
+use Perfumer\Component\Contracts\Annotations\Inject;
 use Perfumer\Component\Contracts\Annotations\Output;
 use Perfumer\Component\Contracts\Annotations\Property;
 use Perfumer\Component\Contracts\Annotations\ServiceParent;
@@ -17,17 +18,20 @@ use Perfumer\Component\Contracts\Annotations\Template;
 /**
  * @Extend(class="\Perfumer\Component\Contracts\Example\ParentController")
  * @Context(name="validators", class="\Perfumer\Component\Contracts\Example\Context\FooContext")
+ * @Inject(name="iterator", type="\Iterator")
+ * @Inject(name="date", type="\DateTime")
  */
 interface FooController
 {
     /**
+     * @Call (name="date", method="format", arguments={@Property("sum")})
      * @Call (name="validators", method="intType", arguments={"param1"}, return="param1_valid")
      * @Call (name="validators", method="intType", arguments={"param2"}, return="param2_valid", if="param1_valid")
      * @Collection(steps={
      *   @Call           (name="validators", method="sum",              arguments={"param1"},                             return=@Property("sum")),
      *   @Custom         (                   method="sumDoubled",       arguments={@Property("sum")},                     return="double_sum"),
      *   @ServiceParent  (                   method="sandboxActionTwo", arguments={@Property("sum"), @Property("staff")}, return={"sand", @Property("box")}),
-     *   @ServiceProperty(name="foobar",     method="baz",              arguments={"sand", @Property("box")},             return=@Output)
+     *   @ServiceProperty(name="foobar",     method="baz",              arguments={@Inject("date"), @Property("box")},             return=@Output)
      * })
      * @Error (name="validators", method="fooErrors", unless="param1_valid")
      * @Error (name="validators", method="fooErrors", unless="param2_valid")

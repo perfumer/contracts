@@ -222,6 +222,7 @@ class Generator
 
             foreach ($this->classes as $class) {
                 $contexts = [];
+                $injected = [];
 
                 $reflection = new \ReflectionClass($class);
                 $class_annotations = $reader->getClassAnnotations($reflection);
@@ -246,9 +247,14 @@ class Generator
                     if ($annotation instanceof Context) {
                         $contexts[$annotation->name] = $annotation->class;
                     }
+
+                    if ($annotation instanceof Inject) {
+                        $injected[$annotation->name] = $annotation->type;
+                    }
                 }
 
                 $runtime_context->setContexts($contexts);
+                $runtime_context->setInjected($injected);
 
                 foreach ($reflection->getMethods() as $method) {
                     $runtime_action = new RuntimeAction();
@@ -302,12 +308,12 @@ class Generator
                                     $runtime_step->setAfterCode($annotation->after());
                                 }
 
-                                $this->processStepAnnotation($step, $runtime_step, $runtime_action, $runtime_context, $contexts);
+                                $this->processStepAnnotation($step, $runtime_step, $runtime_action, $runtime_context, $contexts, $injected);
                             }
                         } else {
                             $runtime_step = new RuntimeStep();
 
-                            $this->processStepAnnotation($annotation, $runtime_step, $runtime_action, $runtime_context, $contexts);
+                            $this->processStepAnnotation($annotation, $runtime_step, $runtime_action, $runtime_context, $contexts, $injected);
                         }
 
                     }
@@ -331,9 +337,10 @@ class Generator
      * @param RuntimeAction $runtime_action
      * @param RuntimeContext $runtime_context
      * @param array $contexts
+     * @param array $injected
      * @throws ContractsException
      */
-    private function processStepAnnotation(Annotation $annotation, RuntimeStep $runtime_step, RuntimeAction $runtime_action, RuntimeContext $runtime_context, array $contexts)
+    private function processStepAnnotation(Annotation $annotation, RuntimeStep $runtime_step, RuntimeAction $runtime_action, RuntimeContext $runtime_context, array $contexts, array $injected)
     {
         if ($annotation instanceof Step) {
             $runtime_step->setPrependCode($annotation->prepend());
@@ -341,12 +348,26 @@ class Generator
         }
 
         if ($annotation instanceof Call || $annotation instanceof Error) {
-            $runtime_context->addProperty('_context_' . $annotation->name);
+            if (!isset($contexts[$annotation->name]) && !isset($injected[$annotation->name])) {
+                throw new ContractsException(sprintf('%s\\%s -> %s -> %s context or injected is not registered',
+                    $runtime_context->getNamespace(),
+                    $runtime_context->getClassName(),
+                    $runtime_action->getMethodName(),
+                    $annotation->name
+                ));
+            }
 
-            $runtime_step->setContext($contexts[$annotation->name]);
-            $runtime_step->setContextName($annotation->name);
-            $runtime_step->setMethod($annotation->method);
-            $runtime_step->setFunctionName($annotation->name . ucfirst($annotation->method));
+            if (isset($contexts[$annotation->name])) {
+                $runtime_context->addProperty('_context_' . $annotation->name);
+
+                $runtime_step->setContext($contexts[$annotation->name]);
+                $runtime_step->setContextName($annotation->name);
+                $runtime_step->setMethod($annotation->method);
+                $runtime_step->setFunctionName($annotation->name . ucfirst($annotation->method));
+            } else {
+                $runtime_step->setService("\$this->{$annotation->name}->");
+                $runtime_step->setMethod($annotation->method);
+            }
         }
 
         if ($annotation instanceof Custom) {
@@ -436,7 +457,7 @@ class Generator
 
         $annotation_arguments = $annotation->arguments;
 
-        if ($annotation instanceof Call || $annotation instanceof Error) {
+        if (($annotation instanceof Call || $annotation instanceof Error) && isset($contexts[$annotation->name])) {
             $reflection_context = new \ReflectionClass($contexts[$annotation->name]);
 
             foreach ($reflection_context->getMethods() as $method) {

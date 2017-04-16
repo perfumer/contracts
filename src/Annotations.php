@@ -113,9 +113,9 @@ class Extend implements Annotation
 
 /**
  * @Annotation
- * @Target("METHOD")
+ * @Target({"CLASS", "METHOD", "ANNOTATION"})
  */
-class Inject implements Annotation
+class Inject implements Variable
 {
     /**
      * @var string
@@ -126,6 +126,35 @@ class Inject implements Annotation
      * @var mixed
      */
     public $variable;
+
+    /**
+     * @var string
+     */
+    public $type;
+
+    /**
+     * @return string
+     */
+    public function asArgument(): string
+    {
+        return '$this->' . $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function asHeader(): string
+    {
+        return '$' . $this->name;
+    }
+
+    /**
+     * @throws ContractsException
+     */
+    public function asReturn(): string
+    {
+        throw new ContractsException('@Inject annotation can not be used for "return".');
+    }
 }
 
 /**

@@ -4,8 +4,24 @@ namespace Generated\Perfumer\Component\Contracts\Example\Controller;
 
 abstract class FooController extends \Perfumer\Component\Contracts\Example\ParentController implements \Perfumer\Component\Contracts\Example\Contract\Controller\FooController
 {
-    protected $_context_validators;
+    /**
+     * @var \Iterator
+     */
+    protected $iterator;
+
+    /**
+     * @var \DateTime
+     */
+    protected $date;
+
+    public function __construct(\Iterator $iterator, \DateTime $date)
+    {
+        $this->iterator = $iterator;
+        $this->date = $date;
+    }
+
     protected $sum;
+    protected $_context_validators;
     protected $box;
     protected $staff;
     protected $foobar;
@@ -23,6 +39,9 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
 
 
         if ($_valid === true) {
+            $this->date->format($this->sum);
+        }
+        if ($_valid === true) {
             $_valid = $param1_valid = $this->getValidatorsContext()->intType($param1);
         }
         if ($_valid === true && $param1_valid) {
@@ -38,7 +57,7 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
             list($sand, $this->box) = parent::sandboxActionTwo($this->sum, $this->staff);
         }
         if ($_valid === true) {
-            $_return = $this->foobar->baz($sand, $this->box);
+            $_return = $this->foobar->baz($this->date, $this->box);
         }
         if ($_valid === false && !$param1_valid) {
             $_return = $this->getValidatorsContext()->fooErrors();

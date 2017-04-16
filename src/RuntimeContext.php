@@ -55,6 +55,11 @@ class RuntimeContext
     protected $contexts = [];
 
     /**
+     * @var array
+     */
+    protected $injected = [];
+
+    /**
      * @return string
      */
     public function getTemplate(): string
@@ -246,5 +251,21 @@ class RuntimeContext
     public function setContexts(array $contexts)
     {
         $this->contexts = $contexts;
+    }
+
+    /**
+     * @return array
+     */
+    public function getInjected(): array
+    {
+        return $this->injected;
+    }
+
+    /**
+     * @param array $injected
+     */
+    public function setInjected(array $injected)
+    {
+        $this->injected = $injected;
     }
 }
