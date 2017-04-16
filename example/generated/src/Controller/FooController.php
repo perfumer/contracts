@@ -5,6 +5,11 @@ namespace Generated\Perfumer\Component\Contracts\Example\Controller;
 abstract class FooController extends \Perfumer\Component\Contracts\Example\ParentController implements \Perfumer\Component\Contracts\Example\Contract\Controller\FooController
 {
     /**
+     * @var \Perfumer\Component\Contracts\Example\Context\FooContext
+     */
+    protected $validators;
+
+    /**
      * @var \Iterator
      */
     protected $iterator;
@@ -20,8 +25,6 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
     protected $some_string;
 
     protected $sum;
-
-    protected $_context_validators;
 
     protected $box;
 

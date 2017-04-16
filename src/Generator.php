@@ -244,13 +244,14 @@ class Generator
                         $runtime_context->setExtendsClass($annotation->class);
                     }
 
-                    if ($annotation instanceof Context) {
-                        $contexts[$annotation->name] = $annotation->class;
-                    }
-
                     if ($annotation instanceof Inject) {
                         $injected[$annotation->name] = $annotation->type;
                         $runtime_context->addProperty($annotation->name, $annotation->type);
+                    }
+
+                    if ($annotation instanceof Context) {
+                        $contexts[$annotation->name] = $annotation->class;
+                        $runtime_context->addProperty($annotation->name, $annotation->class);
                     }
                 }
 
@@ -359,8 +360,6 @@ class Generator
             }
 
             if (isset($contexts[$annotation->name])) {
-                $runtime_context->addProperty('_context_' . $annotation->name);
-
                 $runtime_step->setContext($contexts[$annotation->name]);
                 $runtime_step->setContextName($annotation->name);
                 $runtime_step->setMethod($annotation->method);
