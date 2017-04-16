@@ -4,26 +4,6 @@ namespace Generated\Perfumer\Component\Contracts\Example\Controller;
 
 abstract class FooController extends \Perfumer\Component\Contracts\Example\ParentController implements \Perfumer\Component\Contracts\Example\Contract\Controller\FooController
 {
-    /**
-     * @var \Perfumer\Component\Contracts\Example\Context\FooContext
-     */
-    protected $_context_validators;
-
-    /**
-     * @var \Iterator
-     */
-    protected $_injected_iterator;
-
-    /**
-     * @var \DateTime
-     */
-    protected $_injected_date;
-
-    /**
-     * @var string
-     */
-    protected $_injected_some_string;
-
     protected $sum;
 
     protected $box;
@@ -31,6 +11,26 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
     protected $staff;
 
     protected $foobar;
+
+    /**
+     * @var \Perfumer\Component\Contracts\Example\Context\FooContext
+     */
+    private $_context_validators;
+
+    /**
+     * @var \Iterator
+     */
+    private $_injected_iterator;
+
+    /**
+     * @var \DateTime
+     */
+    private $_injected_date;
+
+    /**
+     * @var string
+     */
+    private $_injected_some_string;
 
     public function __construct(\Iterator $iterator, \DateTime $date, string $some_string)
     {
@@ -117,6 +117,33 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         return $_return;
     }
 
+    /**
+     * @return \Iterator
+     */
+    final protected function getIterator(): \Iterator
+    {
+        return $this->_injected_iterator;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    final protected function getDate(): \DateTime
+    {
+        return $this->_injected_date;
+    }
+
+    /**
+     * @return string
+     */
+    final protected function getSomeString(): string
+    {
+        return $this->_injected_some_string;
+    }
+
+    /**
+     * @return \Perfumer\Component\Contracts\Example\Context\FooContext
+     */
     final private function getValidatorsContext(): \Perfumer\Component\Contracts\Example\Context\FooContext
     {
         if ($this->_context_validators === null) {

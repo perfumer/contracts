@@ -246,12 +246,12 @@ class Generator
 
                     if ($annotation instanceof Inject) {
                         $injected[$annotation->name] = $annotation->type;
-                        $runtime_context->addProperty('_injected_' . $annotation->name, $annotation->type);
+                        $runtime_context->addPrivateProperty('_injected_' . $annotation->name, $annotation->type);
                     }
 
                     if ($annotation instanceof Context) {
                         $contexts[$annotation->name] = $annotation->class;
-                        $runtime_context->addProperty('_context_' . $annotation->name, $annotation->class);
+                        $runtime_context->addPrivateProperty('_context_' . $annotation->name, $annotation->class);
                     }
                 }
 
@@ -380,7 +380,7 @@ class Generator
             $runtime_step->setMethod($annotation->method);
 
             if ($annotation instanceof ServiceProperty) {
-                $runtime_context->addProperty($annotation->name);
+                $runtime_context->addProtectedProperty($annotation->name);
             }
         }
 
@@ -442,7 +442,7 @@ class Generator
 
                     $runtime_step->addLocalReturn('$' . $var);
                 } elseif ($var instanceof Property) {
-                    $runtime_context->addProperty($var->name);
+                    $runtime_context->addProtectedProperty($var->name);
                 }
             }
         }
@@ -508,7 +508,7 @@ class Generator
             $runtime_step->addBodyArgument($argument_value);
 
             if ($argument instanceof Property) {
-                $runtime_context->addProperty($argument->name);
+                $runtime_context->addProtectedProperty($argument->name);
             }
 
             if (!$argument instanceof Variable && !$runtime_step->hasLocalDependency($argument_var)) {

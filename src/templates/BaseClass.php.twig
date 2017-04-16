@@ -9,13 +9,22 @@ abstract class {{ context.className }}{% if context.interfaces %} implements {{ 
 {% endif %}
 
 {
-{% for name, type in context.properties %}
+{% for name, type in context.protectedProperties %}
 {% if type %}
     /**
      * @var {{ type }}
      */
 {% endif %}
     protected ${{ name }};
+
+{% endfor %}
+{% for name, type in context.privateProperties %}
+{% if type %}
+    /**
+     * @var {{ type }}
+     */
+{% endif %}
+    private ${{ name }};
 
 {% endfor %}
 {% if context.injected|length > 0 %}
@@ -78,7 +87,20 @@ abstract class {{ context.className }}{% if context.interfaces %} implements {{ 
     }
 
 {% endfor %}
+{% for name, type in context.injected %}
+    /**
+     * @return {{ type }}
+     */
+    final protected function get{{ name|title|replace({'_':''}) }}(): {{ type }}
+    {
+        return $this->_injected_{{ name }};
+    }
+
+{% endfor %}
 {% for name, class in context.contexts %}
+    /**
+     * @return {{ class }}
+     */
     final private function get{{ name | capitalize }}Context(): {{ class }}
     {
         if ($this->_context_{{ name }} === null) {

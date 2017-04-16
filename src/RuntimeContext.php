@@ -32,7 +32,12 @@ class RuntimeContext
     /**
      * @var array
      */
-    protected $properties = [];
+    protected $protected_properties = [];
+
+    /**
+     * @var array
+     */
+    protected $private_properties = [];
 
     /**
      * @var array
@@ -142,37 +147,73 @@ class RuntimeContext
     /**
      * @return array
      */
-    public function getProperties()
+    public function getProtectedProperties()
     {
-        return $this->properties;
+        return $this->protected_properties;
     }
 
     /**
-     * @param array $properties
+     * @param array $protected_properties
      */
-    public function setProperties($properties)
+    public function setProtectedProperties($protected_properties)
     {
-        $this->properties = $properties;
+        $this->protected_properties = $protected_properties;
     }
 
     /**
-     * @param string $property
+     * @param string $protected_property
      * @param mixed $type
      */
-    public function addProperty($property, $type = null)
+    public function addProtectedProperty($protected_property, $type = null)
     {
-        if (!$this->hasProperty($property)) {
-            $this->properties[$property] = $type;
+        if (!$this->hasProtectedProperty($protected_property)) {
+            $this->protected_properties[$protected_property] = $type;
         }
     }
 
     /**
-     * @param string $property
+     * @param string $protected_property
      * @return bool
      */
-    public function hasProperty($property)
+    public function hasProtectedProperty($protected_property)
     {
-        return isset($this->properties[$property]);
+        return isset($this->protected_properties[$protected_property]);
+    }
+
+    /**
+     * @return array
+     */
+    public function getPrivateProperties()
+    {
+        return $this->private_properties;
+    }
+
+    /**
+     * @param array $private_properties
+     */
+    public function setPrivateProperties($private_properties)
+    {
+        $this->private_properties = $private_properties;
+    }
+
+    /**
+     * @param string $private_property
+     * @param mixed $type
+     */
+    public function addPrivateProperty($private_property, $type = null)
+    {
+        if (!$this->hasProtectedProperty($private_property)) {
+            $this->private_properties[$private_property] = $type;
+        }
+    }
+
+    /**
+     * @param string $private_property
+     * @return bool
+     */
+    public function hasPrivateProperty($private_property)
+    {
+        return isset($this->private_properties[$private_property]);
     }
 
     /**
