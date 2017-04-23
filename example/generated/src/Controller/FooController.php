@@ -107,6 +107,9 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         if ($_valid === true) {
             $_return = $this->foobar->baz($this->getValidatorsContext());
         }
+        if ($_valid === true) {
+            $sandbox->execute();
+        }
         if ($_valid === false && !$param1_valid) {
             $_return = $this->getValidatorsContext()->fooErrors();
         }

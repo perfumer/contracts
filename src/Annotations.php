@@ -236,6 +236,21 @@ class Property implements Variable
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
+class ServiceObject extends Step implements Service
+{
+    /**
+     * @return string
+     */
+    public function getExpression(): string
+    {
+        return '$' . $this->name . '->';
+    }
+}
+
+/**
+ * @Annotation
+ * @Target({"METHOD", "ANNOTATION"})
+ */
 class ServiceParent extends Step implements Service
 {
     /**
