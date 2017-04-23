@@ -22,12 +22,12 @@ abstract class {{ context.className }}Test extends TestCase
     {
         $_class_instance = new \{{ step.context }}();
 
-        $this->assert{{ step.functionName[:1]|upper ~ step.functionName[1:] }}($_class_instance->{{ step.functionName }}({{ step.headerArguments|join(', ') }}), $expected);
+        $this->assertTest{{ step.functionName[:1]|upper ~ step.functionName[1:] }}($_class_instance->{{ step.functionName }}({{ step.headerArguments|join(', ') }}), $expected);
     }
 
 {% endfor %}
 {% for step in context.steps %}
-    protected function assert{{ step.functionName[:1]|upper ~ step.functionName[1:] }}($result, $expected)
+    protected function assertTest{{ step.functionName[:1]|upper ~ step.functionName[1:] }}($result, $expected)
     {
         $this->assertEquals($result, $expected);
     }
