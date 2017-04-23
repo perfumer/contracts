@@ -47,7 +47,7 @@ interface FooController
 
     /**
      * @Call           (name="validators", method="intType",          arguments={"param1"},                  return="param1_valid")
-     * @Call           (name="validators", method="intType",          arguments={"param2"},                  return="param2_valid")
+     * @Call           (name="validators", method="intType",          arguments={"param2"},                  return="param2_valid", if="param1_valid")
      * @Call           (name="validators", method="sum",              arguments={"param1"},                  return="sum")
      * @ServiceParent  (                   method="sandboxActionTwo", arguments={"sum", @Property("staff")}, return="sandbox")
      * @ServiceProperty(name="foobar",     method="baz",              arguments={@Context("validators")},    return=@Output)

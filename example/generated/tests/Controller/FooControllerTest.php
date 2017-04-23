@@ -33,6 +33,7 @@ abstract class FooControllerTest extends TestCase
         $param2 = true;
         $this->assertNotEmpty($param1);
         $param1_valid = true;
+        $this->assertNotEmpty($param1_valid);
         $this->assertNotEmpty($param2);
         $param2_valid = true;
         $this->assertNotEmpty($param1);

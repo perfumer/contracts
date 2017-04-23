@@ -99,7 +99,9 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
 
         $param1_valid = $this->getValidatorsContext()->intType($param1);
 
-        $param2_valid = $this->getValidatorsContext()->intType($param2);
+        if ($param1_valid) {
+            $param2_valid = $this->getValidatorsContext()->intType($param2);
+        }
 
         $sum = $this->getValidatorsContext()->sum($param1, $this->box);
 
