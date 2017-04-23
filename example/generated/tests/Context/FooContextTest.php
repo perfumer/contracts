@@ -15,31 +15,46 @@ abstract class FooContextTest extends TestCase
     /**
      * @dataProvider intTypeDataProvider
      */
-    final public function testIntType($value, $result)
+    final public function testIntType($value, $expected)
     {
         $_class_instance = new \Perfumer\Component\Contracts\Example\Context\FooContext();
 
-        $this->assertEquals($_class_instance->intType($value), $result);
+        $this->assertIntType($_class_instance->intType($value), $expected);
     }
 
     /**
      * @dataProvider sumDataProvider
      */
-    final public function testSum($a, $b, $result)
+    final public function testSum($a, $b, $expected)
     {
         $_class_instance = new \Perfumer\Component\Contracts\Example\Context\FooContext();
 
-        $this->assertEquals($_class_instance->sum($a, $b), $result);
+        $this->assertSum($_class_instance->sum($a, $b), $expected);
     }
 
     /**
      * @dataProvider fooErrorsDataProvider
      */
-    final public function testFooErrors($result)
+    final public function testFooErrors($expected)
     {
         $_class_instance = new \Perfumer\Component\Contracts\Example\Context\FooContext();
 
-        $this->assertEquals($_class_instance->fooErrors(), $result);
+        $this->assertFooErrors($_class_instance->fooErrors(), $expected);
+    }
+
+    protected function assertIntType($result, $expected)
+    {
+        $this->assertEquals($result, $expected);
+    }
+
+    protected function assertSum($result, $expected)
+    {
+        $this->assertEquals($result, $expected);
+    }
+
+    protected function assertFooErrors($result, $expected)
+    {
+        $this->assertEquals($result, $expected);
     }
 
 }
