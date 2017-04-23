@@ -13,6 +13,7 @@ use Perfumer\Component\Contracts\Annotations\Call;
 use Perfumer\Component\Contracts\Annotations\Inject;
 use Perfumer\Component\Contracts\Annotations\Property;
 use Perfumer\Component\Contracts\Annotations\ServiceProperty;
+use Perfumer\Component\Contracts\Annotations\Skip;
 use Perfumer\Component\Contracts\Annotations\Template;
 use Perfumer\Component\Contracts\Annotations\Test;
 
@@ -284,6 +285,10 @@ class Generator
 
                     // Set validate=true
                     foreach ($method_annotations as $annotation) {
+                        if ($annotation instanceof Skip) {
+                            continue(2);
+                        }
+
                         if ($annotation instanceof Error) {
                             foreach ($method_annotations as $a) {
                                 if ($a instanceof Step && $a->return === $annotation->unless) {

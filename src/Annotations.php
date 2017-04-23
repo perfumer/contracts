@@ -324,6 +324,14 @@ class ServiceThis extends Step implements Service
 
 /**
  * @Annotation
+ * @Target("METHOD")
+ */
+class Skip implements Annotation
+{
+}
+
+/**
+ * @Annotation
  * @Target("CLASS")
  */
 class Template implements Annotation

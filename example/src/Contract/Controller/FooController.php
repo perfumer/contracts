@@ -14,6 +14,7 @@ use Perfumer\Component\Contracts\Annotations\Property;
 use Perfumer\Component\Contracts\Annotations\ServiceObject;
 use Perfumer\Component\Contracts\Annotations\ServiceParent;
 use Perfumer\Component\Contracts\Annotations\ServiceProperty;
+use Perfumer\Component\Contracts\Annotations\Skip;
 use Perfumer\Component\Contracts\Annotations\Template;
 
 /**
@@ -59,4 +60,9 @@ interface FooController
      * @return \DateTime
      */
     public function bazAction(int $param1, int $param2): \DateTime;
+
+    /**
+     * @Skip()
+     */
+    public function skipped();
 }
