@@ -34,7 +34,7 @@ interface FooController
      *   @Call           (name="validators", method="sum",              arguments={"param1"},                             return=@Property("sum")),
      *   @Custom         (                   method="sumDoubled",       arguments={@Property("sum")},                     return="double_sum"),
      *   @ServiceParent  (                   method="sandboxActionTwo", arguments={@Property("sum"), @Property("staff")}, return={"sand", @Property("box")}),
-     *   @ServiceProperty(name="foobar",     method="baz",              arguments={@Inject("date"), @Property("box")},             return=@Output)
+     *   @ServiceProperty(name="foobar",     method="baz",              arguments={@Inject("date"), @Property("box")},    return=@Output)
      * })
      * @Error (name="validators", method="fooErrors", unless="param1_valid")
      * @Error (name="validators", method="fooErrors", unless="param2_valid")
@@ -50,14 +50,14 @@ interface FooController
      * @Call           (name="validators", method="intType",          arguments={"param2"},                  return="param2_valid", if="param1_valid")
      * @Call           (name="validators", method="sum",              arguments={"param1"},                  return="sum")
      * @ServiceParent  (                   method="sandboxActionTwo", arguments={"sum", @Property("staff")}, return="sandbox")
-     * @ServiceProperty(name="foobar",     method="baz",              arguments={@Context("validators")},    return=@Output)
+     * @ServiceProperty(name="foobar",     method="baz",              arguments={@Context("validators")})
      * @ServiceObject  (name="sandbox",    method="execute")
      *
      * @param int $param1
      * @param int $param2
      * @return \DateTime
      */
-    public function bazAction(int $param1, int $param2): \DateTime;
+    public function bazAction(int $param1, int $param2);
 
     /**
      * @Skip()

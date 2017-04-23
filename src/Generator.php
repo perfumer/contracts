@@ -11,6 +11,7 @@ use Perfumer\Component\Contracts\Annotations\Error;
 use Perfumer\Component\Contracts\Annotations\Extend;
 use Perfumer\Component\Contracts\Annotations\Call;
 use Perfumer\Component\Contracts\Annotations\Inject;
+use Perfumer\Component\Contracts\Annotations\Output;
 use Perfumer\Component\Contracts\Annotations\Property;
 use Perfumer\Component\Contracts\Annotations\ServiceProperty;
 use Perfumer\Component\Contracts\Annotations\Skip;
@@ -415,12 +416,22 @@ class Generator
 
         if ($annotation instanceof Step && $annotation->return) {
             if (is_array($annotation->return)) {
+                foreach ($annotation->return as $item) {
+                    if ($item instanceof Output) {
+                        $runtime_action->setHasReturn(true);
+                    }
+                }
+
                 $vars = array_map(function ($v) {
                     return $v instanceof Variable ? $v->asReturn() : '$' . $v;
                 }, $annotation->return);
 
                 $expression = 'list(' . implode(', ', $vars) . ')';
             } else {
+                if ($annotation->return instanceof Output) {
+                    $runtime_action->setHasReturn(true);
+                }
+
                 $expression = $annotation->return instanceof Variable ? $annotation->return->asReturn() : '$' . $annotation->return;
             }
 
@@ -453,6 +464,8 @@ class Generator
         }
 
         if ($annotation instanceof Error) {
+            $runtime_action->setHasReturn(true);
+
             $runtime_step->setReturnExpression('$_return');
         }
 

@@ -89,9 +89,8 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         return $_return;
     }
 
-    final public function bazAction(int $param1, int $param2): \DateTime
+    final public function bazAction(int $param1, int $param2)
     {
-        $_return = null;
         $param1_valid = null;
         $param2_valid = null;
         $sum = null;
@@ -107,11 +106,10 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
 
         $sandbox = parent::sandboxActionTwo($sum, $this->staff);
 
-        $_return = $this->foobar->baz($this->getValidatorsContext());
+        $this->foobar->baz($this->getValidatorsContext());
 
         $sandbox->execute();
 
-        return $_return;
     }
 
     /**

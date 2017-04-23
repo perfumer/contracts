@@ -47,7 +47,9 @@ abstract class {{ context.className }}{% if context.interfaces %} implements {{ 
 {% if action.hasValidation %}
         $_valid = true;
 {% endif %}
+{% if action.hasReturn %}
         $_return = null;
+{% endif %}
 {% for variable_name, variable_value in action.localVariables %}
         {{ variable_name }} = {{ variable_value|default('null') }};
 {% endfor %}
@@ -96,7 +98,9 @@ abstract class {{ context.className }}{% if context.interfaces %} implements {{ 
 
 {% endfor %}
 {% block _action_return_expression %}
+{% if action.hasReturn %}
         return $_return;
+{% endif %}
 {% endblock %}
     }
 
