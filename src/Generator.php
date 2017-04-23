@@ -457,6 +457,8 @@ class Generator
         }
 
         if ($annotation->validate) {
+            $runtime_action->setHasValidation(true);
+
             $runtime_step->setReturnExpression('$_valid = ' . $runtime_step->getReturnExpression());
         }
 

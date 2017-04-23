@@ -52,8 +52,6 @@ interface FooController
      * @ServiceParent  (                   method="sandboxActionTwo", arguments={"sum", @Property("staff")}, return="sandbox")
      * @ServiceProperty(name="foobar",     method="baz",              arguments={@Context("validators")},    return=@Output)
      * @ServiceObject  (name="sandbox",    method="execute")
-     * @Error          (name="validators", method="fooErrors", unless="param1_valid")
-     * @Error          (name="validators", method="fooErrors", unless="param2_valid")
      *
      * @param int $param1
      * @param int $param2

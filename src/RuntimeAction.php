@@ -30,6 +30,16 @@ class RuntimeAction
     protected $steps = [];
 
     /**
+     * @var bool
+     */
+    protected $has_validation = false;
+
+    /**
+     * @var bool
+     */
+    protected $has_return = false;
+
+    /**
      * @return string
      */
     public function getMethodName()
@@ -134,5 +144,37 @@ class RuntimeAction
     public function addStep(RuntimeStep $step)
     {
         $this->steps[] = $step;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasValidation(): bool
+    {
+        return $this->has_validation;
+    }
+
+    /**
+     * @param bool $has_validation
+     */
+    public function setHasValidation(bool $has_validation)
+    {
+        $this->has_validation = $has_validation;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasReturn(): bool
+    {
+        return $this->has_return;
+    }
+
+    /**
+     * @param bool $has_return
+     */
+    public function setHasReturn(bool $has_return)
+    {
+        $this->has_return = $has_return;
     }
 }

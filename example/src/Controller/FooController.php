@@ -8,4 +8,8 @@ class FooController extends \Generated\Perfumer\Component\Contracts\Example\Cont
     {
         return 2 * $sum;
     }
+
+    public function skipped()
+    {
+    }
 }

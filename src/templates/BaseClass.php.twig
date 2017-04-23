@@ -44,7 +44,9 @@ abstract class {{ context.className }}{% if context.interfaces %} implements {{ 
     final public function {{ action.methodName }}({% for key, value in action.headerArguments %}{% if value %}{{ value }} {% endif %}{{ key }}{% if not loop.last %}, {% endif %}{% endfor %}){% if action.returnType %}: {{ action.returnType }}{% endif %}
 
     {
+{% if action.hasValidation %}
         $_valid = true;
+{% endif %}
         $_return = null;
 {% for variable_name, variable_value in action.localVariables %}
         {{ variable_name }} = {{ variable_value|default('null') }};
@@ -52,35 +54,47 @@ abstract class {{ context.className }}{% if context.interfaces %} implements {{ 
 
 {% block _action_local_variables %}
 {% endblock %}
-
 {% for step in action.steps %}
 {% if step.beforeCode %}
         {{ step.beforeCode }}
 
 {% endif %}
-        if ($_valid === {{ step.isValid ? 'true' : 'false' }}{% if step.condition %} && {{ step.condition }}{% endif %}) {
+{% if action.hasValidation or step.condition %}
+{% set space = '    ' %}
+{% else %}
+{% set space = '' %}
+{% endif %}
+{% if action.hasValidation and step.condition %}
+        if ($_valid === {{ step.isValid ? 'true' : 'false' }} && {{ step.condition }}) {
+{% elseif action.hasValidation and not step.condition %}
+        if ($_valid === {{ step.isValid ? 'true' : 'false' }}) {
+{% elseif not action.hasValidation and step.condition %}
+        if ({{ step.condition }}) {
+{% endif %}
 {% if step.prependCode %}
-            {{ step.prependCode }}
+        {{ space }}{{ step.prependCode }}
 
 {% endif %}
 {% if step.contextName is not null %}
-            {% if step.returnExpression %}{{ step.returnExpression }} = {% endif %}$this->get{{ step.contextName | capitalize }}Context()->{{ step.method }}({{ step.bodyArguments|join(', ') }});
+        {{ space }}{% if step.returnExpression %}{{ step.returnExpression }} = {% endif %}$this->get{{ step.contextName | capitalize }}Context()->{{ step.method }}({{ step.bodyArguments|join(', ') }});
 {% elseif step.functionName is not null %}
-            {% if step.returnExpression %}{{ step.returnExpression }} = {% endif %}$this->{{ step.functionName }}({{ step.bodyArguments|join(', ') }});
+        {{ space }}{% if step.returnExpression %}{{ step.returnExpression }} = {% endif %}$this->{{ step.functionName }}({{ step.bodyArguments|join(', ') }});
 {% else %}
-            {% if step.returnExpression %}{{ step.returnExpression }} = {% endif %}{{ step.service }}{{ step.method }}({{ step.bodyArguments|join(', ') }});
+        {{ space }}{% if step.returnExpression %}{{ step.returnExpression }} = {% endif %}{{ step.service }}{{ step.method }}({{ step.bodyArguments|join(', ') }});
 {% endif %}
 {% if step.appendCode %}
 
-            {{ step.appendCode }}
+        {{ space }}{{ step.appendCode }}
 {% endif %}
+{% if action.hasValidation or step.condition %}
         }
+{% endif %}
 {% if step.afterCode %}
 
         {{ step.afterCode }}
 {% endif %}
-{% endfor %}
 
+{% endfor %}
 {% block _action_return_expression %}
         return $_return;
 {% endblock %}
