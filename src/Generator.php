@@ -472,7 +472,7 @@ class Generator
         if ($annotation->validate) {
             $runtime_action->setHasValidation(true);
 
-            $runtime_step->setReturnExpression('$_valid = ' . $runtime_step->getReturnExpression());
+            $runtime_step->setReturnExpression('$_valid = (bool) ' . $runtime_step->getReturnExpression());
         }
 
         $annotation_arguments = $annotation->arguments;

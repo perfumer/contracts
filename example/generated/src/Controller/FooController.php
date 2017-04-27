@@ -55,11 +55,11 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         }
 
         if ($_valid === true) {
-            $_valid = $param1_valid = $this->getValidatorsContext()->intType($param1);
+            $_valid = (bool) $param1_valid = $this->getValidatorsContext()->intType($param1);
         }
 
         if ($_valid === true && $param1_valid) {
-            $_valid = $param2_valid = $this->getValidatorsContext()->intType($param2);
+            $_valid = (bool) $param2_valid = $this->getValidatorsContext()->intType($param2);
         }
 
         if ($_valid === true) {
