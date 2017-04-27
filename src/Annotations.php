@@ -66,7 +66,7 @@ class Context implements Variable
      */
     public function asArgument(): string
     {
-        return '$this->get' . ucfirst($this->name) . 'Context()';
+        return '$this->get' . str_replace('_', '', ucwords($this->name, '_')) . 'Context()';
     }
 
     /**

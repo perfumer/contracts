@@ -78,7 +78,7 @@ abstract class {{ context.className }}{% if context.interfaces %} implements {{ 
 
 {% endif %}
 {% if step.contextName is not null %}
-        {{ space }}{% if step.returnExpression %}{{ step.returnExpression }} = {% endif %}$this->get{{ step.contextName | capitalize }}Context()->{{ step.method }}({{ step.bodyArguments|join(', ') }});
+        {{ space }}{% if step.returnExpression %}{{ step.returnExpression }} = {% endif %}$this->get{{ step.contextName|title|replace({'_':''}) }}Context()->{{ step.method }}({{ step.bodyArguments|join(', ') }});
 {% elseif step.functionName is not null %}
         {{ space }}{% if step.returnExpression %}{{ step.returnExpression }} = {% endif %}$this->{{ step.functionName }}({{ step.bodyArguments|join(', ') }});
 {% else %}
@@ -119,7 +119,7 @@ abstract class {{ context.className }}{% if context.interfaces %} implements {{ 
     /**
      * @return {{ class }}
      */
-    final private function get{{ name | capitalize }}Context(): {{ class }}
+    final private function get{{ name|title|replace({'_':''}) }}Context(): {{ class }}
     {
         if ($this->_context_{{ name }} === null) {
             $this->_context_{{ name }} = new {{ class }}();
