@@ -41,10 +41,11 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
 
     abstract protected function sumDoubled($sum);
 
-    final public function barAction(int $a, \Perfumer\Component\Contracts\Annotations\Output $param2): string
+    final public function barAction(\Perfumer\Component\Contracts\Annotations\Output $param2): string
     {
         $_valid = true;
         $_return = null;
+        $a = $this->sum;
         $a_valid = true;
         $param2_valid = true;
         $double_sum = null;

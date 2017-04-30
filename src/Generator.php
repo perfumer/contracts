@@ -7,6 +7,7 @@ use Doctrine\Common\Annotations\AnnotationRegistry;
 use Perfumer\Component\Contracts\Annotations\Collection;
 use Perfumer\Component\Contracts\Annotations\Context;
 use Perfumer\Component\Contracts\Annotations\Custom;
+use Perfumer\Component\Contracts\Annotations\Def;
 use Perfumer\Component\Contracts\Annotations\Error;
 use Perfumer\Component\Contracts\Annotations\Extend;
 use Perfumer\Component\Contracts\Annotations\Call;
@@ -288,6 +289,12 @@ class Generator
                     foreach ($method_annotations as $annotation) {
                         if ($annotation instanceof Skip) {
                             continue(2);
+                        }
+
+                        if ($annotation instanceof Def) {
+                            $value = $annotation->variable instanceof Variable ? $annotation->variable->asArgument() : $annotation->variable;
+
+                            $runtime_action->addLocalVariable('$' . $annotation->name, $value);
                         }
 
                         if ($annotation instanceof Error) {

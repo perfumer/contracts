@@ -96,6 +96,17 @@ class Custom extends Step
 
 /**
  * @Annotation
+ * @Target("METHOD")
+ */
+class Def implements Annotation
+{
+    public $name;
+
+    public $variable;
+}
+
+/**
+ * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
 class Error extends Step

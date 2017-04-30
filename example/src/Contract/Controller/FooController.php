@@ -6,6 +6,7 @@ use Perfumer\Component\Contracts\Annotations\Call;
 use Perfumer\Component\Contracts\Annotations\Collection;
 use Perfumer\Component\Contracts\Annotations\Context;
 use Perfumer\Component\Contracts\Annotations\Custom;
+use Perfumer\Component\Contracts\Annotations\Def;
 use Perfumer\Component\Contracts\Annotations\Error;
 use Perfumer\Component\Contracts\Annotations\Extend;
 use Perfumer\Component\Contracts\Annotations\Inject;
@@ -34,16 +35,17 @@ interface FooController
      *   @Call           (name="validators_lib", method="sum",                                                            return=@Property("sum")),
      *   @Custom         (                   method="sumDoubled",       arguments={@Property("sum")},                     return="double_sum"),
      *   @ServiceParent  (                   method="sandboxActionTwo", arguments={@Property("sum"), @Property("staff")}, return={"sand", @Property("box")}),
-     *   @ServiceProperty(name="foobar",     method="baz",              arguments={@Property("sum"), @Property("box")},    return=@Output)
+     *   @ServiceProperty(name="foobar",     method="baz",              arguments={@Property("sum"), @Property("box")},   return=@Output)
      * })
      * @Error (name="validators_lib", method="fooErrors", unless="a_valid")
      * @Error (name="validators_lib", method="fooErrors", unless="param2_valid")
      *
-     * @param int $a
+     * @Def(name="a", variable=@Property("sum"))
+     *
      * @param Output $param2
      * @return string
      */
-    public function barAction(int $a, Output $param2): string;
+    public function barAction(Output $param2): string;
 
     /**
      * @Call           (name="validators_lib", method="intType",          arguments={"param1"},                  return="param1_valid")
