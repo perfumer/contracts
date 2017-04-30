@@ -21,29 +21,29 @@ use Perfumer\Component\Contracts\Annotations\Template;
  * @Extend(class="\Perfumer\Component\Contracts\Example\ParentController")
  * @Context(name="validators_lib", class="\Perfumer\Component\Contracts\Example\Context\FooContext")
  * @Inject(name="iterator", type="\Iterator")
- * @Inject(name="date", type="\DateTime")
+ * @Inject(name="foo", type="\Perfumer\Component\Contracts\Example\FooService")
  * @Inject(name="some_string", type="string")
  */
 interface FooController
 {
     /**
-     * @Call (name="date", method="format", arguments={@Property("sum")})
-     * @Call (name="validators_lib", method="intType", arguments={"param1"}, return="param1_valid")
-     * @Call (name="validators_lib", method="intType", arguments={"param2"}, return="param2_valid", if="param1_valid")
+     * @Call (name="validators_lib", method="intType", arguments={"a"}, return="a_valid")
+     * @Call (name="validators_lib", method="intType", arguments={"a"}, return="param2_valid", if="a_valid")
+     * @Call (name="foo", method="bar", if="a_valid")
      * @Collection(steps={
-     *   @Call           (name="validators_lib", method="sum",              arguments={"param1"},                             return=@Property("sum")),
+     *   @Call           (name="validators_lib", method="sum",                                                            return=@Property("sum")),
      *   @Custom         (                   method="sumDoubled",       arguments={@Property("sum")},                     return="double_sum"),
      *   @ServiceParent  (                   method="sandboxActionTwo", arguments={@Property("sum"), @Property("staff")}, return={"sand", @Property("box")}),
-     *   @ServiceProperty(name="foobar",     method="baz",              arguments={@Inject("date"), @Property("box")},    return=@Output)
+     *   @ServiceProperty(name="foobar",     method="baz",              arguments={@Property("sum"), @Property("box")},    return=@Output)
      * })
-     * @Error (name="validators_lib", method="fooErrors", unless="param1_valid")
+     * @Error (name="validators_lib", method="fooErrors", unless="a_valid")
      * @Error (name="validators_lib", method="fooErrors", unless="param2_valid")
      *
-     * @param int $param1
+     * @param int $a
      * @param Output $param2
      * @return string
      */
-    public function barAction(int $param1, Output $param2): string;
+    public function barAction(int $a, Output $param2): string;
 
     /**
      * @Call           (name="validators_lib", method="intType",          arguments={"param1"},                  return="param1_valid")

@@ -477,8 +477,14 @@ class Generator
 
         $annotation_arguments = $annotation->arguments;
 
-        if (($annotation instanceof Call || $annotation instanceof Error) && isset($contexts[$annotation->name])) {
-            $reflection_context = new \ReflectionClass($contexts[$annotation->name]);
+        if (($annotation instanceof Call || $annotation instanceof Error) && (isset($contexts[$annotation->name]) || isset($injected[$annotation->name]))) {
+            $is_context = isset($contexts[$annotation->name]);
+
+            if ($is_context) {
+                $reflection_context = new \ReflectionClass($contexts[$annotation->name]);
+            } else {
+                $reflection_context = new \ReflectionClass($injected[$annotation->name]);
+            }
 
             foreach ($reflection_context->getMethods() as $method) {
                 if ($method->getName() !== $annotation->method) {
@@ -493,14 +499,14 @@ class Generator
                     $found = false;
 
                     foreach ($method_annotations as $method_annotation) {
-                        if ($method_annotation instanceof Inject && $parameter->getName() == $method_annotation->name) {
+                        if ($is_context && $method_annotation instanceof Inject && $parameter->getName() == $method_annotation->name) {
                             $tmp_arguments[] = $method_annotation->variable;
                             $found = true;
                         }
                     }
 
                     if (!$found) {
-                        $tmp_arguments[] = array_shift($annotation_arguments);
+                        $tmp_arguments[] = $annotation->arguments ? array_shift($annotation_arguments) : $parameter->getName();
                     }
                 }
 

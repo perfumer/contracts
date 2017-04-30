@@ -23,47 +23,47 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
     private $_injected_iterator;
 
     /**
-     * @var \DateTime
+     * @var \Perfumer\Component\Contracts\Example\FooService
      */
-    private $_injected_date;
+    private $_injected_foo;
 
     /**
      * @var string
      */
     private $_injected_some_string;
 
-    public function __construct(\Iterator $iterator, \DateTime $date, string $some_string)
+    public function __construct(\Iterator $iterator, \Perfumer\Component\Contracts\Example\FooService $foo, string $some_string)
     {
         $this->_injected_iterator = $iterator;
-        $this->_injected_date = $date;
+        $this->_injected_foo = $foo;
         $this->_injected_some_string = $some_string;
     }
 
     abstract protected function sumDoubled($sum);
 
-    final public function barAction(int $param1, \Perfumer\Component\Contracts\Annotations\Output $param2): string
+    final public function barAction(int $a, \Perfumer\Component\Contracts\Annotations\Output $param2): string
     {
         $_valid = true;
         $_return = null;
-        $param1_valid = true;
+        $a_valid = true;
         $param2_valid = true;
         $double_sum = null;
         $sand = null;
 
         if ($_valid === true) {
-            $this->_injected_date->format($this->sum);
+            $_valid = (bool) $a_valid = $this->getValidatorsLibContext()->intType($a);
+        }
+
+        if ($_valid === true && $a_valid) {
+            $_valid = (bool) $param2_valid = $this->getValidatorsLibContext()->intType($a);
+        }
+
+        if ($_valid === true && $a_valid) {
+            $this->_injected_foo->bar($a);
         }
 
         if ($_valid === true) {
-            $_valid = (bool) $param1_valid = $this->getValidatorsLibContext()->intType($param1);
-        }
-
-        if ($_valid === true && $param1_valid) {
-            $_valid = (bool) $param2_valid = $this->getValidatorsLibContext()->intType($param2);
-        }
-
-        if ($_valid === true) {
-            $this->sum = $this->getValidatorsLibContext()->sum($param1, $this->box);
+            $this->sum = $this->getValidatorsLibContext()->sum($a, $this->box);
         }
 
         if ($_valid === true) {
@@ -75,10 +75,10 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         }
 
         if ($_valid === true) {
-            $_return = $this->foobar->baz($this->_injected_date, $this->box);
+            $_return = $this->foobar->baz($this->sum, $this->box);
         }
 
-        if ($_valid === false && !$param1_valid) {
+        if ($_valid === false && !$a_valid) {
             $_return = $this->getValidatorsLibContext()->fooErrors();
         }
 
@@ -121,11 +121,11 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
     }
 
     /**
-     * @return \DateTime
+     * @return \Perfumer\Component\Contracts\Example\FooService
      */
-    final protected function getDate(): \DateTime
+    final protected function getFoo(): \Perfumer\Component\Contracts\Example\FooService
     {
-        return $this->_injected_date;
+        return $this->_injected_foo;
     }
 
     /**

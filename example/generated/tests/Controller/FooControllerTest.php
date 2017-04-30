@@ -13,17 +13,19 @@ abstract class FooControllerTest extends TestCase
 
     final public function testBarActionLocalVariables()
     {
-        $param1 = true;
+        $a = true;
         $param2 = true;
-        $this->assertNotEmpty($param1);
-        $param1_valid = true;
-        $this->assertNotEmpty($param1_valid);
-        $this->assertNotEmpty($param2);
+        $this->assertNotEmpty($a);
+        $a_valid = true;
+        $this->assertNotEmpty($a_valid);
+        $this->assertNotEmpty($a);
         $param2_valid = true;
-        $this->assertNotEmpty($param1);
+        $this->assertNotEmpty($a_valid);
+        $this->assertNotEmpty($a);
+        $this->assertNotEmpty($a);
         $double_sum = true;
         $sand = true;
-        $this->assertNotEmpty($param1_valid);
+        $this->assertNotEmpty($a_valid);
         $this->assertNotEmpty($param2_valid);
     }
 
