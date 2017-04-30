@@ -4,6 +4,7 @@ namespace Perfumer\Component\Contracts;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
+use Perfumer\Component\Contracts\Annotations\Alias;
 use Perfumer\Component\Contracts\Annotations\Collection;
 use Perfumer\Component\Contracts\Annotations\Context;
 use Perfumer\Component\Contracts\Annotations\Custom;
@@ -262,6 +263,8 @@ class Generator
                 $runtime_context->setInjected($injected);
 
                 foreach ($reflection->getMethods() as $method) {
+                    $aliases = [];
+
                     $runtime_action = new RuntimeAction();
                     $runtime_action->setMethodName($method->name);
 
@@ -291,10 +294,8 @@ class Generator
                             continue(2);
                         }
 
-                        if ($annotation instanceof Def) {
-                            $value = $annotation->variable instanceof Variable ? $annotation->variable->asArgument() : $annotation->variable;
-
-                            $runtime_action->addLocalVariable('$' . $annotation->name, $value);
+                        if ($annotation instanceof Alias) {
+                            $aliases[$annotation->name] = $annotation->variable;
                         }
 
                         if ($annotation instanceof Error) {
@@ -323,12 +324,12 @@ class Generator
                                     $runtime_step->setAfterCode($annotation->after());
                                 }
 
-                                $this->processStepAnnotation($step, $runtime_step, $runtime_action, $runtime_context, $contexts, $injected);
+                                $this->processStepAnnotation($step, $runtime_step, $runtime_action, $runtime_context, $contexts, $injected, $aliases);
                             }
                         } else {
                             $runtime_step = new RuntimeStep();
 
-                            $this->processStepAnnotation($annotation, $runtime_step, $runtime_action, $runtime_context, $contexts, $injected);
+                            $this->processStepAnnotation($annotation, $runtime_step, $runtime_action, $runtime_context, $contexts, $injected, $aliases);
                         }
 
                     }
@@ -353,9 +354,10 @@ class Generator
      * @param RuntimeContext $runtime_context
      * @param array $contexts
      * @param array $injected
+     * @param array $aliases
      * @throws ContractsException
      */
-    private function processStepAnnotation(Annotation $annotation, RuntimeStep $runtime_step, RuntimeAction $runtime_action, RuntimeContext $runtime_context, array $contexts, array $injected)
+    private function processStepAnnotation(Annotation $annotation, RuntimeStep $runtime_step, RuntimeAction $runtime_action, RuntimeContext $runtime_context, array $contexts, array $injected, array $aliases)
     {
         if ($annotation instanceof Step) {
             $runtime_step->setPrependCode($annotation->prepend());
@@ -534,6 +536,10 @@ class Generator
         }
 
         foreach ($annotation_arguments as $argument) {
+            if (!$argument instanceof Variable && isset($aliases[$argument])) {
+                $argument = $aliases[$argument];
+            }
+
             $argument_var = $argument instanceof Variable ? $argument->asHeader() : '$' . $argument;
             $argument_value = $argument instanceof Variable ? $argument->asArgument() : '$' . $argument;
 

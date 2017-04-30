@@ -2,11 +2,11 @@
 
 namespace Perfumer\Component\Contracts\Example\Contract\Controller;
 
+use Perfumer\Component\Contracts\Annotations\Alias;
 use Perfumer\Component\Contracts\Annotations\Call;
 use Perfumer\Component\Contracts\Annotations\Collection;
 use Perfumer\Component\Contracts\Annotations\Context;
 use Perfumer\Component\Contracts\Annotations\Custom;
-use Perfumer\Component\Contracts\Annotations\Def;
 use Perfumer\Component\Contracts\Annotations\Error;
 use Perfumer\Component\Contracts\Annotations\Extend;
 use Perfumer\Component\Contracts\Annotations\Inject;
@@ -32,15 +32,17 @@ interface FooController
      * @Call (name="validators_lib", method="intType", arguments={"a"}, return="param2_valid", if="a_valid")
      * @Call (name="foo", method="bar", if="a_valid")
      * @Collection(steps={
-     *   @Call           (name="validators_lib", method="sum",                                                            return=@Property("sum")),
-     *   @Custom         (                   method="sumDoubled",       arguments={@Property("sum")},                     return="double_sum"),
-     *   @ServiceParent  (                   method="sandboxActionTwo", arguments={@Property("sum"), @Property("staff")}, return={"sand", @Property("box")}),
-     *   @ServiceProperty(name="foobar",     method="baz",              arguments={@Property("sum"), @Property("box")},   return=@Output)
+     *   @Call           (name="validators_lib", method="sum",                                        return=@Property("a")),
+     *   @Custom         (                       method="sumDoubled",       arguments={"a"},          return="double_sum"),
+     *   @ServiceParent  (                       method="sandboxActionTwo", arguments={"a", "staff"}, return={"sand", @Property("box")}),
+     *   @ServiceProperty(name="foobar",         method="baz",              arguments={"a", "box"},   return=@Output)
      * })
      * @Error (name="validators_lib", method="fooErrors", unless="a_valid")
      * @Error (name="validators_lib", method="fooErrors", unless="param2_valid")
      *
-     * @Def(name="a", variable=@Property("sum"))
+     * @Alias(name="a",     variable=@Property("a"))
+     * @Alias(name="staff", variable=@Property("staff"))
+     * @Alias(name="box",   variable=@Property("box"))
      *
      * @param Output $param2
      * @return string

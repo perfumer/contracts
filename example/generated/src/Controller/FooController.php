@@ -4,7 +4,7 @@ namespace Generated\Perfumer\Component\Contracts\Example\Controller;
 
 abstract class FooController extends \Perfumer\Component\Contracts\Example\ParentController implements \Perfumer\Component\Contracts\Example\Contract\Controller\FooController
 {
-    protected $sum;
+    protected $a;
 
     protected $box;
 
@@ -39,44 +39,43 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         $this->_injected_some_string = $some_string;
     }
 
-    abstract protected function sumDoubled($sum);
+    abstract protected function sumDoubled($a);
 
     final public function barAction(\Perfumer\Component\Contracts\Annotations\Output $param2): string
     {
         $_valid = true;
         $_return = null;
-        $a = $this->sum;
         $a_valid = true;
         $param2_valid = true;
         $double_sum = null;
         $sand = null;
 
         if ($_valid === true) {
-            $_valid = (bool) $a_valid = $this->getValidatorsLibContext()->intType($a);
+            $_valid = (bool) $a_valid = $this->getValidatorsLibContext()->intType($this->a);
         }
 
         if ($_valid === true && $a_valid) {
-            $_valid = (bool) $param2_valid = $this->getValidatorsLibContext()->intType($a);
+            $_valid = (bool) $param2_valid = $this->getValidatorsLibContext()->intType($this->a);
         }
 
         if ($_valid === true && $a_valid) {
-            $this->_injected_foo->bar($a);
+            $this->_injected_foo->bar($this->a);
         }
 
         if ($_valid === true) {
-            $this->sum = $this->getValidatorsLibContext()->sum($a, $this->box);
+            $this->a = $this->getValidatorsLibContext()->sum($this->a, $this->box);
         }
 
         if ($_valid === true) {
-            $double_sum = $this->sumDoubled($this->sum);
+            $double_sum = $this->sumDoubled($this->a);
         }
 
         if ($_valid === true) {
-            list($sand, $this->box) = parent::sandboxActionTwo($this->sum, $this->staff);
+            list($sand, $this->box) = parent::sandboxActionTwo($this->a, $this->staff);
         }
 
         if ($_valid === true) {
-            $_return = $this->foobar->baz($this->sum, $this->box);
+            $_return = $this->foobar->baz($this->a, $this->box);
         }
 
         if ($_valid === false && !$a_valid) {

@@ -11,6 +11,17 @@ use Perfumer\Component\Contracts\Variable;
 
 /**
  * @Annotation
+ * @Target("METHOD")
+ */
+class Alias implements Annotation
+{
+    public $name;
+
+    public $variable;
+}
+
+/**
+ * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
 class Call extends Step
@@ -92,17 +103,6 @@ class Context implements Variable
  */
 class Custom extends Step
 {
-}
-
-/**
- * @Annotation
- * @Target("METHOD")
- */
-class Def implements Annotation
-{
-    public $name;
-
-    public $variable;
 }
 
 /**
