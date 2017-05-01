@@ -32,9 +32,9 @@ interface FooController
      * @Call (name="validators_lib", method="intType", arguments={"a"}, return="param2_valid", if="a_valid")
      * @Call (name="foo", method="bar", if="a_valid")
      * @Collection(steps={
-     *   @Call           (name="validators_lib", method="sum",                                        return=@Property("a")),
+     *   @Call           (name="validators_lib", method="sum",                                        return="a"),
      *   @Custom         (                       method="sumDoubled",       arguments={"a"},          return="double_sum"),
-     *   @ServiceParent  (                       method="sandboxActionTwo", arguments={"a", "staff"}, return={"sand", @Property("box")}),
+     *   @ServiceParent  (                       method="sandboxActionTwo", arguments={"a", "staff"}, return={"sand", "box"}),
      *   @ServiceProperty(name="foobar",         method="baz",              arguments={"a", "box"},   return=@Output)
      * })
      * @Error (name="validators_lib", method="fooErrors", unless="a_valid")

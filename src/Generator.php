@@ -425,9 +425,13 @@ class Generator
 
         if ($annotation instanceof Step && $annotation->return) {
             if (is_array($annotation->return)) {
-                foreach ($annotation->return as $item) {
+                foreach ($annotation->return as $key => $item) {
                     if ($item instanceof Output) {
                         $runtime_action->setHasReturn(true);
+                    }
+
+                    if (!$item instanceof Variable && isset($aliases[$item])) {
+                        $annotation->return[$key] = $aliases[$item];
                     }
                 }
 
@@ -439,6 +443,10 @@ class Generator
             } else {
                 if ($annotation->return instanceof Output) {
                     $runtime_action->setHasReturn(true);
+                }
+
+                if (!$annotation->return instanceof Variable && isset($aliases[$annotation->return])) {
+                    $annotation->return = $aliases[$annotation->return];
                 }
 
                 $expression = $annotation->return instanceof Variable ? $annotation->return->asReturn() : '$' . $annotation->return;
