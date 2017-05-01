@@ -523,7 +523,13 @@ class Generator
                     }
 
                     if (!$found) {
-                        $tmp_arguments[] = $annotation->arguments ? array_shift($annotation_arguments) : $parameter->getName();
+                        if ($annotation->arguments) {
+                            if ($annotation_arguments) {
+                                $tmp_arguments[] = array_shift($annotation_arguments);
+                            }
+                        } elseif (!$parameter->isOptional()) {
+                            $tmp_arguments[] = $parameter->getName();
+                        }
                     }
                 }
 
