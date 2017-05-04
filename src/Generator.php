@@ -400,6 +400,14 @@ class Generator
         }
 
         if ($annotation instanceof Step && ($annotation->if || $annotation->unless)) {
+            if ($annotation->if && is_string($annotation->if) && isset($aliases[$annotation->if])) {
+                $annotation->if = $aliases[$annotation->if];
+            }
+
+            if ($annotation->unless && is_string($annotation->unless) && isset($aliases[$annotation->unless])) {
+                $annotation->unless = $aliases[$annotation->unless];
+            }
+
             $condition = $annotation->if ?: $annotation->unless;
 
             $body_argument = $condition instanceof Variable ? $condition->asArgument() : '$' . $condition;
@@ -430,7 +438,7 @@ class Generator
                         $runtime_action->setHasReturn(true);
                     }
 
-                    if (!$item instanceof Variable && isset($aliases[$item])) {
+                    if (is_string($item) && isset($aliases[$item])) {
                         $annotation->return[$key] = $aliases[$item];
                     }
                 }
@@ -445,7 +453,7 @@ class Generator
                     $runtime_action->setHasReturn(true);
                 }
 
-                if (!$annotation->return instanceof Variable && isset($aliases[$annotation->return])) {
+                if (is_string($annotation->return) && isset($aliases[$annotation->return])) {
                     $annotation->return = $aliases[$annotation->return];
                 }
 
@@ -550,7 +558,7 @@ class Generator
         }
 
         foreach ($annotation_arguments as $argument) {
-            if (!$argument instanceof Variable && isset($aliases[$argument])) {
+            if (is_string($argument) && isset($aliases[$argument])) {
                 $argument = $aliases[$argument];
             }
 
