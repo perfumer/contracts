@@ -25,11 +25,11 @@ abstract class FooContextTest extends TestCase
     /**
      * @dataProvider sumDataProvider
      */
-    final public function testSum($a, $b, $expected)
+    final public function testSum($a, $staff, $expected)
     {
         $_class_instance = new \Perfumer\Component\Contracts\Example\Context\FooContext();
 
-        $this->assertTestSum($_class_instance->sum($a, $b), $expected);
+        $this->assertTestSum($_class_instance->sum($a, $staff), $expected);
     }
 
     /**

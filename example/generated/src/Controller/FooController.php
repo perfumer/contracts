@@ -6,9 +6,9 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
 {
     protected $a;
 
-    protected $box;
-
     protected $staff;
+
+    protected $box;
 
     protected $foobar;
 
@@ -63,7 +63,7 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         }
 
         if ($_valid === true) {
-            $this->a = $this->getValidatorsLibContext()->sum($this->a, $this->box);
+            $this->a = $this->getValidatorsLibContext()->sum($this->a, $this->staff);
         }
 
         if ($_valid === true && $this->a) {
@@ -102,7 +102,7 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
             $param2_valid = $this->getValidatorsLibContext()->intType($param2);
         }
 
-        $sum = $this->getValidatorsLibContext()->sum($param1, $this->box);
+        $sum = $this->getValidatorsLibContext()->sum($param1, $this->staff);
 
         $sandbox = parent::sandboxActionTwo($sum, $this->staff);
 

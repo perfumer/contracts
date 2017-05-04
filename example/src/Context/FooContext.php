@@ -20,16 +20,16 @@ class FooContext
     }
 
     /**
-     * @Inject(name="b", variable=@Property("box"))
+     * @Inject(name="staff", variable=@Property("staff"))
      * @Test
      *
      * @param int $a
-     * @param int $b
+     * @param int $staff
      * @return int
      */
-    public function sum(int $a, int $b)
+    public function sum(int $a, int $staff)
     {
-        return $a + $b;
+        return $a + $staff;
     }
 
     /**

@@ -14,8 +14,5 @@ $generator = new \Perfumer\Component\Contracts\Generator(__DIR__ . '/..', [
 
 $generator->addTemplateDirectory(__DIR__ . '/src/templates');
 
-$generator->addContext(\Perfumer\Component\Contracts\Example\Context\FooContext::class);
-$generator->generateContexts();
-
 $generator->addClass(\Perfumer\Component\Contracts\Example\Contract\Controller\FooController::class);
 $generator->generateClasses();

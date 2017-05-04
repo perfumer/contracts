@@ -166,53 +166,51 @@ class Generator
         return $this;
     }
 
-    public function generateContexts()
+    private function generateContext(string $class)
     {
         try {
             $reader = new AnnotationReader();
 
-            foreach ($this->contexts as $class) {
-                $reflection = new \ReflectionClass($class);
-                $class_annotations = $reader->getClassAnnotations($reflection);
-                $tests = false;
+            $reflection = new \ReflectionClass($class);
+            $class_annotations = $reader->getClassAnnotations($reflection);
+            $tests = false;
 
-                $runtime_context = new RuntimeContext();
+            $runtime_context = new RuntimeContext();
 
-                $namespace = $reflection->getNamespaceName();
+            $namespace = $reflection->getNamespaceName();
 
-                $runtime_context->setNamespace($namespace);
-                $runtime_context->setClassName($reflection->getShortName());
+            $runtime_context->setNamespace($namespace);
+            $runtime_context->setClassName($reflection->getShortName());
 
-                foreach ($class_annotations as $annotation) {
-                    if ($annotation instanceof Extend) {
-                        $runtime_context->setExtendsClass($annotation->class);
-                    }
+            foreach ($class_annotations as $annotation) {
+                if ($annotation instanceof Extend) {
+                    $runtime_context->setExtendsClass($annotation->class);
                 }
+            }
 
-                foreach ($reflection->getMethods() as $method) {
-                    $method_annotations = $reader->getMethodAnnotations($method);
+            foreach ($reflection->getMethods() as $method) {
+                $method_annotations = $reader->getMethodAnnotations($method);
 
-                    foreach ($method_annotations as $annotation) {
-                        if ($annotation instanceof Test) {
-                            $tests = true;
+                foreach ($method_annotations as $annotation) {
+                    if ($annotation instanceof Test) {
+                        $tests = true;
 
-                            $runtime_step = new RuntimeStep();
-                            $runtime_step->setFunctionName($method->name);
-                            $runtime_step->setContext($class);
+                        $runtime_step = new RuntimeStep();
+                        $runtime_step->setFunctionName($method->name);
+                        $runtime_step->setContext($class);
 
-                            foreach ($method->getParameters() as $parameter) {
-                                $runtime_step->addHeaderArgument('$' . $parameter->name);
-                            }
-
-                            $runtime_context->addStep($runtime_step->getFunctionName(), $runtime_step);
+                        foreach ($method->getParameters() as $parameter) {
+                            $runtime_step->addHeaderArgument('$' . $parameter->name);
                         }
+
+                        $runtime_context->addStep($runtime_step->getFunctionName(), $runtime_step);
                     }
                 }
+            }
 
-                if ($tests) {
-                    $this->generateBaseContextTest($reflection, $runtime_context);
-                    $this->generateContextTest($reflection, $runtime_context);
-                }
+            if ($tests) {
+                $this->generateBaseContextTest($reflection, $runtime_context);
+                $this->generateContextTest($reflection, $runtime_context);
             }
         } catch (ContractsException $e) {
             exit($e->getMessage() . PHP_EOL);
@@ -254,6 +252,8 @@ class Generator
                     }
 
                     if ($annotation instanceof Context) {
+                        $this->generateContext($annotation->class);
+
                         $contexts[$annotation->name] = $annotation->class;
                         $runtime_context->addPrivateProperty('_context_' . $annotation->name, $annotation->class);
                     }
