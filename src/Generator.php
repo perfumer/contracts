@@ -8,7 +8,6 @@ use Perfumer\Component\Contracts\Annotations\Alias;
 use Perfumer\Component\Contracts\Annotations\Collection;
 use Perfumer\Component\Contracts\Annotations\Context;
 use Perfumer\Component\Contracts\Annotations\Custom;
-use Perfumer\Component\Contracts\Annotations\Def;
 use Perfumer\Component\Contracts\Annotations\Error;
 use Perfumer\Component\Contracts\Annotations\Extend;
 use Perfumer\Component\Contracts\Annotations\Call;
@@ -83,6 +82,11 @@ class Generator
     private $template_directories = [];
 
     /**
+     * @var AnnotationReader
+     */
+    private $reader;
+
+    /**
      * @param string $root_dir
      * @param array $options
      */
@@ -126,6 +130,8 @@ class Generator
         if (isset($options['test_path'])) {
             $this->test_path = (string) $options['test_path'];
         }
+
+        $this->reader = new AnnotationReader();
     }
 
     /**
@@ -169,10 +175,8 @@ class Generator
     private function generateContext(string $class)
     {
         try {
-            $reader = new AnnotationReader();
-
             $reflection = new \ReflectionClass($class);
-            $class_annotations = $reader->getClassAnnotations($reflection);
+            $class_annotations = $this->reader->getClassAnnotations($reflection);
             $tests = false;
 
             $runtime_context = new RuntimeContext();
@@ -189,7 +193,7 @@ class Generator
             }
 
             foreach ($reflection->getMethods() as $method) {
-                $method_annotations = $reader->getMethodAnnotations($method);
+                $method_annotations = $this->reader->getMethodAnnotations($method);
 
                 foreach ($method_annotations as $annotation) {
                     if ($annotation instanceof Test) {
@@ -220,14 +224,12 @@ class Generator
     public function generateClasses()
     {
         try {
-            $reader = new AnnotationReader();
-
             foreach ($this->classes as $class) {
                 $contexts = [];
                 $injected = [];
 
                 $reflection = new \ReflectionClass($class);
-                $class_annotations = $reader->getClassAnnotations($reflection);
+                $class_annotations = $this->reader->getClassAnnotations($reflection);
 
                 $runtime_context = new RuntimeContext();
 
@@ -286,7 +288,7 @@ class Generator
                         $runtime_action->addHeaderArgument('$' . $parameter->name, $type);
                     }
 
-                    $method_annotations = $reader->getMethodAnnotations($method);
+                    $method_annotations = $this->reader->getMethodAnnotations($method);
 
                     // Set validate=true
                     foreach ($method_annotations as $annotation) {
