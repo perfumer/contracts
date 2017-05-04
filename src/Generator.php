@@ -511,10 +511,14 @@ class Generator
                 $reflection_context = new \ReflectionClass($injected[$annotation->name]);
             }
 
+            $method_found = false;
+
             foreach ($reflection_context->getMethods() as $method) {
                 if ($method->getName() !== $annotation->method) {
                     continue;
                 }
+
+                $method_found = true;
 
                 $reader = new AnnotationReader();
                 $method_annotations = $reader->getMethodAnnotations($method);
@@ -554,6 +558,16 @@ class Generator
                 if ($tmp_arguments) {
                     $annotation_arguments = $tmp_arguments;
                 }
+            }
+
+            if ($method_found === false) {
+                throw new ContractsException(sprintf('Method "%s" is not found in %s\\%s -> %s -> %s.',
+                    $annotation->method,
+                    $runtime_context->getNamespace(),
+                    $runtime_context->getClassName(),
+                    $runtime_action->getMethodName(),
+                    $annotation->name
+                ));
             }
         }
 
