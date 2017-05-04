@@ -33,7 +33,7 @@ interface FooController
      * @Call (name="foo", method="bar", if="a_valid")
      * @Collection(steps={
      *   @Call           (name="validators_lib", method="sum",                                        return="a"),
-     *   @Custom         (                       method="sumDoubled",       arguments={"a"},          return="double_sum"),
+     *   @Custom         (                       method="sumDoubled",       arguments={"a"},          return="double_sum", if="a"),
      *   @ServiceParent  (                       method="sandboxActionTwo", arguments={"a", "staff"}, return={"sand", "box"}),
      *   @ServiceProperty(name="foobar",         method="baz",              arguments={"a", "box"},   return=@Output)
      * })

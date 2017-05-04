@@ -66,7 +66,7 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
             $this->a = $this->getValidatorsLibContext()->sum($this->a, $this->box);
         }
 
-        if ($_valid === true) {
+        if ($_valid === true && $this->a) {
             $double_sum = $this->sumDoubled($this->a);
         }
 
