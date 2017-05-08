@@ -19,7 +19,7 @@ abstract class FooControllerContextTest extends TestCase
     {
         $_class_instance = new \Perfumer\Component\Contracts\Example\Contract\Controller\FooControllerContext();
 
-        $this->assertTestIntType($_class_instance->intType($value), $expected);
+        $this->assertTestIntType($expected, $_class_instance->intType($value));
     }
 
     /**
@@ -29,7 +29,7 @@ abstract class FooControllerContextTest extends TestCase
     {
         $_class_instance = new \Perfumer\Component\Contracts\Example\Contract\Controller\FooControllerContext();
 
-        $this->assertTestSum($_class_instance->sum($a, $staff), $expected);
+        $this->assertTestSum($expected, $_class_instance->sum($a, $staff));
     }
 
     /**
@@ -39,22 +39,22 @@ abstract class FooControllerContextTest extends TestCase
     {
         $_class_instance = new \Perfumer\Component\Contracts\Example\Contract\Controller\FooControllerContext();
 
-        $this->assertTestFooErrors($_class_instance->fooErrors(), $expected);
+        $this->assertTestFooErrors($expected, $_class_instance->fooErrors());
     }
 
-    protected function assertTestIntType($result, $expected)
+    protected function assertTestIntType($expected, $result)
     {
-        $this->assertEquals($result, $expected);
+        $this->assertEquals($expected, $result);
     }
 
-    protected function assertTestSum($result, $expected)
+    protected function assertTestSum($expected, $result)
     {
-        $this->assertEquals($result, $expected);
+        $this->assertEquals($expected, $result);
     }
 
-    protected function assertTestFooErrors($result, $expected)
+    protected function assertTestFooErrors($expected, $result)
     {
-        $this->assertEquals($result, $expected);
+        $this->assertEquals($expected, $result);
     }
 
 }
