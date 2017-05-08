@@ -740,6 +740,11 @@ class Generator
      */
     private function generateBaseContextTest(\ReflectionClass $reflection, RuntimeContext $runtime_context)
     {
+        // If context is from another package
+        if (strpos($reflection->getNamespaceName(), $this->context_prefix) !== 0) {
+            return;
+        }
+
         $output_name = str_replace('\\', '/', trim(str_replace($this->context_prefix, '', $reflection->getNamespaceName()), '\\'));
 
         if ($output_name) {
@@ -767,6 +772,11 @@ class Generator
      */
     private function generateContextTest(\ReflectionClass $reflection, RuntimeContext $runtime_context)
     {
+        // If context is from another package
+        if (strpos($reflection->getNamespaceName(), $this->context_prefix) !== 0) {
+            return;
+        }
+
         $output_name = str_replace('\\', '/', trim(str_replace($this->context_prefix, '', $reflection->getNamespaceName()), '\\'));
 
         if ($output_name) {
