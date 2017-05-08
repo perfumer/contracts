@@ -13,11 +13,6 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
     protected $foobar;
 
     /**
-     * @var \Perfumer\Component\Contracts\Example\Context\FooContext
-     */
-    private $_context_validators_lib;
-
-    /**
      * @var \Iterator
      */
     private $_injected_iterator;
@@ -31,6 +26,11 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
      * @var string
      */
     private $_injected_some_string;
+
+    /**
+     * @var \Perfumer\Component\Contracts\Example\Contract\Controller\FooControllerContext
+     */
+    private $_context_default;
 
     public function __construct(\Iterator $iterator, \Perfumer\Component\Contracts\Example\FooService $foo, string $some_string)
     {
@@ -51,11 +51,11 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         $sand = null;
 
         if ($_valid === true) {
-            $_valid = (bool) $a_valid = $this->getValidatorsLibContext()->intType($this->a);
+            $_valid = (bool) $a_valid = $this->getDefaultContext()->intType($this->a);
         }
 
         if ($_valid === true && $a_valid) {
-            $_valid = (bool) $param2_valid = $this->getValidatorsLibContext()->intType($this->a);
+            $_valid = (bool) $param2_valid = $this->getDefaultContext()->intType($this->a);
         }
 
         if ($_valid === true && $a_valid) {
@@ -63,7 +63,7 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         }
 
         if ($_valid === true) {
-            $this->a = $this->getValidatorsLibContext()->sum($this->a, $this->staff);
+            $this->a = $this->getDefaultContext()->sum($this->a, $this->staff);
         }
 
         if ($_valid === true && $this->a) {
@@ -79,11 +79,11 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         }
 
         if ($_valid === false && !$a_valid) {
-            $_return = $this->getValidatorsLibContext()->fooErrors();
+            $_return = $this->getDefaultContext()->fooErrors();
         }
 
         if ($_valid === false && !$param2_valid) {
-            $_return = $this->getValidatorsLibContext()->fooErrors();
+            $_return = $this->getDefaultContext()->fooErrors();
         }
 
         return $_return;
@@ -96,13 +96,13 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         $sum = null;
         $sandbox = null;
 
-        $param1_valid = $this->getValidatorsLibContext()->intType($param1);
+        $param1_valid = $this->getDefaultContext()->intType($param1);
 
         if ($param1_valid) {
-            $param2_valid = $this->getValidatorsLibContext()->intType($param2);
+            $param2_valid = $this->getDefaultContext()->intType($param2);
         }
 
-        $sum = $this->getValidatorsLibContext()->sum($param1, $this->staff);
+        $sum = $this->getDefaultContext()->sum($param1, $this->staff);
 
         $sandbox = parent::sandboxActionTwo($sum, $this->staff);
 
@@ -137,15 +137,15 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
     }
 
     /**
-     * @return \Perfumer\Component\Contracts\Example\Context\FooContext
+     * @return \Perfumer\Component\Contracts\Example\Contract\Controller\FooControllerContext
      */
-    final private function getValidatorsLibContext(): \Perfumer\Component\Contracts\Example\Context\FooContext
+    final private function getDefaultContext(): \Perfumer\Component\Contracts\Example\Contract\Controller\FooControllerContext
     {
-        if ($this->_context_validators_lib === null) {
-            $this->_context_validators_lib = new \Perfumer\Component\Contracts\Example\Context\FooContext();
+        if ($this->_context_default === null) {
+            $this->_context_default = new \Perfumer\Component\Contracts\Example\Contract\Controller\FooControllerContext();
         }
 
-        return $this->_context_validators_lib;
+        return $this->_context_default;
     }
 
 }

@@ -17,10 +17,10 @@ use Perfumer\Component\Contracts\Annotations\ServiceParent;
 use Perfumer\Component\Contracts\Annotations\ServiceProperty;
 use Perfumer\Component\Contracts\Annotations\Skip;
 use Perfumer\Component\Contracts\Annotations\Template;
+use Perfumer\Component\Contracts\Annotations\Test;
 
 /**
  * @Extend(class="\Perfumer\Component\Contracts\Example\ParentController")
- * @Context(name="validators_lib", class="\Perfumer\Component\Contracts\Example\Context\FooContext")
  * @Inject(name="iterator", type="\Iterator")
  * @Inject(name="foo", type="\Perfumer\Component\Contracts\Example\FooService")
  * @Inject(name="some_string", type="string")
@@ -28,17 +28,17 @@ use Perfumer\Component\Contracts\Annotations\Template;
 interface FooController
 {
     /**
-     * @Call (name="validators_lib", method="intType", arguments={"a"}, return="a_valid")
-     * @Call (name="validators_lib", method="intType", arguments={"a"}, return="param2_valid", if="a_valid")
-     * @Call (name="foo", method="bar", if="a_valid")
+     * @Call (            method="intType", arguments={"a"}, return="a_valid")
+     * @Call (            method="intType", arguments={"a"}, return="param2_valid", if="a_valid")
+     * @Call (name="foo", method="bar",                                             if="a_valid")
      * @Collection(steps={
-     *   @Call           (name="validators_lib", method="sum",                                        return="a"),
-     *   @Custom         (                       method="sumDoubled",       arguments={"a"},          return="double_sum", if="a"),
-     *   @ServiceParent  (                       method="sandboxActionTwo", arguments={"a", "staff"}, return={"sand", "box"}),
-     *   @ServiceProperty(name="foobar",         method="baz",              arguments={"a", "box"},   return=@Output)
+     *   @Call           (               method="sum",                                        return="a"),
+     *   @Custom         (               method="sumDoubled",       arguments={"a"},          return="double_sum", if="a"),
+     *   @ServiceParent  (               method="sandboxActionTwo", arguments={"a", "staff"}, return={"sand", "box"}),
+     *   @ServiceProperty(name="foobar", method="baz",              arguments={"a", "box"},   return=@Output)
      * })
-     * @Error (name="validators_lib", method="fooErrors", unless="a_valid")
-     * @Error (name="validators_lib", method="fooErrors", unless="param2_valid")
+     * @Error(method="fooErrors", unless="a_valid")
+     * @Error(method="fooErrors", unless="param2_valid")
      *
      * @Alias(name="a",     variable=@Property("a"))
      * @Alias(name="staff", variable=@Property("staff"))
@@ -50,12 +50,12 @@ interface FooController
     public function barAction(Output $param2): string;
 
     /**
-     * @Call           (name="validators_lib", method="intType",          arguments={"param1"},                  return="param1_valid")
-     * @Call           (name="validators_lib", method="intType",          arguments={"param2"},                  return="param2_valid", if="param1_valid")
-     * @Call           (name="validators_lib", method="sum",              arguments={"param1"},                  return="sum")
-     * @ServiceParent  (                   method="sandboxActionTwo", arguments={"sum", @Property("staff")}, return="sandbox")
-     * @ServiceProperty(name="foobar",     method="baz",              arguments={@Context("validators_lib")})
-     * @ServiceObject  (name="sandbox",    method="execute")
+     * @Call           (                method="intType",          arguments={"param1"},                  return="param1_valid")
+     * @Call           (                method="intType",          arguments={"param2"},                  return="param2_valid", if="param1_valid")
+     * @Call           (                method="sum",              arguments={"param1"},                  return="sum")
+     * @ServiceParent  (                method="sandboxActionTwo", arguments={"sum", @Property("staff")}, return="sandbox")
+     * @ServiceProperty(name="foobar",  method="baz",              arguments={@Context("validators_lib")})
+     * @ServiceObject  (name="sandbox", method="execute")
      *
      * @param int $param1
      * @param int $param2
@@ -67,4 +67,52 @@ interface FooController
      * @Skip()
      */
     public function skipped();
+}
+
+class FooControllerContext
+{
+    /**
+     * @Test
+     *
+     * @param $value
+     * @return bool
+     */
+    public function intType($value): bool
+    {
+        return is_int($value);
+    }
+
+    /**
+     * @Inject(name="staff", variable=@Property("staff"))
+     * @Test
+     *
+     * @param int $a
+     * @param int $staff
+     * @return int
+     */
+    public function sum(int $a, int $staff)
+    {
+        return $a + $staff;
+    }
+
+    /**
+     * @param int $a
+     * @param int $b
+     * @return int
+     * @return int
+     */
+    public function multiply(int $a, int $b)
+    {
+        return $a * $b;
+    }
+
+    /**
+     * @Test
+     *
+     * @return string
+     */
+    public function fooErrors()
+    {
+        return 'Param1 is not valid';
+    }
 }

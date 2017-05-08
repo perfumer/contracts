@@ -1,8 +1,8 @@
 <?php
 
-namespace Tests\Perfumer\Component\Contracts\Example\Context;
+namespace Tests\Perfumer\Component\Contracts\Example\Contract\Controller;
 
-class FooContextTest extends \Generated\Tests\Perfumer\Component\Contracts\Example\Context\FooContextTest
+class FooControllerContextTest extends \Generated\Tests\Perfumer\Component\Contracts\Example\Contract\Controller\FooControllerContextTest
 {
     /**
      * @return array

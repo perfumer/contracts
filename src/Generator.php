@@ -239,6 +239,14 @@ class Generator
                 $runtime_context->setClassName($reflection->getShortName());
                 $runtime_context->addInterface('\\' . $class);
 
+                if (class_exists('\\' . $class . 'Context', false)) {
+                    $default_context_annotation = new Context();
+                    $default_context_annotation->name = 'default';
+                    $default_context_annotation->class = '\\' . $class . 'Context';
+
+                    $class_annotations[] = $default_context_annotation;
+                }
+
                 foreach ($class_annotations as $annotation) {
                     if ($annotation instanceof Template) {
                         $runtime_context->setTemplate($annotation->name);
@@ -246,6 +254,14 @@ class Generator
 
                     if ($annotation instanceof Extend) {
                         $runtime_context->setExtendsClass($annotation->class);
+                    }
+
+                    if (($annotation instanceof Inject || $annotation instanceof Context) && (isset($contexts[$annotation->name]) || isset($injected[$annotation->name]))) {
+                        throw new ContractsException(sprintf('%s\\%s -> %s context or injected is already defined.',
+                            $runtime_context->getNamespace(),
+                            $runtime_context->getClassName(),
+                            $annotation->name
+                        ));
                     }
 
                     if ($annotation instanceof Inject) {
@@ -367,6 +383,10 @@ class Generator
         }
 
         if ($annotation instanceof Call || $annotation instanceof Error) {
+            if ($annotation->name === null) {
+                $annotation->name = 'default';
+            }
+
             if (!isset($contexts[$annotation->name]) && !isset($injected[$annotation->name])) {
                 throw new ContractsException(sprintf('%s\\%s -> %s -> %s context or injected is not registered',
                     $runtime_context->getNamespace(),
