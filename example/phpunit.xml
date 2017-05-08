@@ -1,7 +1,10 @@
 <phpunit backupGlobals="false">
     <testsuites>
-        <testsuite name="Tests">
-            <directory>tests</directory>
+        <testsuite name="Controllers">
+            <directory>tests/Controller</directory>
+        </testsuite>
+        <testsuite name="Contexts">
+            <directory>tests/Contract</directory>
         </testsuite>
     </testsuites>
 </phpunit>
