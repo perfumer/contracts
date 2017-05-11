@@ -10,7 +10,7 @@ class TwigExtension extends \Twig_Extension
     public function getFilters()
     {
         return array(
-            new \Twig_Filter('ucwords', array($this, 'ucwords')),
+            new \Twig_SimpleFilter('ucwords', [$this, 'ucwords']),
         );
     }
 
