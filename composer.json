@@ -16,8 +16,8 @@
     "php": ">=7.0.0",
     "phpunit/phpunit": "~5",
     "doctrine/annotations": "~1",
-    "cedriclombardot/twig-generator": "~1",
-    "friendsofphp/php-cs-fixer": "~2"
+    "friendsofphp/php-cs-fixer": "~2",
+    "twig/twig": "~1 || ~2"
   },
   "autoload-dev": {
     "psr-4": {

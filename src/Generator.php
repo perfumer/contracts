@@ -9,11 +9,6 @@ use Perfumer\Contracts\Annotations\Test;
 class Generator
 {
     /**
-     * @var \TwigGenerator\Builder\Generator
-     */
-    private $generator;
-
-    /**
      * @var string
      */
     private $contract_prefix;
@@ -59,14 +54,19 @@ class Generator
     private $classes = [];
 
     /**
-     * @var array
-     */
-    private $template_directories = [];
-
-    /**
      * @var AnnotationReader
      */
     private $reader;
+
+    /**
+     * @var \Twig_Environment
+     */
+    private $twig;
+
+    /**
+     * @var \Twig_Loader_Filesystem
+     */
+    private $loader;
 
     /**
      * @param string $root_dir
@@ -74,10 +74,16 @@ class Generator
      */
     public function __construct($root_dir, $options = [])
     {
+        $this->reader = new AnnotationReader();
+        $this->loader = new \Twig_Loader_Filesystem();
+        $this->twig = new \Twig_Environment($this->loader, [
+            'autoescape' => false
+        ]);
+
+        $this->twig->addExtension(new TwigExtension());
+
         $this->addTemplateDirectory(__DIR__ . '/../tpl');
         $this->addAnnotations(__DIR__ . '/Annotations.php');
-
-        $this->generator = new \TwigGenerator\Builder\Generator();
 
         $this->root_dir = $root_dir;
 
@@ -108,8 +114,6 @@ class Generator
         if (isset($options['test_path'])) {
             $this->test_path = (string) $options['test_path'];
         }
-
-        $this->reader = new AnnotationReader();
     }
 
     /**
@@ -117,7 +121,7 @@ class Generator
      */
     public function addTemplateDirectory(string $directory)
     {
-        $this->template_directories[] = $directory;
+        $this->loader->addPath($directory);
     }
 
     /**
@@ -301,19 +305,13 @@ class Generator
             $output_name .= '/';
         }
 
-        $output_name = $output_name . $class_builder->getClassName() . '.php';
+        $output_name = $this->root_dir . '/' . $this->base_src_path . '/' . $output_name . $class_builder->getClassName() . '.php';
 
-        $builder = new Builder();
-        $builder->setMustOverwriteIfExists(true);
-        $builder->setTemplateName('BaseClass.php.twig');
-        $builder->setTemplateDirs($this->template_directories);
-        $builder->setGenerator($this->generator);
-        $builder->setOutputName($output_name);
-        $builder->setVariables([
-            'class_builder' => $class_builder
+        $content = $this->twig->render('BaseClass.php.twig', [
+            'builder' => $class_builder
         ]);
 
-        $builder->writeOnDisk($this->root_dir . '/' . $this->base_src_path);
+        file_put_contents($output_name, $content);
     }
 
     /**
@@ -327,19 +325,17 @@ class Generator
             $output_name .= '/';
         }
 
-        $output_name = $output_name . $class_builder->getClassName() . '.php';
+        $output_name = $this->root_dir . '/' . $this->src_path . '/' . $output_name . $class_builder->getClassName() . '.php';
 
-        $builder = new Builder();
-        $builder->setMustOverwriteIfExists(false);
-        $builder->setTemplateName('Class.php.twig');
-        $builder->setTemplateDirs($this->template_directories);
-        $builder->setGenerator($this->generator);
-        $builder->setOutputName($output_name);
-        $builder->setVariables([
-            'class_builder' => $class_builder
+        if (is_file($output_name)) {
+            return;
+        }
+
+        $content = $this->twig->render('Class.php.twig', [
+            'builder' => $class_builder
         ]);
 
-        $builder->writeOnDisk($this->root_dir . '/' . $this->src_path);
+        file_put_contents($output_name, $content);
     }
 
     /**
@@ -353,19 +349,13 @@ class Generator
             $output_name .= '/';
         }
 
-        $output_name = $output_name . $class_builder->getClassName() . 'Test.php';
+        $output_name = $this->root_dir . '/' . $this->base_test_path . '/' . $output_name . $class_builder->getClassName() . 'Test.php';
 
-        $builder = new Builder();
-        $builder->setMustOverwriteIfExists(true);
-        $builder->setTemplateName('BaseClassTest.php.twig');
-        $builder->setTemplateDirs($this->template_directories);
-        $builder->setGenerator($this->generator);
-        $builder->setOutputName($output_name);
-        $builder->setVariables([
-            'class_builder' => $class_builder
+        $content = $this->twig->render('BaseClassTest.php.twig', [
+            'builder' => $class_builder
         ]);
 
-        $builder->writeOnDisk($this->root_dir . '/' . $this->base_test_path);
+        file_put_contents($output_name, $content);
     }
 
     /**
@@ -379,19 +369,17 @@ class Generator
             $output_name .= '/';
         }
 
-        $output_name = $output_name . $class_builder->getClassName() . 'Test.php';
+        $output_name = $this->root_dir . '/' . $this->test_path . '/' . $output_name . $class_builder->getClassName() . 'Test.php';
 
-        $builder = new Builder();
-        $builder->setMustOverwriteIfExists(false);
-        $builder->setTemplateName('ClassTest.php.twig');
-        $builder->setTemplateDirs($this->template_directories);
-        $builder->setGenerator($this->generator);
-        $builder->setOutputName($output_name);
-        $builder->setVariables([
-            'class_builder' => $class_builder
+        if (is_file($output_name)) {
+            return;
+        }
+
+        $content = $this->twig->render('ClassTest.php.twig', [
+            'builder' => $class_builder
         ]);
 
-        $builder->writeOnDisk($this->root_dir . '/' . $this->test_path);
+        file_put_contents($output_name, $content);
     }
 
     /**
@@ -410,19 +398,13 @@ class Generator
             $output_name .= '/';
         }
 
-        $output_name = $output_name . $class_builder->getClassName() . 'Test.php';
+        $output_name = $this->root_dir . '/' . $this->base_test_path . '/' . $output_name . $class_builder->getClassName() . 'Test.php';
 
-        $builder = new Builder();
-        $builder->setMustOverwriteIfExists(true);
-        $builder->setTemplateName('BaseContextTest.php.twig');
-        $builder->setTemplateDirs($this->template_directories);
-        $builder->setGenerator($this->generator);
-        $builder->setOutputName($output_name);
-        $builder->setVariables([
-            'class_builder' => $class_builder
+        $content = $this->twig->render('BaseContextTest.php.twig', [
+            'builder' => $class_builder
         ]);
 
-        $builder->writeOnDisk($this->root_dir . '/' . $this->base_test_path);
+        file_put_contents($output_name, $content);
     }
 
     /**
@@ -441,18 +423,16 @@ class Generator
             $output_name .= '/';
         }
 
-        $output_name = $output_name . $class_builder->getClassName() . 'Test.php';
+        $output_name = $this->root_dir . '/' . $this->test_path . '/' . $output_name . $class_builder->getClassName() . 'Test.php';
 
-        $builder = new Builder();
-        $builder->setMustOverwriteIfExists(false);
-        $builder->setTemplateName('ContextTest.php.twig');
-        $builder->setTemplateDirs($this->template_directories);
-        $builder->setGenerator($this->generator);
-        $builder->setOutputName($output_name);
-        $builder->setVariables([
-            'class_builder' => $class_builder
+        if (is_file($output_name)) {
+            return;
+        }
+
+        $content = $this->twig->render('ContextTest.php.twig', [
+            'builder' => $class_builder
         ]);
 
-        $builder->writeOnDisk($this->root_dir . '/' . $this->test_path);
+        file_put_contents($output_name, $content);
     }
 }
