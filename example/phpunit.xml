@@ -1,4 +1,4 @@
-<phpunit backupGlobals="false">
+<phpunit backupGlobals="false" beStrictAboutTestsThatDoNotTestAnything="false">
     <testsuites>
         <testsuite name="Controllers">
             <directory>tests/Controller</directory>

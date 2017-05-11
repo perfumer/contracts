@@ -14,7 +14,7 @@
   ],
   "require": {
     "php": ">=7.1.0",
-    "phpunit/phpunit": "~5",
+    "phpunit/phpunit": "~6",
     "doctrine/annotations": "~1",
     "friendsofphp/php-cs-fixer": "~2",
     "twig/twig": "~1 || ~2"
