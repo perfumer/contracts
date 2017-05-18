@@ -1,14 +1,14 @@
 <?php
 
-namespace {{ context.namespace }};
+namespace {{ builder.namespace }};
 
-class {{ context.className }} extends \Generated\{{ context.namespace }}\{{ context.className }}
+class {{ builder.className }} extends \Generated\{{ builder.namespace }}\{{ builder.className }}
 {
-{% for step in context.steps %}
-{% if step.service is null and step.context is null %}
-    protected function {{ step.functionName }}({{ step.headerArguments|join(', ') }})
+{% for method in builder.methods %}
+{% if method.isAbstract %}
+    protected function {{ method.name }}({% for argument in method.arguments %}${{ argument }}{% if not loop.last %}, {% endif %}{% endfor %})
     {
-        throw new \Exception('Method "{{ step.functionName }}" is not implemented yet.');
+        throw new \Exception('Method "{{ method.name }}" is not implemented yet.');
     }
 {% endif %}
 {% endfor %}

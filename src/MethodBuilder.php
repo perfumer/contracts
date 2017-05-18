@@ -7,12 +7,22 @@ final class MethodBuilder
     /**
      * @var bool
      */
-    private $is_final = true;
+    private $is_final = false;
 
     /**
      * @var bool
      */
     private $is_abstract = false;
+
+    /**
+     * @var bool
+     */
+    private $is_static = false;
+
+    /**
+     * @var null|string
+     */
+    private $access;
 
     /**
      * @var null|string
@@ -37,6 +47,11 @@ final class MethodBuilder
     /**
      * @var \ArrayObject
      */
+    private $test_variables;
+
+    /**
+     * @var \ArrayObject
+     */
     private $prepended_code;
 
     /**
@@ -48,6 +63,11 @@ final class MethodBuilder
      * @var \ArrayObject
      */
     private $steps;
+
+    /**
+     * @var bool
+     */
+    private $validation = false;
 
     /**
      * MethodBuilder constructor.
@@ -91,6 +111,38 @@ final class MethodBuilder
     public function setIsAbstract(bool $is_abstract)
     {
         $this->is_abstract = $is_abstract;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isIsStatic(): bool
+    {
+        return $this->is_static;
+    }
+
+    /**
+     * @param bool $is_static
+     */
+    public function setIsStatic(bool $is_static)
+    {
+        $this->is_static = $is_static;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getAccess()
+    {
+        return $this->access;
+    }
+
+    /**
+     * @param null|string $access
+     */
+    public function setAccess($access)
+    {
+        $this->access = $access;
     }
 
     /**
@@ -144,6 +196,14 @@ final class MethodBuilder
     /**
      * @return \ArrayObject
      */
+    public function getTestVariables(): \ArrayObject
+    {
+        return $this->test_variables;
+    }
+
+    /**
+     * @return \ArrayObject
+     */
     public function getPrependedCode(): \ArrayObject
     {
         return $this->prepended_code;
@@ -163,5 +223,21 @@ final class MethodBuilder
     public function getSteps(): \ArrayObject
     {
         return $this->steps;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isValidation(): bool
+    {
+        return $this->validation;
+    }
+
+    /**
+     * @param bool $validation
+     */
+    public function setValidation(bool $validation)
+    {
+        $this->validation = $validation;
     }
 }

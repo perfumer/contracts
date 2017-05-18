@@ -1,15 +1,24 @@
 <?php
 
-namespace Generated\{{ context.namespace }};
+namespace Generated\{{ builder.namespace }};
 
-{% if context.extendsClass %}
-abstract class {{ context.className }} extends {{ context.extendsClass }}{% if context.interfaces %} implements {{ context.interfaces|join(', ') }}{% endif %}
+{% if builder.parentClass %}
+abstract class {{ builder.className }} extends {{ builder.parentClass }}{% if builder.interfaces.count > 0 %} implements {{ builder.interfaces|join(', ') }}{% endif %}
 {% else %}
-abstract class {{ context.className }}{% if context.interfaces %} implements {{ context.interfaces|join(', ') }}{% endif %}
+abstract class {{ builder.className }}{% if context.interfaces.count > 0 %} implements {{ builder.interfaces|join(', ') }}{% endif %}
 {% endif %}
 
 {
-{% for name, type in context.protectedProperties %}
+{% for name, type in builder.publicProperties %}
+{% if type %}
+    /**
+     * @var {{ type }}
+     */
+{% endif %}
+    public ${{ name }};
+
+{% endfor %}
+{% for name, type in builder.protectedProperties %}
 {% if type %}
     /**
      * @var {{ type }}
@@ -18,7 +27,7 @@ abstract class {{ context.className }}{% if context.interfaces %} implements {{ 
     protected ${{ name }};
 
 {% endfor %}
-{% for name, type in context.privateProperties %}
+{% for name, type in builder.privateProperties %}
 {% if type %}
     /**
      * @var {{ type }}
@@ -27,102 +36,108 @@ abstract class {{ context.className }}{% if context.interfaces %} implements {{ 
     private ${{ name }};
 
 {% endfor %}
-{% if context.injected|length > 0 %}
-    public function __construct({% for name, type in context.injected %}{{ type }} ${{ name }}{%  if not loop.last %}, {% endif %}{% endfor %})
+{% for name, context in builder.contexts %}
+    /**
+     * @var {{ context.class }}
+     */
+    private $_context_{{ name }};
+
+{% endfor %}
+{% for name, injection in builder.injections %}
+    /**
+     * @var {{ injection.type }}
+     */
+    private $_injected_{{ name }};
+
+{% endfor %}
+{% if builder.injections.count > 0 %}
+    public function __construct({% for name, injection in builder.injections %}{{ injection.type }} ${{ name }}{%  if not loop.last %}, {% endif %}{% endfor %})
     {
-{% for name, type in context.injected %}
+{% for name, injection in builder.injections %}
         $this->_injected_{{ name }} = ${{ name }};
 {% endfor %}
     }
 
 {% endif %}
-{% for step in context.steps if step.service is null and step.context is null %}
-    abstract protected function {{ step.functionName }}({{ step.headerArguments|join(', ') }});
+{% for method in builder.methods if method.isAbstract %}
+    abstract {{ method.access }}{% if method.isStatic %} static{% endif %} function {{ method.name }}({% for argument, type in method.arguments %}{% if type %}{{ type }} {% endif %}${{ argument }}{% if not loop.last %}, {% endif %}{% endfor %});
 
 {% endfor %}
-{% for action in context.actions %}
-    final public function {{ action.methodName }}({% for key, value in action.headerArguments %}{% if value %}{{ value }} {% endif %}{{ key }}{% if not loop.last %}, {% endif %}{% endfor %}){% if action.returnType %}: {{ action.returnType }}{% endif %}
+{% for method in builder.methods if not method.isAbstract %}
+    {% if method.isFinal %}final {% endif %}{{ method.access }}{% if method.isStatic %} static{% endif %} function {{ method.name }}({% for argument, type in method.arguments %}{% if type %}{{ type }} {% endif %}${{ argument }}{% if not loop.last %}, {% endif %}{% endfor %}){% if method.returnType %}: {{ method.returnType }}{% endif %}
 
     {
-{% if action.hasValidation %}
+{% if method.isValidation %}
         $_valid = true;
 {% endif %}
-{% if action.hasReturn %}
-        $_return = null;
-{% endif %}
-{% for variable_name, variable_value in action.localVariables %}
-        {{ variable_name }} = {{ variable_value|default('null') }};
+{% for name, value in method.initialVariables %}
+        ${{ name }} = {{ value|default('null') }};
 {% endfor %}
 
-{% block _action_local_variables %}
-{% endblock %}
-{% for step in action.steps %}
-{% if step.beforeCode %}
-        {{ step.beforeCode }}
+{% for code in method.prependedCode %}
+        {{ code }}
 
-{% endif %}
-{% if action.hasValidation or step.condition %}
+{% endfor %}
+{% for step in method.steps %}
+{% for code in step.beforeCode %}
+        {{ code }}
+
+{% endfor %}
+{% if method.isValidation or step.extraCondition %}
 {% set space = '    ' %}
 {% else %}
 {% set space = '' %}
 {% endif %}
-{% if action.hasValidation and step.condition %}
-        if ($_valid === {{ step.isValid ? 'true' : 'false' }} && {{ step.condition }}) {
-{% elseif action.hasValidation and not step.condition %}
-        if ($_valid === {{ step.isValid ? 'true' : 'false' }}) {
-{% elseif not action.hasValidation and step.condition %}
-        if ({{ step.condition }}) {
+{% if method.isValidation and step.extraCondition %}
+        if ($_valid === {{ step.validationCondition ? 'true' : 'false' }} && {{ step.extraCondition }}) {
+{% elseif method.isValidation and not step.extraCondition %}
+        if ($_valid === {{ step.validationCondition ? 'true' : 'false' }}) {
+{% elseif not method.isValidation and step.extraCondition %}
+        if ({{ step.extraCondition }}) {
 {% endif %}
-{% if step.prependCode %}
-        {{ space }}{{ step.prependCode }}
-
-{% endif %}
-{% if step.contextName is not null %}
-        {{ space }}{% if step.returnExpression %}{{ step.returnExpression }} = {% endif %}$this->get{{ step.contextName|title|replace({'_':''}) }}Context()->{{ step.method }}({{ step.bodyArguments|join(', ') }});
-{% elseif step.functionName is not null %}
-        {{ space }}{% if step.returnExpression %}{{ step.returnExpression }} = {% endif %}$this->{{ step.functionName }}({{ step.bodyArguments|join(', ') }});
-{% else %}
-        {{ space }}{% if step.returnExpression %}{{ step.returnExpression }} = {% endif %}{{ step.service }}{{ step.method }}({{ step.bodyArguments|join(', ') }});
-{% endif %}
-{% if step.appendCode %}
-
-        {{ space }}{{ step.appendCode }}
-{% endif %}
-{% if action.hasValidation or step.condition %}
-        }
-{% endif %}
-{% if step.afterCode %}
-
-        {{ step.afterCode }}
-{% endif %}
+{% for code in step.prependedCode %}
+        {{ space }}{{ code }}
 
 {% endfor %}
-{% block _action_return_expression %}
-{% if action.hasReturn %}
-        return $_return;
+        {{ space }}{% if step.returnExpression %}{{ step.returnExpression }} = {% endif %}{{ step.callExpression }}{{ step.method }}({% for argument in step.arguments %}${{ argument }}{% if not loop.last %}, {% endif %}{% endfor %});
+{% for code in step.appendedCode %}
+
+        {{ space }}{{ code }}
+{% endfor %}
+{% if action.isValidation or step.extraCondition %}
+        }
 {% endif %}
-{% endblock %}
+{% for code in step.afterCode %}
+
+        {{ code }}
+{% endfor %}
+
+{% endfor %}
+{% for code in method.appendedCode %}
+
+        {{ code }}
+{% endfor %}
     }
 
 {% endfor %}
-{% for name, type in context.injected %}
+{% for name, injection in builder.injections %}
     /**
-     * @return {{ type }}
+     * @return {{ injection.type }}
      */
-    final protected function get{{ name|title|replace({'_':''}) }}(): {{ type }}
+    final protected function get{{ name|title|replace({'_':''}) }}(): {{ injection.type }}
     {
         return $this->_injected_{{ name }};
     }
 
 {% endfor %}
-{% for name, class in context.contexts %}
+{% for name, context in builder.contexts %}
     /**
-     * @return {{ class }}
+     * @return {{ context.class }}
      */
-    final private function get{{ name|title|replace({'_':''}) }}Context(): {{ class }}
+    final private function get{{ name|title|replace({'_':''}) }}Context(): {{ context.class }}
     {
         if ($this->_context_{{ name }} === null) {
-            $this->_context_{{ name }} = new {{ class }}();
+            $this->_context_{{ name }} = new {{ context.class }}();
         }
 
         return $this->_context_{{ name }};

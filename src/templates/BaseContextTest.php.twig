@@ -1,33 +1,33 @@
 <?php
 
-namespace Generated\Tests\{{ context.namespace }};
+namespace Generated\Tests\{{ builder.namespace }};
 
 use PHPUnit\Framework\TestCase;
 
-{% if context.extendsTest %}
-abstract class {{ context.className }}Test extends {{ context.extendsTest }}
+{% if builder.parentClass %}
+abstract class {{ builder.className }}Test extends {{ builder.parentClass }}
 {% else %}
-abstract class {{ context.className }}Test extends TestCase
+abstract class {{ builder.className }}Test extends TestCase
 {% endif %}
 {
-{% for step in context.steps %}
-    abstract public function {{ step.functionName }}DataProvider();
+{% for method in builder.methods %}
+    abstract public function {{ method.name }}DataProvider();
 
 {% endfor %}
-{% for step in context.steps %}
+{% for method in builder.methods %}
     /**
-     * @dataProvider {{ step.functionName }}DataProvider
+     * @dataProvider {{ method.name }}DataProvider
      */
-    final public function test{{ step.functionName[:1]|upper ~ step.functionName[1:] }}({% if step.headerArguments %}{{ step.headerArguments|join(', ') }}, {% endif %}$expected)
+    final public function test{{ method.name[:1]|upper ~ method.name[1:] }}({% for argument in method.arguments %}${{ argument }}, {% endfor %}$expected)
     {
-        $_class_instance = new {{ step.context }}();
+        $_class_instance = new \{{ builder.namespace }}\{{ builder.className }}();
 
-        $this->assertTest{{ step.functionName[:1]|upper ~ step.functionName[1:] }}($expected, $_class_instance->{{ step.functionName }}({{ step.headerArguments|join(', ') }}));
+        $this->assertTest{{ method.name[:1]|upper ~ method.name[1:] }}($expected, $_class_instance->{{ method.name }}({% for argument in method.arguments %}${{ argument }}{% if not loop.last %}, {% endif %}{% endfor %}));
     }
 
 {% endfor %}
-{% for step in context.steps %}
-    protected function assertTest{{ step.functionName[:1]|upper ~ step.functionName[1:] }}($expected, $result)
+{% for method in builder.methods %}
+    protected function assertTest{{ method.name[:1]|upper ~ method.name[1:] }}($expected, $result)
     {
         $this->assertEquals($expected, $result);
     }

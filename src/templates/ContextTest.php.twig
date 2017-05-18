@@ -1,16 +1,16 @@
 <?php
 
-namespace Tests\{{ context.namespace }};
+namespace Tests\{{ builder.namespace }};
 
-class {{ context.className }}Test extends \Generated\Tests\{{ context.namespace }}\{{ context.className }}Test
+class {{ builder.className }}Test extends \Generated\Tests\{{ builder.namespace }}\{{ builder.className }}Test
 {
-{% for step in context.steps %}
+{% for method in builder.methods %}
     /**
      * @return array
      */
-    public function {{ step.functionName }}DataProvider()
+    public function {{ method.name }}DataProvider()
     {
-        throw new \Exception('{{ step.functionName }}DataProvider is not implemented.');
+        throw new \Exception('{{ method.name }}DataProvider is not implemented.');
     }
 
 {% endfor %}

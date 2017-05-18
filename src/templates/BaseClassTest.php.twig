@@ -1,33 +1,29 @@
 <?php
 
-namespace Generated\Tests\{{ context.namespace }};
+namespace Generated\Tests\{{ builder.namespace }};
 
 use PHPUnit\Framework\TestCase;
 
-{% if context.extendsTest %}
-abstract class {{ context.className }}Test extends {{ context.extendsTest }}
+{% if builder.parentClass %}
+abstract class {{ builder.className }}Test extends {{ builder.parentClass }}
 {% else %}
-abstract class {{ context.className }}Test extends TestCase
+abstract class {{ builder.className }}Test extends TestCase
 {% endif %}
 {
     final public function testSyntax()
     {
-        new \ReflectionClass(\{{ context.namespace }}\{{ context.className }}::class);
+        new \ReflectionClass(\{{ builder.namespace }}\{{ builder.className }}::class);
     }
-{% for action in context.actions %}
+{% for method in builder.methods %}
 
-    final public function test{{ action.methodName[:1]|upper ~ action.methodName[1:] }}LocalVariables()
+    final public function test{{ method.name[:1]|upper ~ method.name[1:] }}LocalVariables()
     {
-{% for argument, type in action.headerArguments %}
-        {{ argument }} = true;
-{% endfor %}
-{% for step in action.steps %}
-{% for argument in step.localDependencies %}
-        $this->assertNotEmpty({{ argument }});
-{% endfor %}
-{% for argument in step.localReturns %}
-        {{ argument }} = true;
-{% endfor %}
+{% for variable, assert in method.testVariables %}
+{% if assert == true %}
+        $this->assertNotEmpty(${{ variable }});
+{% else %}
+        ${{ variable }} = true;
+{% endif %}
 {% endfor %}
     }
 {% endfor %}
