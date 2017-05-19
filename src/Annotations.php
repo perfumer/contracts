@@ -63,6 +63,10 @@ class Alias implements Annotation, Decorator
      */
     private function decorateStep(Step $step)
     {
+        if ($step instanceof Call) {
+            $step->aliases[$this->name] = $this->variable;
+        }
+
         foreach ($step->arguments as $i => $argument) {
             if (is_string($argument) && $argument === $this->name) {
                 $step->arguments[$i] = $this->variable;
@@ -95,6 +99,11 @@ class Alias implements Annotation, Decorator
  */
 class Call extends Step
 {
+    /**
+     * @var array
+     */
+    public $aliases = [];
+
     /**
      * @param ClassBuilder $class_builder
      * @param MethodBuilder|null $method_builder
@@ -206,6 +215,13 @@ class Call extends Step
                     $method_builder->getName(),
                     $this->name
                 ));
+            }
+        }
+
+        foreach ($this->arguments as $i => $argument) {
+            if (is_string($argument) && isset($this->aliases[$argument])) {
+                $this->arguments[$i] = $this->aliases[$argument];
+                $this->arguments[$i]->apply($class_builder, $method_builder);
             }
         }
 

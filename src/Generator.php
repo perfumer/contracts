@@ -254,9 +254,9 @@ class Generator
                             continue;
                         }
 
-                        $steps = $method_builder->getSteps();
-
                         $annotation->apply($class_builder, $method_builder);
+
+                        $steps = $method_builder->getSteps();
 
                         if ($annotation instanceof Step) {
                             $step_builders = $annotation->getBuilder($class_builder, $method_builder);

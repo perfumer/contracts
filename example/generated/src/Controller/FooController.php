@@ -59,11 +59,11 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         }
 
         if ($_valid === true && $a_valid) {
-            $this->getFoo()->bar($a);
+            $this->getFoo()->bar($this->a);
         }
 
         if ($_valid === true) {
-            $this->a = $this->getDefaultContext()->sum($a, $this->staff);
+            $this->a = $this->getDefaultContext()->sum($this->a, $this->staff);
         }
 
         if ($_valid === true && $this->a) {
