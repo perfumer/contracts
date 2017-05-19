@@ -4,6 +4,7 @@ namespace Perfumer\Component\Contracts;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
+use Perfumer\Component\Contracts\Annotations\Context;
 use Perfumer\Component\Contracts\Annotations\Skip;
 use Perfumer\Component\Contracts\Annotations\Test;
 
@@ -196,6 +197,14 @@ class Generator
 
                 $class_builder = new ClassBuilder();
 
+                $contexts = $class_builder->getContexts();
+
+                $context_class = '\\' . $reflection->getNamespaceName() . '\\' . $reflection->getShortName() . 'Context';
+
+                if (!$contexts->offsetExists('default') && class_exists($context_class, false)) {
+                    $class_builder->getContexts()->offsetSet('default', $context_class);
+                }
+
                 $namespace = str_replace($this->contract_prefix, $this->class_prefix, $reflection->getNamespaceName());
 
                 $class_builder->setNamespace($namespace);
@@ -260,7 +269,7 @@ class Generator
                             $step_builders = $annotation->getBuilder($class_builder, $method_builder);
 
                             if ($step_builders === null) {
-                                return;
+                                continue;
                             }
 
                             if (!is_array($step_builders)) {
@@ -314,7 +323,7 @@ class Generator
         $builder->setGenerator($this->generator);
         $builder->setOutputName($output_name);
         $builder->setVariables([
-            'builder' => $class_builder
+            'class_builder' => $class_builder
         ]);
 
         $builder->writeOnDisk($this->root_dir . '/' . $this->base_src_path);
@@ -340,7 +349,7 @@ class Generator
         $builder->setGenerator($this->generator);
         $builder->setOutputName($output_name);
         $builder->setVariables([
-            'builder' => $class_builder
+            'class_builder' => $class_builder
         ]);
 
         $builder->writeOnDisk($this->root_dir . '/' . $this->src_path);
@@ -366,7 +375,7 @@ class Generator
         $builder->setGenerator($this->generator);
         $builder->setOutputName($output_name);
         $builder->setVariables([
-            'builder' => $class_builder
+            'class_builder' => $class_builder
         ]);
 
         $builder->writeOnDisk($this->root_dir . '/' . $this->base_test_path);
@@ -392,7 +401,7 @@ class Generator
         $builder->setGenerator($this->generator);
         $builder->setOutputName($output_name);
         $builder->setVariables([
-            'builder' => $class_builder
+            'class_builder' => $class_builder
         ]);
 
         $builder->writeOnDisk($this->root_dir . '/' . $this->test_path);
@@ -423,7 +432,7 @@ class Generator
         $builder->setGenerator($this->generator);
         $builder->setOutputName($output_name);
         $builder->setVariables([
-            'builder' => $class_builder
+            'class_builder' => $class_builder
         ]);
 
         $builder->writeOnDisk($this->root_dir . '/' . $this->base_test_path);
@@ -454,7 +463,7 @@ class Generator
         $builder->setGenerator($this->generator);
         $builder->setOutputName($output_name);
         $builder->setVariables([
-            'builder' => $class_builder
+            'class_builder' => $class_builder
         ]);
 
         $builder->writeOnDisk($this->root_dir . '/' . $this->test_path);

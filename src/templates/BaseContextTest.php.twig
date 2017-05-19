@@ -1,32 +1,32 @@
 <?php
 
-namespace Generated\Tests\{{ builder.namespace }};
+namespace Generated\Tests\{{ class_builder.namespace }};
 
 use PHPUnit\Framework\TestCase;
 
-{% if builder.parentClass %}
-abstract class {{ builder.className }}Test extends {{ builder.parentClass }}
+{% if class_builder.parentClass %}
+abstract class {{ class_builder.className }}Test extends {{ class_builder.parentClass }}
 {% else %}
-abstract class {{ builder.className }}Test extends TestCase
+abstract class {{ class_builder.className }}Test extends TestCase
 {% endif %}
 {
-{% for method in builder.methods %}
+{% for method in class_builder.methods %}
     abstract public function {{ method.name }}DataProvider();
 
 {% endfor %}
-{% for method in builder.methods %}
+{% for method in class_builder.methods %}
     /**
      * @dataProvider {{ method.name }}DataProvider
      */
     final public function test{{ method.name[:1]|upper ~ method.name[1:] }}({% for argument in method.arguments %}${{ argument }}, {% endfor %}$expected)
     {
-        $_class_instance = new \{{ builder.namespace }}\{{ builder.className }}();
+        $_class_instance = new \{{ class_builder.namespace }}\{{ class_builder.className }}();
 
         $this->assertTest{{ method.name[:1]|upper ~ method.name[1:] }}($expected, $_class_instance->{{ method.name }}({% for argument in method.arguments %}${{ argument }}{% if not loop.last %}, {% endif %}{% endfor %}));
     }
 
 {% endfor %}
-{% for method in builder.methods %}
+{% for method in class_builder.methods %}
     protected function assertTest{{ method.name[:1]|upper ~ method.name[1:] }}($expected, $result)
     {
         $this->assertEquals($expected, $result);

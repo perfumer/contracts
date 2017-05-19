@@ -36,7 +36,7 @@ abstract class Collection extends Step
                     continue;
                 }
 
-                if (is_array($step_builders)) {
+                if (!is_array($step_builders)) {
                     $builders[] = $step_builders;
                 } else {
                     $builders = array_merge($builders, $step_builders);

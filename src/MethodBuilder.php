@@ -76,6 +76,7 @@ final class MethodBuilder
     {
         $this->arguments = new \ArrayObject();
         $this->initial_variables = new \ArrayObject();
+        $this->test_variables = new \ArrayObject();
         $this->prepended_code = new \ArrayObject();
         $this->appended_code = new \ArrayObject();
         $this->steps = new \ArrayObject();

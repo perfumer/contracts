@@ -1,10 +1,10 @@
 <?php
 
-namespace {{ builder.namespace }};
+namespace {{ class_builder.namespace }};
 
-class {{ builder.className }} extends \Generated\{{ builder.namespace }}\{{ builder.className }}
+class {{ class_builder.className }} extends \Generated\{{ class_builder.namespace }}\{{ class_builder.className }}
 {
-{% for method in builder.methods %}
+{% for method in class_builder.methods %}
 {% if method.isAbstract %}
     protected function {{ method.name }}({% for argument in method.arguments %}${{ argument }}{% if not loop.last %}, {% endif %}{% endfor %})
     {

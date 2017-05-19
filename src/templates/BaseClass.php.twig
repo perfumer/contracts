@@ -1,15 +1,15 @@
 <?php
 
-namespace Generated\{{ builder.namespace }};
+namespace Generated\{{ class_builder.namespace }};
 
-{% if builder.parentClass %}
-abstract class {{ builder.className }} extends {{ builder.parentClass }}{% if builder.interfaces.count > 0 %} implements {{ builder.interfaces|join(', ') }}{% endif %}
+{% if class_builder.parentClass %}
+abstract class {{ class_builder.className }} extends {{ class_builder.parentClass }}{% if class_builder.interfaces.count > 0 %} implements {{ class_builder.interfaces|join(', ') }}{% endif %}
 {% else %}
-abstract class {{ builder.className }}{% if context.interfaces.count > 0 %} implements {{ builder.interfaces|join(', ') }}{% endif %}
+abstract class {{ class_builder.className }}{% if context.interfaces.count > 0 %} implements {{ class_builder.interfaces|join(', ') }}{% endif %}
 {% endif %}
 
 {
-{% for name, type in builder.publicProperties %}
+{% for name, type in class_builder.publicProperties %}
 {% if type %}
     /**
      * @var {{ type }}
@@ -18,7 +18,7 @@ abstract class {{ builder.className }}{% if context.interfaces.count > 0 %} impl
     public ${{ name }};
 
 {% endfor %}
-{% for name, type in builder.protectedProperties %}
+{% for name, type in class_builder.protectedProperties %}
 {% if type %}
     /**
      * @var {{ type }}
@@ -27,7 +27,7 @@ abstract class {{ builder.className }}{% if context.interfaces.count > 0 %} impl
     protected ${{ name }};
 
 {% endfor %}
-{% for name, type in builder.privateProperties %}
+{% for name, type in class_builder.privateProperties %}
 {% if type %}
     /**
      * @var {{ type }}
@@ -36,34 +36,34 @@ abstract class {{ builder.className }}{% if context.interfaces.count > 0 %} impl
     private ${{ name }};
 
 {% endfor %}
-{% for name, context in builder.contexts %}
+{% for name, class in class_builder.contexts %}
     /**
-     * @var {{ context.class }}
+     * @var {{ class }}
      */
     private $_context_{{ name }};
 
 {% endfor %}
-{% for name, injection in builder.injections %}
+{% for name, type in class_builder.injections %}
     /**
-     * @var {{ injection.type }}
+     * @var {{ type }}
      */
     private $_injected_{{ name }};
 
 {% endfor %}
-{% if builder.injections.count > 0 %}
-    public function __construct({% for name, injection in builder.injections %}{{ injection.type }} ${{ name }}{%  if not loop.last %}, {% endif %}{% endfor %})
+{% if class_builder.injections.count > 0 %}
+    public function __construct({% for name, type in class_builder.injections %}{{ type }} ${{ name }}{%  if not loop.last %}, {% endif %}{% endfor %})
     {
-{% for name, injection in builder.injections %}
+{% for name, type in class_builder.injections %}
         $this->_injected_{{ name }} = ${{ name }};
 {% endfor %}
     }
 
 {% endif %}
-{% for method in builder.methods if method.isAbstract %}
+{% for method in class_builder.methods if method.isAbstract %}
     abstract {{ method.access }}{% if method.isStatic %} static{% endif %} function {{ method.name }}({% for argument, type in method.arguments %}{% if type %}{{ type }} {% endif %}${{ argument }}{% if not loop.last %}, {% endif %}{% endfor %});
 
 {% endfor %}
-{% for method in builder.methods if not method.isAbstract %}
+{% for method in class_builder.methods if not method.isAbstract %}
     {% if method.isFinal %}final {% endif %}{{ method.access }}{% if method.isStatic %} static{% endif %} function {{ method.name }}({% for argument, type in method.arguments %}{% if type %}{{ type }} {% endif %}${{ argument }}{% if not loop.last %}, {% endif %}{% endfor %}){% if method.returnType %}: {{ method.returnType }}{% endif %}
 
     {
@@ -104,7 +104,7 @@ abstract class {{ builder.className }}{% if context.interfaces.count > 0 %} impl
 
         {{ space }}{{ code }}
 {% endfor %}
-{% if action.isValidation or step.extraCondition %}
+{% if method.isValidation or step.extraCondition %}
         }
 {% endif %}
 {% for code in step.afterCode %}
@@ -120,24 +120,24 @@ abstract class {{ builder.className }}{% if context.interfaces.count > 0 %} impl
     }
 
 {% endfor %}
-{% for name, injection in builder.injections %}
+{% for name, type in class_builder.injections %}
     /**
-     * @return {{ injection.type }}
+     * @return {{ type }}
      */
-    final protected function get{{ name|title|replace({'_':''}) }}(): {{ injection.type }}
+    final protected function get{{ name|title|replace({'_':''}) }}(): {{ type }}
     {
         return $this->_injected_{{ name }};
     }
 
 {% endfor %}
-{% for name, context in builder.contexts %}
+{% for name, class in class_builder.contexts %}
     /**
-     * @return {{ context.class }}
+     * @return {{ class }}
      */
-    final private function get{{ name|title|replace({'_':''}) }}Context(): {{ context.class }}
+    final private function get{{ name|title|replace({'_':''}) }}Context(): {{ class }}
     {
         if ($this->_context_{{ name }} === null) {
-            $this->_context_{{ name }} = new {{ context.class }}();
+            $this->_context_{{ name }} = new {{ class }}();
         }
 
         return $this->_context_{{ name }};

@@ -1,10 +1,10 @@
 <?php
 
-namespace Tests\{{ builder.namespace }};
+namespace Tests\{{ class_builder.namespace }};
 
-class {{ builder.className }}Test extends \Generated\Tests\{{ builder.namespace }}\{{ builder.className }}Test
+class {{ class_builder.className }}Test extends \Generated\Tests\{{ class_builder.namespace }}\{{ class_builder.className }}Test
 {
-{% for method in builder.methods %}
+{% for method in class_builder.methods %}
     /**
      * @return array
      */

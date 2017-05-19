@@ -26,7 +26,7 @@ class Alias implements Annotation, Decorator
     public $name;
 
     /**
-     * @var Variable
+     * @var mixed
      */
     public $variable;
 
@@ -93,7 +93,7 @@ class Call extends Step
 
         $class = '\\' . $class_builder->getNamespace() . '\\' . $class_builder->getClassName() . 'Context';
 
-        if ($this->name === null && !$contexts->offsetGet('default') && class_exists($class, false)) {
+        if ($this->name === null && !$contexts->offsetExists('default') && class_exists($class, false)) {
             $context = new Context();
             $context->name = 'default';
             $context->class = '\\' . $class . 'Context';
@@ -132,9 +132,9 @@ class Call extends Step
             $is_context = $contexts->offsetExists($this->name);
 
             if ($is_context) {
-                $reflection_context = new \ReflectionClass($contexts->offsetGet($this->name)->class);
+                $reflection_context = new \ReflectionClass($contexts->offsetGet($this->name));
             } else {
-                $reflection_context = new \ReflectionClass($injections->offsetGet($this->name)->class);
+                $reflection_context = new \ReflectionClass($injections->offsetGet($this->name));
             }
 
             $method_found = false;
@@ -215,7 +215,7 @@ class Call extends Step
  * @Annotation
  * @Target({"CLASS", "METHOD", "ANNOTATION"})
  */
-class Context implements Annotation
+class Context implements Annotation, Variable
 {
     /**
      * @var string
