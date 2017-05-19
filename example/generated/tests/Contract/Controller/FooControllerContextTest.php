@@ -1,6 +1,6 @@
 <?php
 
-namespace Generated\Tests\Perfumer\Component\Contracts\Example\Contract\Controller;
+namespace Generated\Tests\Perfumer\Contracts\Example\Contract\Controller;
 
 use PHPUnit\Framework\TestCase;
 
@@ -17,7 +17,7 @@ abstract class FooControllerContextTest extends TestCase
      */
     final public function testIntType($value, $expected)
     {
-        $_class_instance = new \Perfumer\Component\Contracts\Example\Contract\Controller\FooControllerContext();
+        $_class_instance = new \Perfumer\Contracts\Example\Contract\Controller\FooControllerContext();
 
         $this->assertTestIntType($expected, $_class_instance->intType($value));
     }
@@ -27,7 +27,7 @@ abstract class FooControllerContextTest extends TestCase
      */
     final public function testSum($a, $staff, $expected)
     {
-        $_class_instance = new \Perfumer\Component\Contracts\Example\Contract\Controller\FooControllerContext();
+        $_class_instance = new \Perfumer\Contracts\Example\Contract\Controller\FooControllerContext();
 
         $this->assertTestSum($expected, $_class_instance->sum($a, $staff));
     }
@@ -37,7 +37,7 @@ abstract class FooControllerContextTest extends TestCase
      */
     final public function testFooErrors($expected)
     {
-        $_class_instance = new \Perfumer\Component\Contracts\Example\Contract\Controller\FooControllerContext();
+        $_class_instance = new \Perfumer\Contracts\Example\Contract\Controller\FooControllerContext();
 
         $this->assertTestFooErrors($expected, $_class_instance->fooErrors());
     }

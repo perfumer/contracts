@@ -1,8 +1,8 @@
 <?php
 
-namespace Generated\Perfumer\Component\Contracts\Example\Controller;
+namespace Generated\Perfumer\Contracts\Example\Controller;
 
-abstract class FooController extends \Perfumer\Component\Contracts\Example\ParentController implements \Perfumer\Component\Contracts\Example\Contract\Controller\FooController
+abstract class FooController extends \Perfumer\Contracts\Example\ParentController implements \Perfumer\Contracts\Example\Contract\Controller\FooController
 {
     protected $a;
 
@@ -18,7 +18,7 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
     private $_injected_iterator;
 
     /**
-     * @var \Perfumer\Component\Contracts\Example\FooService
+     * @var \Perfumer\Contracts\Example\FooService
      */
     private $_injected_foo;
 
@@ -28,11 +28,11 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
     private $_injected_some_string;
 
     /**
-     * @var \Perfumer\Component\Contracts\Example\Contract\Controller\FooControllerContext
+     * @var \Perfumer\Contracts\Example\Contract\Controller\FooControllerContext
      */
     private $_context_default;
 
-    public function __construct(\Iterator $iterator, \Perfumer\Component\Contracts\Example\FooService $foo, string $some_string)
+    public function __construct(\Iterator $iterator, \Perfumer\Contracts\Example\FooService $foo, string $some_string)
     {
         $this->_injected_iterator = $iterator;
         $this->_injected_foo = $foo;
@@ -41,7 +41,7 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
 
     abstract protected function sumDoubled($a);
 
-    final public function barAction(\Perfumer\Component\Contracts\Annotations\Output $param2): string
+    final public function barAction(\Perfumer\Contracts\Annotations\Output $param2): string
     {
         $_valid = true;
         $a_valid = true;
@@ -120,9 +120,9 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
     }
 
     /**
-     * @return \Perfumer\Component\Contracts\Example\FooService
+     * @return \Perfumer\Contracts\Example\FooService
      */
-    final protected function getFoo(): \Perfumer\Component\Contracts\Example\FooService
+    final protected function getFoo(): \Perfumer\Contracts\Example\FooService
     {
         return $this->_injected_foo;
     }
@@ -136,12 +136,12 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
     }
 
     /**
-     * @return \Perfumer\Component\Contracts\Example\Contract\Controller\FooControllerContext
+     * @return \Perfumer\Contracts\Example\Contract\Controller\FooControllerContext
      */
-    final private function getDefaultContext(): \Perfumer\Component\Contracts\Example\Contract\Controller\FooControllerContext
+    final private function getDefaultContext(): \Perfumer\Contracts\Example\Contract\Controller\FooControllerContext
     {
         if ($this->_context_default === null) {
-            $this->_context_default = new \Perfumer\Component\Contracts\Example\Contract\Controller\FooControllerContext();
+            $this->_context_default = new \Perfumer\Contracts\Example\Contract\Controller\FooControllerContext();
         }
 
         return $this->_context_default;

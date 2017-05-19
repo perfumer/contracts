@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Component\Contracts\Example;
+namespace Perfumer\Contracts\Example;
 
 class FooService
 {

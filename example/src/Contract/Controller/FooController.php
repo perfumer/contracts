@@ -1,27 +1,26 @@
 <?php
 
-namespace Perfumer\Component\Contracts\Example\Contract\Controller;
+namespace Perfumer\Contracts\Example\Contract\Controller;
 
-use Perfumer\Component\Contracts\Annotations\Alias;
-use Perfumer\Component\Contracts\Annotations\Call;
-use Perfumer\Component\Contracts\Annotations\Context;
-use Perfumer\Component\Contracts\Annotations\Custom;
-use Perfumer\Component\Contracts\Annotations\Error;
-use Perfumer\Component\Contracts\Annotations\Extend;
-use Perfumer\Component\Contracts\Annotations\Inject;
-use Perfumer\Component\Contracts\Annotations\Output;
-use Perfumer\Component\Contracts\Annotations\Property;
-use Perfumer\Component\Contracts\Annotations\ServiceObject;
-use Perfumer\Component\Contracts\Annotations\ServiceParent;
-use Perfumer\Component\Contracts\Annotations\ServiceProperty;
-use Perfumer\Component\Contracts\Annotations\Skip;
-use Perfumer\Component\Contracts\Annotations\Test;
-use Perfumer\Component\Contracts\Example\Collection;
+use Perfumer\Contracts\Annotations\Alias;
+use Perfumer\Contracts\Annotations\Call;
+use Perfumer\Contracts\Annotations\Context;
+use Perfumer\Contracts\Annotations\Custom;
+use Perfumer\Contracts\Annotations\Error;
+use Perfumer\Contracts\Annotations\Extend;
+use Perfumer\Contracts\Annotations\Inject;
+use Perfumer\Contracts\Annotations\Output;
+use Perfumer\Contracts\Annotations\Property;
+use Perfumer\Contracts\Annotations\ServiceObject;
+use Perfumer\Contracts\Annotations\ServiceParent;
+use Perfumer\Contracts\Annotations\ServiceProperty;
+use Perfumer\Contracts\Annotations\Test;
+use Perfumer\Contracts\Example\Collection;
 
 /**
- * @Extend(class="\Perfumer\Component\Contracts\Example\ParentController")
+ * @Extend(class="\Perfumer\Contracts\Example\ParentController")
  * @Inject(name="iterator", type="\Iterator")
- * @Inject(name="foo", type="\Perfumer\Component\Contracts\Example\FooService")
+ * @Inject(name="foo", type="\Perfumer\Contracts\Example\FooService")
  * @Inject(name="some_string", type="string")
  */
 interface FooController

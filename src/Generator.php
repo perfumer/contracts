@@ -1,10 +1,10 @@
 <?php
 
-namespace Perfumer\Component\Contracts;
+namespace Perfumer\Contracts;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
-use Perfumer\Component\Contracts\Annotations\Test;
+use Perfumer\Contracts\Annotations\Test;
 
 class Generator
 {

@@ -1,8 +1,8 @@
 <?php
 
-namespace Perfumer\Component\Contracts\Example\Controller;
+namespace Perfumer\Contracts\Example\Controller;
 
-class FooController extends \Generated\Perfumer\Component\Contracts\Example\Controller\FooController
+class FooController extends \Generated\Perfumer\Contracts\Example\Controller\FooController
 {
     protected function sumDoubled($sum)
     {

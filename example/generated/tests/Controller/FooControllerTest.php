@@ -1,6 +1,6 @@
 <?php
 
-namespace Generated\Tests\Perfumer\Component\Contracts\Example\Controller;
+namespace Generated\Tests\Perfumer\Contracts\Example\Controller;
 
 use PHPUnit\Framework\TestCase;
 
@@ -8,7 +8,7 @@ abstract class FooControllerTest extends TestCase
 {
     final public function testSyntax()
     {
-        new \ReflectionClass(\Perfumer\Component\Contracts\Example\Controller\FooController::class);
+        new \ReflectionClass(\Perfumer\Contracts\Example\Controller\FooController::class);
     }
 
     final public function testBarActionLocalVariables()

@@ -1,12 +1,12 @@
 <?php
 
-namespace Perfumer\Component\Contracts\Example;
+namespace Perfumer\Contracts\Example;
 
 /**
  * @Annotation
  * @Target("METHOD")
  */
-class Collection extends \Perfumer\Component\Contracts\Collection
+class Collection extends \Perfumer\Contracts\Collection
 {
     public function getBeforeCode(): string
     {

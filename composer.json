@@ -21,15 +21,15 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Perfumer\\Component\\Contracts\\Example\\": "example/src/",
-      "Tests\\Perfumer\\Component\\Contracts\\Example\\": "example/tests/",
-      "Generated\\Perfumer\\Component\\Contracts\\Example\\": "example/generated/src/",
-      "Generated\\Tests\\Perfumer\\Component\\Contracts\\Example\\": "example/generated/tests/"
+      "Perfumer\\Contracts\\Example\\": "example/src/",
+      "Tests\\Perfumer\\Contracts\\Example\\": "example/tests/",
+      "Generated\\Perfumer\\Contracts\\Example\\": "example/generated/src/",
+      "Generated\\Tests\\Perfumer\\Contracts\\Example\\": "example/generated/tests/"
     }
   },
   "autoload": {
     "psr-4": {
-      "Perfumer\\Component\\Contracts\\": "src/"
+      "Perfumer\\Contracts\\": "src/"
     }
   },
   "config": {

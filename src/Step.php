@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Component\Contracts;
+namespace Perfumer\Contracts;
 
 abstract class Step implements Annotation
 {

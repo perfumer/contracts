@@ -1,7 +1,7 @@
 <?php
 
-namespace Tests\Perfumer\Component\Contracts\Example\Controller;
+namespace Tests\Perfumer\Contracts\Example\Controller;
 
-class FooControllerTest extends \Generated\Tests\Perfumer\Component\Contracts\Example\Controller\FooControllerTest
+class FooControllerTest extends \Generated\Tests\Perfumer\Contracts\Example\Controller\FooControllerTest
 {
 }

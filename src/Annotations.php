@@ -1,19 +1,19 @@
 <?php
 
-namespace Perfumer\Component\Contracts\Annotations;
+namespace Perfumer\Contracts\Annotations;
 
 use Doctrine\Common\Annotations\Annotation\Target;
 use Doctrine\Common\Annotations\AnnotationReader;
-use Perfumer\Component\Contracts\Annotation;
-use Perfumer\Component\Contracts\ClassBuilder;
-use Perfumer\Component\Contracts\Collection;
-use Perfumer\Component\Contracts\ContractsException;
-use Perfumer\Component\Contracts\Decorator;
-use Perfumer\Component\Contracts\MethodBuilder;
-use Perfumer\Component\Contracts\Service;
-use Perfumer\Component\Contracts\Step;
-use Perfumer\Component\Contracts\StepBuilder;
-use Perfumer\Component\Contracts\Variable;
+use Perfumer\Contracts\Annotation;
+use Perfumer\Contracts\ClassBuilder;
+use Perfumer\Contracts\Collection;
+use Perfumer\Contracts\ContractsException;
+use Perfumer\Contracts\Decorator;
+use Perfumer\Contracts\MethodBuilder;
+use Perfumer\Contracts\Service;
+use Perfumer\Contracts\Step;
+use Perfumer\Contracts\StepBuilder;
+use Perfumer\Contracts\Variable;
 
 /**
  * @Annotation

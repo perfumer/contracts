@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Component\Contracts;
+namespace Perfumer\Contracts;
 
 use TwigGenerator\Builder\BaseBuilder;
 
