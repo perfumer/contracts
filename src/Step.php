@@ -72,6 +72,10 @@ abstract class Step implements Annotation
         if ($this->if || $this->unless) {
             $condition = $this->if ?: $this->unless;
 
+            if (is_string($condition)) {
+                $method_builder->getTestVariables()->append([$condition, true]);
+            }
+
             $body_argument = $condition instanceof Variable ? $condition->asArgument() : '$' . $condition;
 
             if ($this->unless) {
@@ -89,7 +93,7 @@ abstract class Step implements Annotation
 
         foreach ($this->arguments as $argument) {
             if (is_string($argument)) {
-                $method_builder->getTestVariables()->offsetSet($argument, true);
+                $method_builder->getTestVariables()->append([$argument, true]);
             }
 
             $value = $argument instanceof Variable ? $argument->asArgument() : '$' . $argument;
@@ -101,7 +105,7 @@ abstract class Step implements Annotation
             if (is_array($this->return)) {
                 foreach ($this->return as $value) {
                     if (is_string($value)) {
-                        $method_builder->getTestVariables()->offsetSet($value, false);
+                        $method_builder->getTestVariables()->append([$value, false]);
                     }
                 }
 
@@ -112,7 +116,7 @@ abstract class Step implements Annotation
                 $expression = 'list(' . implode(', ', $vars) . ')';
             } else {
                 if (is_string($this->return)) {
-                    $method_builder->getTestVariables()->offsetSet($this->return, false);
+                    $method_builder->getTestVariables()->append([$this->return, false]);
                 }
 
                 $expression = $this->return instanceof Variable ? $this->return->asReturn() : '$' . $this->return;

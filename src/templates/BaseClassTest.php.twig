@@ -4,25 +4,21 @@ namespace Generated\Tests\{{ class_builder.namespace }};
 
 use PHPUnit\Framework\TestCase;
 
-{% if class_builder.parentClass %}
-abstract class {{ class_builder.className }}Test extends {{ class_builder.parentClass }}
-{% else %}
 abstract class {{ class_builder.className }}Test extends TestCase
-{% endif %}
 {
     final public function testSyntax()
     {
         new \ReflectionClass(\{{ class_builder.namespace }}\{{ class_builder.className }}::class);
     }
-{% for method in class_builder.methods %}
+{% for method in class_builder.methods if method.testVariables.count > 0 %}
 
     final public function test{{ method.name[:1]|upper ~ method.name[1:] }}LocalVariables()
     {
-{% for variable, assert in method.testVariables %}
-{% if assert == true %}
-        $this->assertNotEmpty(${{ variable }});
+{% for item in method.testVariables %}
+{% if item[1] == true %}
+        $this->assertNotEmpty(${{ item[0] }});
 {% else %}
-        ${{ variable }} = true;
+        ${{ item[0] }} = true;
 {% endif %}
 {% endfor %}
     }

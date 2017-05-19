@@ -12,7 +12,7 @@ $generator = new \Perfumer\Component\Contracts\Generator(__DIR__ . '/..', [
     'class_prefix' => 'Perfumer\\Component\\Contracts\\Example'
 ]);
 
-$generator->addTemplateDirectory(__DIR__ . '/src/templates');
+$generator->addAnnotations(__DIR__ . '/src/Annotations.php');
 
 $generator->addClass(\Perfumer\Component\Contracts\Example\Contract\Controller\FooController::class);
 $generator->generateClasses();

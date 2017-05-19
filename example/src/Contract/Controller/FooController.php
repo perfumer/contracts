@@ -4,7 +4,6 @@ namespace Perfumer\Component\Contracts\Example\Contract\Controller;
 
 use Perfumer\Component\Contracts\Annotations\Alias;
 use Perfumer\Component\Contracts\Annotations\Call;
-use Perfumer\Component\Contracts\Annotations\Collection;
 use Perfumer\Component\Contracts\Annotations\Context;
 use Perfumer\Component\Contracts\Annotations\Custom;
 use Perfumer\Component\Contracts\Annotations\Error;
@@ -16,8 +15,8 @@ use Perfumer\Component\Contracts\Annotations\ServiceObject;
 use Perfumer\Component\Contracts\Annotations\ServiceParent;
 use Perfumer\Component\Contracts\Annotations\ServiceProperty;
 use Perfumer\Component\Contracts\Annotations\Skip;
-use Perfumer\Component\Contracts\Annotations\Template;
 use Perfumer\Component\Contracts\Annotations\Test;
+use Perfumer\Component\Contracts\Example\Collection;
 
 /**
  * @Extend(class="\Perfumer\Component\Contracts\Example\ParentController")
@@ -54,7 +53,7 @@ interface FooController
      * @Call           (                method="intType",          arguments={"param2"},                  return="param2_valid", if="param1_valid")
      * @Call           (                method="sum",              arguments={"param1"},                  return="sum")
      * @ServiceParent  (                method="sandboxActionTwo", arguments={"sum", @Property("staff")}, return="sandbox")
-     * @ServiceProperty(name="foobar",  method="baz",              arguments={@Context("validators_lib")})
+     * @ServiceProperty(name="foobar",  method="baz",              arguments={@Context("default")})
      * @ServiceObject  (name="sandbox", method="execute")
      *
      * @param int $param1

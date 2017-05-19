@@ -6,6 +6,7 @@ use Doctrine\Common\Annotations\Annotation\Target;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Perfumer\Component\Contracts\Annotation;
 use Perfumer\Component\Contracts\ClassBuilder;
+use Perfumer\Component\Contracts\Collection;
 use Perfumer\Component\Contracts\ContractsException;
 use Perfumer\Component\Contracts\Decorator;
 use Perfumer\Component\Contracts\MethodBuilder;
@@ -44,35 +45,47 @@ class Alias implements Annotation, Decorator
      */
     public function decorate(array $annotations): array
     {
-        foreach ($annotations as &$annotation) {
-            if ($annotation instanceof Step) {
-                foreach ($annotation->arguments as &$argument) {
-                    if (is_string($argument) && $argument === $this->name) {
-                        $argument = $this->variable;
-                    }
+        foreach ($annotations as $annotation) {
+            if ($annotation instanceof Collection) {
+                foreach ($annotation->steps as $step) {
+                    $this->decorateStep($step);
                 }
-
-                if (is_array($annotation->return)) {
-                    foreach ($annotation->return as &$return) {
-                        if (is_string($return) && $return === $this->name) {
-                            $return = $this->variable;
-                        }
-                    }
-                } elseif (is_string($annotation->return) && $annotation->return === $this->name) {
-                    $annotation->return = $this->variable;
-                }
-
-                if (is_string($annotation->if) && $annotation->if === $this->name) {
-                    $annotation->if = $this->variable;
-                }
-
-                if (is_string($annotation->unless) && $annotation->unless === $this->name) {
-                    $annotation->unless = $this->variable;
-                }
+            } elseif ($annotation instanceof Step) {
+                $this->decorateStep($annotation);
             }
         }
 
         return $annotations;
+    }
+
+    /**
+     * @param Step $step
+     */
+    private function decorateStep(Step $step)
+    {
+        foreach ($step->arguments as $i => $argument) {
+            if (is_string($argument) && $argument === $this->name) {
+                $step->arguments[$i] = $this->variable;
+            }
+        }
+
+        if (is_array($step->return)) {
+            foreach ($step->return as $i => $return) {
+                if (is_string($return) && $return === $this->name) {
+                    $step->return[$i] = $this->variable;
+                }
+            }
+        } elseif (is_string($step->return) && $step->return === $this->name) {
+            $step->return = $this->variable;
+        }
+
+        if (is_string($step->if) && $step->if === $this->name) {
+            $step->if = $this->variable;
+        }
+
+        if (is_string($step->unless) && $step->unless === $this->name) {
+            $step->unless = $this->variable;
+        }
     }
 }
 
@@ -90,16 +103,15 @@ class Call extends Step
     public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
     {
         $contexts = $class_builder->getContexts();
+        $reflection = $class_builder->getContract();
 
-        $class = '\\' . $class_builder->getNamespace() . '\\' . $class_builder->getClassName() . 'Context';
+        $context_class = '\\' . $reflection->getNamespaceName() . '\\' . $reflection->getShortName() . 'Context';
 
-        if ($this->name === null && !$contexts->offsetExists('default') && class_exists($class, false)) {
-            $context = new Context();
-            $context->name = 'default';
-            $context->class = '\\' . $class . 'Context';
-
-            $class_builder->getContexts()->offsetSet('default', $context);
+        if (!$contexts->offsetExists('default') && class_exists($context_class, false)) {
+            $class_builder->getContexts()->offsetSet('default', $context_class);
         }
+
+        parent::apply($class_builder, $method_builder);
     }
 
     /**
@@ -204,7 +216,7 @@ class Call extends Step
         if ($contexts->offsetExists($this->name)) {
             $builder->setCallExpression("\$this->get{$name}Context()->");
         } else {
-            $builder->setCallExpression("\$this->get{$name}->");
+            $builder->setCallExpression("\$this->get{$name}()->");
         }
 
         return $builder;
@@ -234,7 +246,15 @@ class Context implements Annotation, Variable
      */
     public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
     {
-        if ($class_builder->getContexts()->offsetExists($this->name) || $class_builder->getInjections()->offsetExists($this->name)) {
+        if (!class_exists($this->class) && $this->name !== 'default') {
+            throw new ContractsException(sprintf('%s\\%s -> %s context class not found.',
+                $class_builder->getNamespace(),
+                $class_builder->getClassName(),
+                $this->name
+            ));
+        }
+
+        if (($class_builder->getContexts()->offsetExists($this->name) || $class_builder->getInjections()->offsetExists($this->name)) && $this->class !== null) {
             throw new ContractsException(sprintf('%s\\%s -> %s context or injected is already defined.',
                 $class_builder->getNamespace(),
                 $class_builder->getClassName(),
@@ -242,7 +262,9 @@ class Context implements Annotation, Variable
             ));
         }
 
-        $class_builder->getContexts()->offsetSet($this->name, $this->class);
+        if ($this->name !== 'default') {
+            $class_builder->getContexts()->offsetSet($this->name, $this->class);
+        }
     }
 
     /**
@@ -258,7 +280,7 @@ class Context implements Annotation, Variable
      */
     public function asHeader(): string
     {
-        return '$' . $this->name;
+        return $this->name;
     }
 
     /**
@@ -306,7 +328,7 @@ class Custom extends Step
     {
         $builder = parent::getBuilder($class_builder, $method_builder);
 
-        $builder->setCallExpression("\$this->{$this->method}->");
+        $builder->setCallExpression("\$this->");
 
         return $builder;
     }
@@ -323,6 +345,7 @@ class Error extends Call implements Decorator
         parent::apply($class_builder, $method_builder);
 
         $method_builder->getInitialVariables()->offsetSet('_return', null);
+        $method_builder->getAppendedCode()->offsetSet('_return', 'return $_return;');
     }
 
     /**
@@ -426,7 +449,7 @@ class Inject implements Variable
      */
     public function asHeader(): string
     {
-        return '$' . $this->name;
+        return $this->name;
     }
 
     /**
@@ -475,6 +498,7 @@ class Output implements Variable
     public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
     {
         $method_builder->getInitialVariables()->offsetSet('_return', null);
+        $method_builder->getAppendedCode()->offsetSet('_return', 'return $_return;');
     }
 }
 
@@ -510,7 +534,7 @@ class Property implements Variable
      */
     public function asHeader(): string
     {
-        return '$' . $this->name;
+        return $this->name;
     }
 
     /**
@@ -573,7 +597,7 @@ class ServiceProperty extends Service
      */
     public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
     {
-        $class_builder->getProtectedProperties()->append($this->name);
+        $class_builder->getProtectedProperties()->offsetSet($this->name, null);
 
         parent::apply($class_builder, $method_builder);
     }

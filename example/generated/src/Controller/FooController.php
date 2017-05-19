@@ -44,9 +44,9 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
     final public function barAction(\Perfumer\Component\Contracts\Annotations\Output $param2): string
     {
         $_valid = true;
-        $_return = null;
         $a_valid = true;
         $param2_valid = true;
+        $_return = null;
         $double_sum = null;
         $sand = null;
 
@@ -59,11 +59,11 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         }
 
         if ($_valid === true && $a_valid) {
-            $this->_injected_foo->bar($this->a);
+            $this->getFoo()->bar($a);
         }
 
         if ($_valid === true) {
-            $this->a = $this->getDefaultContext()->sum($this->a, $this->staff);
+            $this->a = $this->getDefaultContext()->sum($a, $this->staff);
         }
 
         if ($_valid === true && $this->a) {
@@ -86,6 +86,7 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
             $_return = $this->getDefaultContext()->fooErrors();
         }
 
+
         return $_return;
     }
 
@@ -106,7 +107,7 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
 
         $sandbox = parent::sandboxActionTwo($sum, $this->staff);
 
-        $this->foobar->baz($this->getValidatorsLibContext());
+        $this->foobar->baz($this->getDefaultContext());
 
         $sandbox->execute();
 

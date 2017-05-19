@@ -48,6 +48,8 @@ abstract class Collection extends Step
             $builders[0]->getBeforeCode()->append($this->getBeforeCode());
             $builders[count($builders) - 1]->getAfterCode()->append($this->getAfterCode());
         }
+
+        return $builders;
     }
 
     /**

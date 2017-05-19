@@ -5,6 +5,11 @@ namespace Perfumer\Component\Contracts;
 final class ClassBuilder
 {
     /**
+     * @var \ReflectionClass
+     */
+    private $contract;
+
+    /**
      * @var null|string
      */
     private $namespace;
@@ -88,6 +93,22 @@ final class ClassBuilder
         $this->contexts = new \ArrayObject();
         $this->injections = new \ArrayObject();
         $this->methods = new \ArrayObject();
+    }
+
+    /**
+     * @return \ReflectionClass
+     */
+    public function getContract(): \ReflectionClass
+    {
+        return $this->contract;
+    }
+
+    /**
+     * @param \ReflectionClass $contract
+     */
+    public function setContract(\ReflectionClass $contract)
+    {
+        $this->contract = $contract;
     }
 
     /**

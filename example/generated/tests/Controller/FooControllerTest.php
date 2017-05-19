@@ -18,6 +18,8 @@ abstract class FooControllerTest extends TestCase
         $this->assertNotEmpty($a_valid);
         $param2_valid = true;
         $this->assertNotEmpty($a_valid);
+        $this->assertNotEmpty($a);
+        $this->assertNotEmpty($a);
         $double_sum = true;
         $sand = true;
         $this->assertNotEmpty($a_valid);

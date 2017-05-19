@@ -195,18 +195,10 @@ class Generator
                 $reflection = new \ReflectionClass($class);
                 $class_annotations = $this->reader->getClassAnnotations($reflection);
 
-                $class_builder = new ClassBuilder();
-
-                $contexts = $class_builder->getContexts();
-
-                $context_class = '\\' . $reflection->getNamespaceName() . '\\' . $reflection->getShortName() . 'Context';
-
-                if (!$contexts->offsetExists('default') && class_exists($context_class, false)) {
-                    $class_builder->getContexts()->offsetSet('default', $context_class);
-                }
-
                 $namespace = str_replace($this->contract_prefix, $this->class_prefix, $reflection->getNamespaceName());
 
+                $class_builder = new ClassBuilder();
+                $class_builder->setContract($reflection);
                 $class_builder->setNamespace($namespace);
                 $class_builder->setClassName($reflection->getShortName());
                 $class_builder->getInterfaces()->append('\\' . $class);
@@ -223,6 +215,7 @@ class Generator
                     $method_builder = new MethodBuilder();
                     $method_builder->setIsFinal(true);
                     $method_builder->setName($method->name);
+                    $method_builder->setAccess('public');
 
                     $type = (string) $method->getReturnType();
 
@@ -240,7 +233,7 @@ class Generator
                         }
 
                         $method_builder->getArguments()->offsetSet($parameter->name, $type);
-                        $method_builder->getTestVariables()->offsetSet($parameter->name, false);
+                        $method_builder->getTestVariables()->append([$parameter->name, false]);
                     }
 
                     $method_annotations = $this->reader->getMethodAnnotations($method);
@@ -252,7 +245,7 @@ class Generator
                         }
 
                         if ($annotation instanceof Decorator) {
-                            $annotation->decorate($method_annotations);
+                            $method_annotations = $annotation->decorate($method_annotations);
                         }
                     }
 
@@ -308,7 +301,7 @@ class Generator
      */
     private function generateBaseClass(ClassBuilder $class_builder)
     {
-        $output_name = str_replace('\\', '/', trim(str_replace($this->contract_prefix, '', $class_builder->getNamespace()), '\\'));
+        $output_name = str_replace('\\', '/', trim(str_replace($this->class_prefix, '', $class_builder->getNamespace()), '\\'));
 
         if ($output_name) {
             $output_name .= '/';
@@ -334,7 +327,7 @@ class Generator
      */
     private function generateClass(ClassBuilder $class_builder)
     {
-        $output_name = str_replace('\\', '/', trim(str_replace($this->contract_prefix, '', $class_builder->getNamespace()), '\\'));
+        $output_name = str_replace('\\', '/', trim(str_replace($this->class_prefix, '', $class_builder->getNamespace()), '\\'));
 
         if ($output_name) {
             $output_name .= '/';
@@ -360,7 +353,7 @@ class Generator
      */
     private function generateBaseClassTest(ClassBuilder $class_builder)
     {
-        $output_name = str_replace('\\', '/', trim(str_replace($this->contract_prefix, '', $class_builder->getNamespace()), '\\'));
+        $output_name = str_replace('\\', '/', trim(str_replace($this->class_prefix, '', $class_builder->getNamespace()), '\\'));
 
         if ($output_name) {
             $output_name .= '/';
@@ -386,7 +379,7 @@ class Generator
      */
     private function generateClassTest(ClassBuilder $class_builder)
     {
-        $output_name = str_replace('\\', '/', trim(str_replace($this->contract_prefix, '', $class_builder->getNamespace()), '\\'));
+        $output_name = str_replace('\\', '/', trim(str_replace($this->class_prefix, '', $class_builder->getNamespace()), '\\'));
 
         if ($output_name) {
             $output_name .= '/';

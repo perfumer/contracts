@@ -22,12 +22,4 @@ abstract class Service extends Step
 
         return $step_builder;
     }
-
-    /**
-     * @param ClassBuilder $class_builder
-     * @param MethodBuilder|null $method_builder
-     */
-    public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
-    {
-    }
 }
