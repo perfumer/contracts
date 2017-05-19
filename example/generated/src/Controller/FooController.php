@@ -86,7 +86,6 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
             $_return = $this->getDefaultContext()->fooErrors();
         }
 
-
         return $_return;
     }
 
@@ -110,7 +109,6 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
         $this->foobar->baz($this->getDefaultContext());
 
         $sandbox->execute();
-
     }
 
     /**
@@ -148,5 +146,4 @@ abstract class FooController extends \Perfumer\Component\Contracts\Example\Paren
 
         return $this->_context_default;
     }
-
 }

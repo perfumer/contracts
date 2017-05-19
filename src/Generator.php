@@ -97,10 +97,6 @@ class Generator
             $this->base_src_path = (string) $options['base_src_path'];
         }
 
-        if (isset($options['base_src_path'])) {
-            $this->base_src_path = (string) $options['base_src_path'];
-        }
-
         if (isset($options['base_test_path'])) {
             $this->base_test_path = (string) $options['base_test_path'];
         }
@@ -287,6 +283,8 @@ class Generator
                     $this->generateContext($context);
                 }
             }
+
+            shell_exec("vendor/bin/php-cs-fixer fix {$this->base_src_path} --rules=@Symfony");
         } catch (ContractsException $e) {
             exit($e->getMessage() . PHP_EOL);
         }

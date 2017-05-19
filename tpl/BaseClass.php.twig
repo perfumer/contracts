@@ -7,35 +7,37 @@ abstract class {{ class_builder.className }} extends {{ class_builder.parentClas
 {% else %}
 abstract class {{ class_builder.className }}{% if context.interfaces.count > 0 %} implements {{ class_builder.interfaces|join(', ') }}{% endif %}
 {% endif %}
-
 {
 {% for name, type in class_builder.publicProperties %}
-{% if type %}
-    /**
-     * @var {{ type }}
-     */
-{% endif %}
+    {% if type %}
+        /**
+         * @var {{ type }}
+         */
+    {% endif %}
     public ${{ name }};
 
 {% endfor %}
+
 {% for name, type in class_builder.protectedProperties %}
-{% if type %}
-    /**
-     * @var {{ type }}
-     */
-{% endif %}
+    {% if type %}
+        /**
+         * @var {{ type }}
+         */
+    {% endif %}
     protected ${{ name }};
 
 {% endfor %}
+
 {% for name, type in class_builder.privateProperties %}
-{% if type %}
-    /**
-     * @var {{ type }}
-     */
-{% endif %}
+    {% if type %}
+        /**
+         * @var {{ type }}
+         */
+    {% endif %}
     private ${{ name }};
 
 {% endfor %}
+
 {% for name, type in class_builder.injections %}
     /**
      * @var {{ type }}
@@ -43,6 +45,7 @@ abstract class {{ class_builder.className }}{% if context.interfaces.count > 0 %
     private $_injected_{{ name }};
 
 {% endfor %}
+
 {% for name, class in class_builder.contexts %}
     /**
      * @var {{ class }}
@@ -50,76 +53,73 @@ abstract class {{ class_builder.className }}{% if context.interfaces.count > 0 %
     private $_context_{{ name }};
 
 {% endfor %}
+
 {% if class_builder.injections.count > 0 %}
     public function __construct({% for name, type in class_builder.injections %}{{ type }} ${{ name }}{%  if not loop.last %}, {% endif %}{% endfor %})
     {
-{% for name, type in class_builder.injections %}
-        $this->_injected_{{ name }} = ${{ name }};
-{% endfor %}
+        {% for name, type in class_builder.injections %}
+            $this->_injected_{{ name }} = ${{ name }};
+        {% endfor %}
     }
-
 {% endif %}
+
 {% for method in class_builder.methods if method.isAbstract %}
     abstract {{ method.access }}{% if method.isStatic %} static{% endif %} function {{ method.name }}({% for argument, type in method.arguments %}{% if type %}{{ type }} {% endif %}${{ argument }}{% if not loop.last %}, {% endif %}{% endfor %});
-
 {% endfor %}
+
 {% for method in class_builder.methods if not method.isAbstract %}
     {% if method.isFinal %}final {% endif %}{{ method.access }}{% if method.isStatic %} static{% endif %} function {{ method.name }}({% for argument, type in method.arguments %}{% if type %}{{ type }} {% endif %}${{ argument }}{% if not loop.last %}, {% endif %}{% endfor %}){% if method.returnType %}: {{ method.returnType }}{% endif %}
-
     {
-{% if method.isValidation %}
-        $_valid = true;
-{% endif %}
-{% for name, value in method.initialVariables %}
-        ${{ name }} = {{ value|default('null') }};
-{% endfor %}
+        {% if method.isValidation %}
+            $_valid = true;
+        {% endif %}
+        {% for name, value in method.initialVariables %}
+            ${{ name }} = {{ value|default('null') }};
+        {% endfor %}
 
-{% for code in method.prependedCode if code %}
-        {{ code }}
+        {% for code in method.prependedCode if code %}
+            {{ code }}
+        {% endfor %}
 
-{% endfor %}
-{% for step in method.steps %}
-{% for code in step.beforeCode if code %}
-        {{ code }}
+        {% for step in method.steps %}
+            {% for code in step.beforeCode if code %}
+                {{ code }}
+            {% endfor %}
 
-{% endfor %}
-{% if method.isValidation or step.extraCondition %}
-{% set space = '    ' %}
-{% else %}
-{% set space = '' %}
-{% endif %}
-{% if method.isValidation and step.extraCondition %}
-        if ($_valid === {{ step.validationCondition ? 'true' : 'false' }} && {{ step.extraCondition }}) {
-{% elseif method.isValidation and not step.extraCondition %}
-        if ($_valid === {{ step.validationCondition ? 'true' : 'false' }}) {
-{% elseif not method.isValidation and step.extraCondition %}
-        if ({{ step.extraCondition }}) {
-{% endif %}
-{% for code in step.prependedCode if code %}
-        {{ space }}{{ code }}
+            {% if method.isValidation and step.extraCondition %}
+                if ($_valid === {{ step.validationCondition ? 'true' : 'false' }} && {{ step.extraCondition }}) {
+            {% elseif method.isValidation and not step.extraCondition %}
+                if ($_valid === {{ step.validationCondition ? 'true' : 'false' }}) {
+            {% elseif not method.isValidation and step.extraCondition %}
+                if ({{ step.extraCondition }}) {
+            {% endif %}
 
-{% endfor %}
-        {{ space }}{% if step.returnExpression %}{{ step.returnExpression }} = {% endif %}{{ step.callExpression }}{{ step.method }}({% for argument in step.arguments %}{{ argument }}{% if not loop.last %}, {% endif %}{% endfor %});
-{% for code in step.appendedCode if code %}
+            {% for code in step.prependedCode if code %}
+                {{ code }}
+            {% endfor %}
 
-        {{ space }}{{ code }}
-{% endfor %}
-{% if method.isValidation or step.extraCondition %}
-        }
-{% endif %}
-{% for code in step.afterCode if code %}
+            {% if step.returnExpression %}{{ step.returnExpression }} = {% endif %}{{ step.callExpression }}{{ step.method }}({% for argument in step.arguments %}{{ argument }}{% if not loop.last %}, {% endif %}{% endfor %});
 
-        {{ code }}
-{% endfor %}
+            {% for code in step.appendedCode if code %}
+                {{ code }}
+            {% endfor %}
 
-{% endfor %}
-{% for code in method.appendedCode if code %}
+            {% if method.isValidation or step.extraCondition %}
+                }
+            {% endif %}
 
-        {{ code }}
-{% endfor %}
+            {% for code in step.afterCode if code %}
+                {{ code }}
+            {% endfor %}
+
+        {% endfor %}
+
+        {% for code in method.appendedCode if code %}
+            {{ code }}
+        {% endfor %}
     }
-
 {% endfor %}
+
 {% for name, type in class_builder.injections %}
     /**
      * @return {{ type }}
@@ -128,8 +128,8 @@ abstract class {{ class_builder.className }}{% if context.interfaces.count > 0 %
     {
         return $this->_injected_{{ name }};
     }
-
 {% endfor %}
+
 {% for name, class in class_builder.contexts %}
     /**
      * @return {{ class }}
@@ -142,6 +142,5 @@ abstract class {{ class_builder.className }}{% if context.interfaces.count > 0 %
 
         return $this->_context_{{ name }};
     }
-
 {% endfor %}
 }
