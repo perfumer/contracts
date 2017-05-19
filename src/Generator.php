@@ -4,7 +4,6 @@ namespace Perfumer\Component\Contracts;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
-use Perfumer\Component\Contracts\Annotations\Context;
 use Perfumer\Component\Contracts\Annotations\Skip;
 use Perfumer\Component\Contracts\Annotations\Test;
 
@@ -76,7 +75,7 @@ class Generator
      */
     public function __construct($root_dir, $options = [])
     {
-        $this->addTemplateDirectory(__DIR__ . '/templates');
+        $this->addTemplateDirectory(__DIR__ . '/../tpl');
         $this->addAnnotations(__DIR__ . '/Annotations.php');
 
         $this->generator = new \TwigGenerator\Builder\Generator();
