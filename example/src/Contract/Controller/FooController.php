@@ -62,9 +62,6 @@ interface FooController
      */
     public function bazAction(int $param1, int $param2);
 
-    /**
-     * @Skip()
-     */
     public function skipped();
 }
 

@@ -676,17 +676,6 @@ class ServiceThis extends Service
  * @Annotation
  * @Target("METHOD")
  */
-class Skip implements Annotation
-{
-    public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
-    {
-    }
-}
-
-/**
- * @Annotation
- * @Target("METHOD")
- */
 class Test
 {
 }

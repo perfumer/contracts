@@ -4,7 +4,6 @@ namespace Perfumer\Component\Contracts;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
-use Perfumer\Component\Contracts\Annotations\Skip;
 use Perfumer\Component\Contracts\Annotations\Test;
 
 class Generator
@@ -239,10 +238,6 @@ class Generator
 
                     // Set validate=true
                     foreach ($method_annotations as $annotation) {
-                        if ($annotation instanceof Skip) {
-                            continue(2);
-                        }
-
                         if ($annotation instanceof Decorator) {
                             $method_annotations = $annotation->decorate($method_annotations);
                         }
@@ -274,7 +269,9 @@ class Generator
                         }
                     }
 
-                    $class_builder->getMethods()->append($method_builder);
+                    if ($method_builder->getSteps()->count() > 0) {
+                        $class_builder->getMethods()->append($method_builder);
+                    }
                 }
 
                 $bundle->getClassBuilders()->append($class_builder);
