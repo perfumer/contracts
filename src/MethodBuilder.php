@@ -30,9 +30,9 @@ final class MethodBuilder
     private $name;
 
     /**
-     * @var \ArrayObject
+     * @var array
      */
-    private $arguments;
+    private $arguments = [];
 
     /**
      * @var null|string
@@ -40,47 +40,34 @@ final class MethodBuilder
     private $return_type;
 
     /**
-     * @var \ArrayObject
+     * @var array
      */
-    private $initial_variables;
+    private $initial_variables = [];
 
     /**
-     * @var \ArrayObject
+     * @var array
      */
-    private $test_variables;
+    private $test_variables = [];
 
     /**
-     * @var \ArrayObject
+     * @var array
      */
-    private $prepended_code;
+    private $prepended_code = [];
 
     /**
-     * @var \ArrayObject
+     * @var array
      */
-    private $appended_code;
+    private $appended_code = [];
 
     /**
-     * @var \ArrayObject
+     * @var array
      */
-    private $steps;
+    private $steps = [];
 
     /**
      * @var bool
      */
     private $validation = false;
-
-    /**
-     * MethodBuilder constructor.
-     */
-    public function __construct()
-    {
-        $this->arguments = new \ArrayObject();
-        $this->initial_variables = new \ArrayObject();
-        $this->test_variables = new \ArrayObject();
-        $this->prepended_code = new \ArrayObject();
-        $this->appended_code = new \ArrayObject();
-        $this->steps = new \ArrayObject();
-    }
 
     /**
      * @return bool
@@ -93,7 +80,7 @@ final class MethodBuilder
     /**
      * @param bool $is_final
      */
-    public function setIsFinal(bool $is_final)
+    public function setIsFinal(bool $is_final): void
     {
         $this->is_final = $is_final;
     }
@@ -109,7 +96,7 @@ final class MethodBuilder
     /**
      * @param bool $is_abstract
      */
-    public function setIsAbstract(bool $is_abstract)
+    public function setIsAbstract(bool $is_abstract): void
     {
         $this->is_abstract = $is_abstract;
     }
@@ -117,7 +104,7 @@ final class MethodBuilder
     /**
      * @return bool
      */
-    public function isIsStatic(): bool
+    public function isStatic(): bool
     {
         return $this->is_static;
     }
@@ -125,7 +112,7 @@ final class MethodBuilder
     /**
      * @param bool $is_static
      */
-    public function setIsStatic(bool $is_static)
+    public function setIsStatic(bool $is_static): void
     {
         $this->is_static = $is_static;
     }
@@ -133,7 +120,7 @@ final class MethodBuilder
     /**
      * @return null|string
      */
-    public function getAccess()
+    public function getAccess(): ?string
     {
         return $this->access;
     }
@@ -141,7 +128,7 @@ final class MethodBuilder
     /**
      * @param null|string $access
      */
-    public function setAccess($access)
+    public function setAccess($access): void
     {
         $this->access = $access;
     }
@@ -149,23 +136,48 @@ final class MethodBuilder
     /**
      * @return null|string
      */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->name;
     }
 
     /**
-     * @param string $name
+     * @param null|string $name
      */
-    public function setName($name)
+    public function setName($name): void
     {
         $this->name = $name;
     }
 
     /**
+     * @return array
+     */
+    public function getArguments(): array
+    {
+        return $this->arguments;
+    }
+
+    /**
+     * @param array $arguments
+     */
+    public function setArguments(array $arguments): void
+    {
+        $this->arguments = $arguments;
+    }
+
+    /**
+     * @param string $name
+     * @param null|string $type
+     */
+    public function addArgument(string $name, ?string $type = null): void
+    {
+        $this->arguments[$name] = $type;
+    }
+
+    /**
      * @return null|string
      */
-    public function getReturnType()
+    public function getReturnType(): ?string
     {
         return $this->return_type;
     }
@@ -173,63 +185,139 @@ final class MethodBuilder
     /**
      * @param null|string $return_type
      */
-    public function setReturnType($return_type)
+    public function setReturnType($return_type): void
     {
         $this->return_type = $return_type;
     }
 
     /**
-     * @return \ArrayObject
+     * @return array
      */
-    public function getArguments(): \ArrayObject
-    {
-        return $this->arguments;
-    }
-
-    /**
-     * @return \ArrayObject
-     */
-    public function getInitialVariables(): \ArrayObject
+    public function getInitialVariables(): array
     {
         return $this->initial_variables;
     }
 
     /**
-     * @return \ArrayObject
+     * @param array $initial_variables
      */
-    public function getTestVariables(): \ArrayObject
+    public function setInitialVariables(array $initial_variables): void
+    {
+        $this->initial_variables = $initial_variables;
+    }
+
+    /**
+     * @param string $name
+     * @param string $value
+     */
+    public function addInitialVariable(string $name, string $value): void
+    {
+        $this->initial_variables[$name] = $value;
+    }
+
+    /**
+     * @return array
+     */
+    public function getTestVariables(): array
     {
         return $this->test_variables;
     }
 
     /**
-     * @return \ArrayObject
+     * @param array $test_variables
      */
-    public function getPrependedCode(): \ArrayObject
+    public function setTestVariables(array $test_variables): void
+    {
+        $this->test_variables = $test_variables;
+    }
+
+    /**
+     * @param string $name
+     * @param bool $assert
+     */
+    public function addTestVariable(string $name, bool $assert): void
+    {
+        $this->test_variables[] = [$name, $assert];
+    }
+
+    /**
+     * @return array
+     */
+    public function getPrependedCode(): array
     {
         return $this->prepended_code;
     }
 
     /**
-     * @return \ArrayObject
+     * @param array $prepended_code
      */
-    public function getAppendedCode(): \ArrayObject
+    public function setPrependedCode(array $prepended_code): void
+    {
+        $this->prepended_code = $prepended_code;
+    }
+
+    /**
+     * @param string $key
+     * @param string $code
+     */
+    public function addPrependedCode(string $key, string $code): void
+    {
+        $this->prepended_code[$key] = $code;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAppendedCode(): array
     {
         return $this->appended_code;
     }
 
     /**
-     * @return \ArrayObject
+     * @param array $appended_code
      */
-    public function getSteps(): \ArrayObject
+    public function setAppendedCode(array $appended_code): void
+    {
+        $this->appended_code = $appended_code;
+    }
+
+    /**
+     * @param string $key
+     * @param string $code
+     */
+    public function addAppendedCode(string $key, string $code): void
+    {
+        $this->appended_code[$key] = $code;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSteps(): array
     {
         return $this->steps;
     }
 
     /**
+     * @param array $steps
+     */
+    public function setSteps(array $steps): void
+    {
+        $this->steps = $steps;
+    }
+
+    /**
+     * @param StepBuilder $step
+     */
+    public function addStep(StepBuilder $step): void
+    {
+        $this->steps[] = $step;
+    }
+
+    /**
      * @return bool
      */
-    public function isValidation(): bool
+    public function hasValidation(): bool
     {
         return $this->validation;
     }
@@ -237,7 +325,7 @@ final class MethodBuilder
     /**
      * @param bool $validation
      */
-    public function setValidation(bool $validation)
+    public function setValidation(bool $validation): void
     {
         $this->validation = $validation;
     }

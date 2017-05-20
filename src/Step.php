@@ -65,15 +65,15 @@ abstract class Step implements Annotation
     {
         $step_builder = new StepBuilder();
         $step_builder->setMethod($this->method);
-        $step_builder->getPrependedCode()->append($this->getPrependedCode());
-        $step_builder->getAppendedCode()->append($this->getAppendedCode());
+        $step_builder->addPrependedCode('_step', $this->getPrependedCode());
+        $step_builder->addAppendedCode('_step', $this->getAppendedCode());
         $step_builder->setValidationCondition(true);
 
         if ($this->if || $this->unless) {
             $condition = $this->if ?: $this->unless;
 
             if (is_string($condition)) {
-                $method_builder->getTestVariables()->append([$condition, true]);
+                $method_builder->addTestVariable($condition, true);
             }
 
             $body_argument = $condition instanceof Variable ? $condition->asArgument() : '$' . $condition;
@@ -85,27 +85,27 @@ abstract class Step implements Annotation
             $step_builder->setExtraCondition($body_argument);
 
             if (is_string($condition)) {
-                if (!$method_builder->getInitialVariables()->offsetExists($condition)) {
-                    $method_builder->getInitialVariables()->offsetSet($condition, null);
+                if (!isset($method_builder->getInitialVariables()[$condition])) {
+                    $method_builder->addInitialVariable($condition, 'null');
                 }
             }
         }
 
         foreach ($this->arguments as $argument) {
             if (is_string($argument)) {
-                $method_builder->getTestVariables()->append([$argument, true]);
+                $method_builder->addTestVariable($argument, true);
             }
 
             $value = $argument instanceof Variable ? $argument->asArgument() : '$' . $argument;
 
-            $step_builder->getArguments()->append($value);
+            $step_builder->addArgument($value);
         }
 
         if ($this->return) {
             if (is_array($this->return)) {
                 foreach ($this->return as $value) {
                     if (is_string($value)) {
-                        $method_builder->getTestVariables()->append([$value, false]);
+                        $method_builder->addTestVariable($value, false);
                     }
                 }
 
@@ -116,7 +116,7 @@ abstract class Step implements Annotation
                 $expression = 'list(' . implode(', ', $vars) . ')';
             } else {
                 if (is_string($this->return)) {
-                    $method_builder->getTestVariables()->append([$this->return, false]);
+                    $method_builder->addTestVariable($this->return, false);
                 }
 
                 $expression = $this->return instanceof Variable ? $this->return->asReturn() : '$' . $this->return;
@@ -130,7 +130,7 @@ abstract class Step implements Annotation
                 if (!$var instanceof Variable) {
                     $value = $this->validate ? 'true' : 'null';
 
-                    if ($method_builder->getInitialVariables()->offsetExists($var)) {
+                    if (isset($method_builder->getInitialVariables()[$var])) {
                         throw new ContractsException(sprintf('%s\\%s -> %s -> %s.%s returns "%s" which is already in use.',
                             $class_builder->getNamespace(),
                             $class_builder->getClassName(),
@@ -141,7 +141,7 @@ abstract class Step implements Annotation
                         ));
                     }
 
-                    $method_builder->getInitialVariables()->offsetSet($var, $value);
+                    $method_builder->addInitialVariable($var, $value);
                 }
             }
         }

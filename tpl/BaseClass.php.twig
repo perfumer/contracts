@@ -3,9 +3,9 @@
 namespace Generated\{{ builder.namespace }};
 
 {% if builder.parentClass %}
-abstract class {{ builder.className }} extends {{ builder.parentClass }}{% if builder.interfaces.count > 0 %} implements {{ builder.interfaces|join(', ') }}{% endif %}
+abstract class {{ builder.className }} extends {{ builder.parentClass }}{% if builder.interfaces|length > 0 %} implements {{ builder.interfaces|join(', ') }}{% endif %}
 {% else %}
-abstract class {{ builder.className }}{% if context.interfaces.count > 0 %} implements {{ builder.interfaces|join(', ') }}{% endif %}
+abstract class {{ builder.className }}{% if context.interfaces|length > 0 %} implements {{ builder.interfaces|join(', ') }}{% endif %}
 {% endif %}
 {
 {% for name, type in builder.publicProperties %}
@@ -54,7 +54,7 @@ abstract class {{ builder.className }}{% if context.interfaces.count > 0 %} impl
 
 {% endfor %}
 
-{% if builder.injections.count > 0 %}
+{% if builder.injections|length > 0 %}
     public function __construct({% for name, type in builder.injections %}{{ type }} ${{ name }}{%  if not loop.last %}, {% endif %}{% endfor %})
     {
         {% for name, type in builder.injections %}
@@ -70,7 +70,7 @@ abstract class {{ builder.className }}{% if context.interfaces.count > 0 %} impl
 {% for method in builder.methods if not method.isAbstract %}
     {% if method.isFinal %}final {% endif %}{{ method.access }}{% if method.isStatic %} static{% endif %} function {{ method.name }}({% for argument, type in method.arguments %}{% if type %}{{ type }} {% endif %}${{ argument }}{% if not loop.last %}, {% endif %}{% endfor %}){% if method.returnType %}: {{ method.returnType }}{% endif %}
     {
-        {% if method.isValidation %}
+        {% if method.hasValidation %}
             $_valid = true;
         {% endif %}
         {% for name, value in method.initialVariables %}
@@ -86,11 +86,11 @@ abstract class {{ builder.className }}{% if context.interfaces.count > 0 %} impl
                 {{ code }}
             {% endfor %}
 
-            {% if method.isValidation and step.extraCondition %}
+            {% if method.hasValidation and step.extraCondition %}
                 if ($_valid === {{ step.validationCondition ? 'true' : 'false' }} && {{ step.extraCondition }}) {
-            {% elseif method.isValidation and not step.extraCondition %}
+            {% elseif method.hasValidation and not step.extraCondition %}
                 if ($_valid === {{ step.validationCondition ? 'true' : 'false' }}) {
-            {% elseif not method.isValidation and step.extraCondition %}
+            {% elseif not method.hasValidation and step.extraCondition %}
                 if ({{ step.extraCondition }}) {
             {% endif %}
 
@@ -104,7 +104,7 @@ abstract class {{ builder.className }}{% if context.interfaces.count > 0 %} impl
                 {{ code }}
             {% endfor %}
 
-            {% if method.isValidation or step.extraCondition %}
+            {% if method.hasValidation or step.extraCondition %}
                 }
             {% endif %}
 

@@ -116,8 +116,8 @@ class Call extends Step
 
         $context_class = '\\' . $reflection->getNamespaceName() . '\\' . $reflection->getShortName() . 'Context';
 
-        if (!$contexts->offsetExists('default') && class_exists($context_class, false)) {
-            $class_builder->getContexts()->offsetSet('default', $context_class);
+        if (!isset($contexts['default']) && class_exists($context_class, false)) {
+            $class_builder->addContext('default', $context_class);
         }
 
         parent::apply($class_builder, $method_builder);
@@ -138,7 +138,7 @@ class Call extends Step
         $contexts = $class_builder->getContexts();
         $injections = $class_builder->getInjections();
 
-        if (!$contexts->offsetExists($this->name) && !$injections->offsetExists($this->name)) {
+        if (!isset($contexts[$this->name]) && !isset($injections[$this->name])) {
             throw new ContractsException(sprintf('%s\\%s -> %s -> %s context or injected is not registered',
                 $class_builder->getNamespace(),
                 $class_builder->getClassName(),
@@ -149,13 +149,13 @@ class Call extends Step
 
         $annotation_arguments = $this->arguments;
 
-        if ($contexts->offsetExists($this->name) || $injections->offsetExists($this->name)) {
-            $is_context = $contexts->offsetExists($this->name);
+        if (isset($contexts[$this->name]) || isset($injections[$this->name])) {
+            $is_context = isset($contexts[$this->name]);
 
             if ($is_context) {
-                $reflection_context = new \ReflectionClass($contexts->offsetGet($this->name));
+                $reflection_context = new \ReflectionClass($contexts[$this->name]);
             } else {
-                $reflection_context = new \ReflectionClass($injections->offsetGet($this->name));
+                $reflection_context = new \ReflectionClass($injections[$this->name]);
             }
 
             $method_found = false;
@@ -229,7 +229,7 @@ class Call extends Step
 
         $name = str_replace('_.', '', ucwords($this->name, '_.'));
 
-        if ($contexts->offsetExists($this->name)) {
+        if (isset($contexts[$this->name])) {
             $builder->setCallExpression("\$this->get{$name}Context()->");
         } else {
             $builder->setCallExpression("\$this->get{$name}()->");
@@ -270,7 +270,7 @@ class Context implements Annotation, Variable
             ));
         }
 
-        if (($class_builder->getContexts()->offsetExists($this->name) || $class_builder->getInjections()->offsetExists($this->name)) && $this->class !== null) {
+        if ((isset($class_builder->getContexts()[$this->name]) || isset($class_builder->getInjections()[$this->name])) && $this->class !== null) {
             throw new ContractsException(sprintf('%s\\%s -> %s context or injected is already defined.',
                 $class_builder->getNamespace(),
                 $class_builder->getClassName(),
@@ -279,7 +279,7 @@ class Context implements Annotation, Variable
         }
 
         if ($this->name !== 'default') {
-            $class_builder->getContexts()->offsetSet($this->name, $this->class);
+            $class_builder->addContext($this->name, $this->class);
         }
     }
 
@@ -329,10 +329,10 @@ class Custom extends Step
 
         foreach ($this->arguments as $argument) {
             $value = $argument instanceof Variable ? $argument->asHeader() : $argument;
-            $method->getArguments()->offsetSet($value, null);
+            $method->addArgument($value);
         }
 
-        $class_builder->getMethods()->append($method);
+        $class_builder->addMethod($method);
     }
 
     /**
@@ -360,8 +360,8 @@ class Error extends Call implements Decorator
     {
         parent::apply($class_builder, $method_builder);
 
-        $method_builder->getInitialVariables()->offsetSet('_return', null);
-        $method_builder->getAppendedCode()->offsetSet('_return', 'return $_return;');
+        $method_builder->addInitialVariable('_return', 'null');
+        $method_builder->addAppendedCode('_return', 'return $_return;');
     }
 
     /**
@@ -441,7 +441,7 @@ class Inject implements Variable
      */
     public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
     {
-        if ($class_builder->getContexts()->offsetExists($this->name) || $class_builder->getInjections()->offsetExists($this->name)) {
+        if (isset($class_builder->getContexts()[$this->name]) || isset($class_builder->getInjections()[$this->name])) {
             throw new ContractsException(sprintf('%s\\%s -> %s context or injected is already defined.',
                 $class_builder->getNamespace(),
                 $class_builder->getClassName(),
@@ -449,7 +449,7 @@ class Inject implements Variable
             ));
         }
 
-        $class_builder->getInjections()->offsetSet($this->name, $this->type);
+        $class_builder->addInjection($this->name, $this->type);
     }
 
     /**
@@ -513,8 +513,8 @@ class Output implements Variable
      */
     public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
     {
-        $method_builder->getInitialVariables()->offsetSet('_return', null);
-        $method_builder->getAppendedCode()->offsetSet('_return', 'return $_return;');
+        $method_builder->addInitialVariable('_return', 'null');
+        $method_builder->addAppendedCode('_return', 'return $_return;');
     }
 }
 
@@ -567,7 +567,7 @@ class Property implements Variable
      */
     public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
     {
-        $class_builder->getProtectedProperties()->offsetSet($this->name, null);
+        $class_builder->addProtectedProperty($this->name);
     }
 }
 
@@ -613,7 +613,7 @@ class ServiceProperty extends Service
      */
     public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
     {
-        $class_builder->getProtectedProperties()->offsetSet($this->name, null);
+        $class_builder->addProtectedProperty($this->name);
 
         parent::apply($class_builder, $method_builder);
     }

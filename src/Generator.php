@@ -167,10 +167,10 @@ class Generator
                         $method_builder->setName($method->name);
 
                         foreach ($method->getParameters() as $parameter) {
-                            $method_builder->getArguments()->append($parameter->name);
+                            $method_builder->addArgument($parameter->name);
                         }
 
-                        $class_builder->getMethods()->append($method_builder);
+                        $class_builder->addMethod($method_builder);
                     }
                 }
             }
@@ -199,7 +199,7 @@ class Generator
                 $class_builder->setContract($reflection);
                 $class_builder->setNamespace($namespace);
                 $class_builder->setClassName($reflection->getShortName());
-                $class_builder->getInterfaces()->append('\\' . $class);
+                $class_builder->addInterface('\\' . $class);
 
                 foreach ($class_annotations as $annotation) {
                     if (!$annotation instanceof Annotation) {
@@ -230,8 +230,8 @@ class Generator
                             $type = '\\' . $type;
                         }
 
-                        $method_builder->getArguments()->offsetSet($parameter->name, $type);
-                        $method_builder->getTestVariables()->append([$parameter->name, false]);
+                        $method_builder->addArgument($parameter->name, $type);
+                        $method_builder->addTestVariable($parameter->name, false);
                     }
 
                     $method_annotations = $this->reader->getMethodAnnotations($method);
@@ -250,8 +250,6 @@ class Generator
 
                         $annotation->apply($class_builder, $method_builder);
 
-                        $steps = $method_builder->getSteps();
-
                         if ($annotation instanceof Step) {
                             $step_builders = $annotation->getBuilder($class_builder, $method_builder);
 
@@ -264,13 +262,13 @@ class Generator
                             }
 
                             foreach ($step_builders as $step_builder) {
-                                $steps->append($step_builder);
+                                $method_builder->addStep($step_builder);
                             }
                         }
                     }
 
-                    if ($method_builder->getSteps()->count() > 0) {
-                        $class_builder->getMethods()->append($method_builder);
+                    if (count($method_builder->getSteps()) > 0) {
+                        $class_builder->addMethod($method_builder);
                     }
                 }
 

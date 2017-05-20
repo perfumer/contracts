@@ -15,9 +15,9 @@ final class ClassBuilder
     private $namespace;
 
     /**
-     * @var \ArrayObject
+     * @var array
      */
-    private $uses;
+    private $uses = [];
 
     /**
      * @var bool
@@ -40,60 +40,44 @@ final class ClassBuilder
     private $parent_class;
 
     /**
-     * @var \ArrayObject
+     * @var array
      */
-    private $interfaces;
+    private $interfaces = [];
 
     /**
-     * @var \ArrayObject
+     * @var array
      */
-    private $traits;
+    private $traits = [];
 
     /**
-     * @var \ArrayObject
+     * @var array
      */
-    private $public_properties;
+    private $public_properties = [];
 
     /**
-     * @var \ArrayObject
+     * @var array
      */
-    private $protected_properties;
+    private $protected_properties = [];
 
     /**
-     * @var \ArrayObject
+     * @var array
      */
-    private $private_properties;
+    private $private_properties = [];
 
     /**
-     * @var \ArrayObject
+     * @var array
      */
-    private $contexts;
+    private $contexts = [];
 
     /**
-     * @var \ArrayObject
+     * @var array
      */
-    private $injections;
+    private $injections = [];
 
     /**
-     * @var \ArrayObject
+     * @var array
      */
-    private $methods;
-
-    /**
-     * ClassBuilder constructor.
-     */
-    public function __construct()
-    {
-        $this->uses = new \ArrayObject();
-        $this->interfaces = new \ArrayObject();
-        $this->traits = new \ArrayObject();
-        $this->public_properties = new \ArrayObject();
-        $this->protected_properties = new \ArrayObject();
-        $this->private_properties = new \ArrayObject();
-        $this->contexts = new \ArrayObject();
-        $this->injections = new \ArrayObject();
-        $this->methods = new \ArrayObject();
-    }
+    private $methods = [];
 
     /**
      * @return \ReflectionClass
@@ -106,7 +90,7 @@ final class ClassBuilder
     /**
      * @param \ReflectionClass $contract
      */
-    public function setContract(\ReflectionClass $contract)
+    public function setContract(\ReflectionClass $contract): void
     {
         $this->contract = $contract;
     }
@@ -114,7 +98,7 @@ final class ClassBuilder
     /**
      * @return null|string
      */
-    public function getNamespace()
+    public function getNamespace(): ?string
     {
         return $this->namespace;
     }
@@ -122,9 +106,33 @@ final class ClassBuilder
     /**
      * @param null|string $namespace
      */
-    public function setNamespace($namespace)
+    public function setNamespace($namespace): void
     {
         $this->namespace = $namespace;
+    }
+
+    /**
+     * @return array
+     */
+    public function getUses(): array
+    {
+        return $this->uses;
+    }
+
+    /**
+     * @param array $uses
+     */
+    public function setUses(array $uses): void
+    {
+        $this->uses = $uses;
+    }
+
+    /**
+     * @param string $use
+     */
+    public function addUse(string $use): void
+    {
+        $this->uses[] = $use;
     }
 
     /**
@@ -138,7 +146,7 @@ final class ClassBuilder
     /**
      * @param bool $is_final
      */
-    public function setIsFinal(bool $is_final)
+    public function setIsFinal(bool $is_final): void
     {
         $this->is_final = $is_final;
     }
@@ -154,7 +162,7 @@ final class ClassBuilder
     /**
      * @param bool $is_abstract
      */
-    public function setIsAbstract(bool $is_abstract)
+    public function setIsAbstract(bool $is_abstract): void
     {
         $this->is_abstract = $is_abstract;
     }
@@ -162,15 +170,15 @@ final class ClassBuilder
     /**
      * @return null|string
      */
-    public function getClassName()
+    public function getClassName(): ?string
     {
         return $this->class_name;
     }
 
     /**
-     * @param string $class_name
+     * @param null|string $class_name
      */
-    public function setClassName($class_name)
+    public function setClassName($class_name): void
     {
         $this->class_name = $class_name;
     }
@@ -178,7 +186,7 @@ final class ClassBuilder
     /**
      * @return null|string
      */
-    public function getParentClass()
+    public function getParentClass(): ?string
     {
         return $this->parent_class;
     }
@@ -186,80 +194,205 @@ final class ClassBuilder
     /**
      * @param null|string $parent_class
      */
-    public function setParentClass($parent_class)
+    public function setParentClass($parent_class): void
     {
         $this->parent_class = $parent_class;
     }
 
     /**
-     * @return \ArrayObject
+     * @return array
      */
-    public function getUses(): \ArrayObject
-    {
-        return $this->uses;
-    }
-
-    /**
-     * @return \ArrayObject
-     */
-    public function getInterfaces(): \ArrayObject
+    public function getInterfaces(): array
     {
         return $this->interfaces;
     }
 
     /**
-     * @return \ArrayObject
+     * @param array $interfaces
      */
-    public function getTraits(): \ArrayObject
+    public function setInterfaces(array $interfaces): void
+    {
+        $this->interfaces = $interfaces;
+    }
+
+    /**
+     * @param string $interface
+     */
+    public function addInterface(string $interface): void
+    {
+        $this->interfaces[] = $interface;
+    }
+
+    /**
+     * @return array
+     */
+    public function getTraits(): array
     {
         return $this->traits;
     }
 
     /**
-     * @return \ArrayObject
+     * @param array $traits
      */
-    public function getPublicProperties(): \ArrayObject
+    public function setTraits(array $traits): void
+    {
+        $this->traits = $traits;
+    }
+
+    /**
+     * @param string $trait
+     */
+    public function addTrait(string $trait): void
+    {
+        $this->traits[] = $trait;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPublicProperties(): array
     {
         return $this->public_properties;
     }
 
     /**
-     * @return \ArrayObject
+     * @param array $public_properties
      */
-    public function getProtectedProperties(): \ArrayObject
+    public function setPublicProperties(array $public_properties): void
+    {
+        $this->public_properties = $public_properties;
+    }
+
+    /**
+     * @param string $name
+     * @param null|string $type
+     */
+    public function addPublicProperty(string $name, ?string $type = null): void
+    {
+        $this->public_properties[$name] = $type;
+    }
+
+    /**
+     * @return array
+     */
+    public function getProtectedProperties(): array
     {
         return $this->protected_properties;
     }
 
     /**
-     * @return \ArrayObject
+     * @param array $protected_properties
      */
-    public function getPrivateProperties(): \ArrayObject
+    public function setProtectedProperties(array $protected_properties): void
+    {
+        $this->protected_properties = $protected_properties;
+    }
+
+    /**
+     * @param string $name
+     * @param null|string $type
+     */
+    public function addProtectedProperty(string $name, ?string $type = null): void
+    {
+        $this->protected_properties[$name] = $type;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPrivateProperties(): array
     {
         return $this->private_properties;
     }
 
     /**
-     * @return \ArrayObject
+     * @param array $private_properties
      */
-    public function getContexts(): \ArrayObject
+    public function setPrivateProperties(array $private_properties): void
+    {
+        $this->private_properties = $private_properties;
+    }
+
+    /**
+     * @param string $name
+     * @param null|string $type
+     */
+    public function addPrivateProperty(string $name, ?string $type = null): void
+    {
+        $this->private_properties[$name] = $type;
+    }
+
+    /**
+     * @return array
+     */
+    public function getContexts(): array
     {
         return $this->contexts;
     }
 
     /**
-     * @return \ArrayObject
+     * @param array $contexts
      */
-    public function getInjections(): \ArrayObject
+    public function setContexts(array $contexts): void
+    {
+        $this->contexts = $contexts;
+    }
+
+    /**
+     * @param string $name
+     * @param string $class
+     */
+    public function addContext(string $name, string $class): void
+    {
+        $this->contexts[$name] = $class;
+    }
+
+    /**
+     * @return array
+     */
+    public function getInjections(): array
     {
         return $this->injections;
     }
 
     /**
-     * @return \ArrayObject
+     * @param array $injections
      */
-    public function getMethods(): \ArrayObject
+    public function setInjections(array $injections): void
+    {
+        $this->injections = $injections;
+    }
+
+    /**
+     * @param string $name
+     * @param string $type
+     */
+    public function addInjection(string $name, string $type): void
+    {
+        $this->injections[$name] = $type;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMethods(): array
     {
         return $this->methods;
+    }
+
+    /**
+     * @param array $methods
+     */
+    public function setMethods(array $methods): void
+    {
+        $this->methods = $methods;
+    }
+
+    /**
+     * @param MethodBuilder $method
+     */
+    public function addMethod(MethodBuilder $method): void
+    {
+        $this->methods[] = $method;
     }
 }

@@ -10,7 +10,7 @@ abstract class {{ builder.className }}Test extends TestCase
     {
         new \ReflectionClass(\{{ builder.namespace }}\{{ builder.className }}::class);
     }
-{% for method in builder.methods if method.testVariables.count > 0 %}
+{% for method in builder.methods if method.testVariables|length > 0 %}
 
     final public function test{{ method.name[:1]|upper ~ method.name[1:] }}LocalVariables()
     {

@@ -45,8 +45,8 @@ abstract class Collection extends Step
         }
 
         if (count($builders) > 0) {
-            $builders[0]->getBeforeCode()->append($this->getBeforeCode());
-            $builders[count($builders) - 1]->getAfterCode()->append($this->getAfterCode());
+            $builders[0]->addBeforeCode('_collection', $this->getBeforeCode());
+            $builders[count($builders) - 1]->addAfterCode('_collection', $this->getAfterCode());
         }
 
         return $builders;
