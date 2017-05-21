@@ -41,7 +41,7 @@ abstract class FooController extends \Perfumer\Contracts\Example\ParentControlle
 
     abstract protected function sumDoubled($a);
 
-    final public function barAction(\Perfumer\Contracts\Annotations\Output $param2): string
+    final public function barAction(\Perfumer\Contracts\Annotations\Output $param2, ?array $param3, $param4 = '12\'3', int $param5 = 140): string
     {
         $_valid = true;
         $a_valid = true;

@@ -69,7 +69,16 @@ class TwigExtension extends \Twig_Extension
                 $item .= '$' . $argument->getName();
 
                 if ($argument->isDefaultValueAvailable()) {
-                    $item .= ' = ' . (string) $argument->getDefaultValue();
+                    if (is_array($argument->getDefaultValue())) {
+                        $value = '[]';
+                    } elseif (is_string($argument->getDefaultValue())) {
+                        $value = str_replace("'", "\\'", $argument->getDefaultValue());
+                        $value = "'{$value}'";
+                    } else {
+                        $value = (string) $argument->getDefaultValue();
+                    }
+
+                    $item .= ' = ' . $value;
                 }
 
                 $array[] = $item;
