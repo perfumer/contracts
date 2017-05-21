@@ -365,7 +365,10 @@ class Error extends Call implements Decorator
         parent::apply($class_builder, $method_builder);
 
         $method_builder->addInitialVariable('_return', 'null');
-        $method_builder->addAppendedCode('_return', 'return $_return;');
+
+        if (!isset($method_builder->getAppendedCode()['_return'])) {
+            $method_builder->addAppendedCode('_return', 'return $_return;');
+        }
     }
 
     /**
@@ -517,7 +520,10 @@ class Output implements Variable
     public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
     {
         $method_builder->addInitialVariable('_return', 'null');
-        $method_builder->addAppendedCode('_return', 'return $_return;');
+
+        if (!isset($method_builder->getAppendedCode()['_return'])) {
+            $method_builder->addAppendedCode('_return', 'return $_return;');
+        }
     }
 }
 
