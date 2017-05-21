@@ -5,7 +5,7 @@ namespace Generated\{{ builder.namespace }};
 {% if builder.parentClass %}
 abstract class {{ builder.className }} extends {{ builder.parentClass }}{% if builder.interfaces|length > 0 %} implements {{ builder.interfaces|join(', ') }}{% endif %}
 {% else %}
-abstract class {{ builder.className }}{% if context.interfaces|length > 0 %} implements {{ builder.interfaces|join(', ') }}{% endif %}
+abstract class {{ builder.className }}{% if builder.interfaces|length > 0 %} implements {{ builder.interfaces|join(', ') }}{% endif %}
 {% endif %}
 {
 {% for name, type in builder.publicProperties %}

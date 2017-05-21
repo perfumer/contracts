@@ -225,7 +225,7 @@ class Call extends Step
 
         $builder = parent::getBuilder($class_builder, $method_builder);
 
-        $name = str_replace('_.', '', ucwords($this->name, '_.'));
+        $name = str_replace('_', '', ucwords($this->name, '_.'));
 
         if (isset($contexts[$this->name])) {
             $builder->setCallExpression("\$this->get{$name}Context()->");
@@ -260,24 +260,26 @@ class Context implements Annotation, Variable
      */
     public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
     {
-        if (!class_exists($this->class) && $this->name !== 'default') {
-            throw new ContractsException(sprintf('%s\\%s -> %s context class not found.',
-                $class_builder->getNamespace(),
-                $class_builder->getClassName(),
-                $this->name
-            ));
-        }
+        if ($this->class !== null) {
+            if (!class_exists($this->class) && $this->name !== 'default') {
+                throw new ContractsException(sprintf('%s\\%s -> %s: context class not found.',
+                    $class_builder->getNamespace(),
+                    $class_builder->getClassName(),
+                    $this->name
+                ));
+            }
 
-        if ((isset($class_builder->getContexts()[$this->name]) || isset($class_builder->getInjections()[$this->name])) && $this->class !== null) {
-            throw new ContractsException(sprintf('%s\\%s -> %s context or injected is already defined.',
-                $class_builder->getNamespace(),
-                $class_builder->getClassName(),
-                $this->name
-            ));
-        }
+            if (isset($class_builder->getContexts()[$this->name]) || isset($class_builder->getInjections()[$this->name])) {
+                throw new ContractsException(sprintf('%s\\%s -> %s: context or injected is already defined.',
+                    $class_builder->getNamespace(),
+                    $class_builder->getClassName(),
+                    $this->name
+                ));
+            }
 
-        if ($this->name !== 'default') {
-            $class_builder->addContext($this->name, $this->class);
+            if ($this->name !== 'default') {
+                $class_builder->addContext($this->name, $this->class);
+            }
         }
     }
 
@@ -440,15 +442,17 @@ class Inject implements Variable
      */
     public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
     {
-        if (isset($class_builder->getContexts()[$this->name]) || isset($class_builder->getInjections()[$this->name])) {
-            throw new ContractsException(sprintf('%s\\%s -> %s context or injected is already defined.',
-                $class_builder->getNamespace(),
-                $class_builder->getClassName(),
-                $this->name
-            ));
-        }
+        if ($this->type !== null) {
+            if (isset($class_builder->getContexts()[$this->name]) || isset($class_builder->getInjections()[$this->name])) {
+                throw new ContractsException(sprintf('%s\\%s -> %s context or injected is already defined.',
+                    $class_builder->getNamespace(),
+                    $class_builder->getClassName(),
+                    $this->name
+                ));
+            }
 
-        $class_builder->addInjection($this->name, $this->type);
+            $class_builder->addInjection($this->name, $this->type);
+        }
     }
 
     /**
