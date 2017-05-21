@@ -166,12 +166,11 @@ final class MethodBuilder
     }
 
     /**
-     * @param string $name
-     * @param null|string $type
+     * @param Argument|\ReflectionParameter $argument
      */
-    public function addArgument(string $name, ?string $type = null): void
+    public function addArgument($argument): void
     {
-        $this->arguments[$name] = $type;
+        $this->arguments[] = $argument;
     }
 
     /**

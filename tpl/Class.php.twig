@@ -6,7 +6,7 @@ class {{ builder.className }} extends \Generated\{{ builder.namespace }}\{{ buil
 {
 {% for method in builder.methods %}
 {% if method.isAbstract %}
-    {{ method.access }}{% if method.isStatic %} static{% endif %} function {{ method.name }}({% for argument, type in method.arguments %}{% if type %}{{ type }} {% endif %}${{ argument }}{% if not loop.last %}, {% endif %}{% endfor %}){% if method.returnType %}: {{ method.returnType }}{% endif %}
+    {{ method.access }}{% if method.isStatic %} static{% endif %} function {{ method.name }}({{ method|arguments }}){% if method.returnType %}: {{ method.returnType }}{% endif %}
 
     {
         throw new \Exception('Method "{{ method.name }}" is not implemented yet.');

@@ -167,7 +167,7 @@ class Generator
                         $method_builder->setName($method->name);
 
                         foreach ($method->getParameters() as $parameter) {
-                            $method_builder->addArgument($parameter->name);
+                            $method_builder->addArgument($parameter);
                         }
 
                         $class_builder->addMethod($method_builder);
@@ -230,7 +230,7 @@ class Generator
                             $type = '\\' . $type;
                         }
 
-                        $method_builder->addArgument($parameter->name, $type);
+                        $method_builder->addArgument($parameter);
                         $method_builder->addTestVariable($parameter->name, false);
                     }
 

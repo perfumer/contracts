@@ -25,7 +25,7 @@ abstract class FooControllerContextTest extends TestCase
     /**
      * @dataProvider sumDataProvider
      */
-    final public function testSum($a, $staff, $expected)
+    final public function testSum(int $a, int $staff, $expected)
     {
         $_class_instance = new \Perfumer\Contracts\Example\Contract\Controller\FooControllerContext();
 

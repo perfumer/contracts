@@ -18,11 +18,11 @@ abstract class {{ builder.className }}Test extends TestCase
     /**
      * @dataProvider {{ method.name }}DataProvider
      */
-    final public function test{{ method.name[:1]|upper ~ method.name[1:] }}({% for argument, type in method.arguments %}${{ argument }}, {% endfor %}$expected)
+    final public function test{{ method.name[:1]|upper ~ method.name[1:] }}({{ method|arguments }}{% if method.arguments|length > 0 %}, {% endif %}$expected)
     {
         $_class_instance = new \{{ builder.namespace }}\{{ builder.className }}();
 
-        $this->assertTest{{ method.name[:1]|upper ~ method.name[1:] }}($expected, $_class_instance->{{ method.name }}({% for argument, type in method.arguments %}${{ argument }}{% if not loop.last %}, {% endif %}{% endfor %}));
+        $this->assertTest{{ method.name[:1]|upper ~ method.name[1:] }}($expected, $_class_instance->{{ method.name }}({% for argument in method.arguments %}${{ argument.name }}{% if not loop.last %}, {% endif %}{% endfor %}));
     }
 
 {% endfor %}

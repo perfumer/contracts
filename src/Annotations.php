@@ -5,6 +5,7 @@ namespace Perfumer\Contracts\Annotations;
 use Doctrine\Common\Annotations\Annotation\Target;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Perfumer\Contracts\Annotation;
+use Perfumer\Contracts\Argument;
 use Perfumer\Contracts\ClassBuilder;
 use Perfumer\Contracts\Collection;
 use Perfumer\Contracts\ContractsException;
@@ -327,9 +328,13 @@ class Custom extends Step
         $method->setIsAbstract(true);
         $method->setAccess('protected');
 
-        foreach ($this->arguments as $argument) {
-            $value = $argument instanceof Variable ? $argument->asHeader() : $argument;
-            $method->addArgument($value);
+        foreach ($this->arguments as $item) {
+            $name = $item instanceof Variable ? $item->asHeader() : $item;
+
+            $argument = new Argument();
+            $argument->setName($name);
+
+            $method->addArgument($argument);
         }
 
         $class_builder->addMethod($method);
