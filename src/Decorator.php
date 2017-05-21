@@ -6,7 +6,6 @@ interface Decorator
 {
     /**
      * @param array $annotations
-     * @return array
      */
-    public function decorate(array $annotations): array;
+    public function decorate(array &$annotations): void;
 }

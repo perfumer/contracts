@@ -239,7 +239,7 @@ class Generator
                     // Set validate=true
                     foreach ($method_annotations as $annotation) {
                         if ($annotation instanceof Decorator) {
-                            $method_annotations = $annotation->decorate($method_annotations);
+                            $annotation->decorate($method_annotations);
                         }
                     }
 

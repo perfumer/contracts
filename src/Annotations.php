@@ -42,9 +42,8 @@ class Alias implements Annotation, Decorator
 
     /**
      * @param array $annotations
-     * @return array
      */
-    public function decorate(array $annotations): array
+    public function decorate(array &$annotations): void
     {
         foreach ($annotations as $annotation) {
             if ($annotation instanceof Collection) {
@@ -55,8 +54,6 @@ class Alias implements Annotation, Decorator
                 $this->decorateStep($annotation);
             }
         }
-
-        return $annotations;
     }
 
     /**
@@ -386,17 +383,14 @@ class Error extends Call implements Decorator
 
     /**
      * @param array $annotations
-     * @return array
      */
-    public function decorate(array $annotations): array
+    public function decorate(array &$annotations): void
     {
-        foreach ($annotations as &$annotation) {
+        foreach ($annotations as $annotation) {
             if ($annotation instanceof Step && $annotation->return === $this->unless) {
                 $annotation->validate = true;
             }
         }
-
-        return $annotations;
     }
 }
 
