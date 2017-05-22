@@ -7,7 +7,6 @@ use Perfumer\Contracts\Annotations\Call;
 use Perfumer\Contracts\Annotations\Context;
 use Perfumer\Contracts\Annotations\Custom;
 use Perfumer\Contracts\Annotations\Error;
-use Perfumer\Contracts\Annotations\Extend;
 use Perfumer\Contracts\Annotations\Inject;
 use Perfumer\Contracts\Annotations\Output;
 use Perfumer\Contracts\Annotations\Property;
@@ -16,14 +15,14 @@ use Perfumer\Contracts\Annotations\ServiceParent;
 use Perfumer\Contracts\Annotations\ServiceProperty;
 use Perfumer\Contracts\Annotations\Test;
 use Perfumer\Contracts\Example\Collection;
+use Perfumer\Contracts\Example\ParentController;
 
 /**
- * @Extend(class="\Perfumer\Contracts\Example\ParentController")
  * @Inject(name="iterator", type="\Iterator")
  * @Inject(name="foo", type="\Perfumer\Contracts\Example\FooService")
  * @Inject(name="some_string", type="string")
  */
-interface FooController
+abstract class FooController extends ParentController
 {
     /**
      * @Call (            method="intType", arguments={"a"}, return="a_valid")
@@ -45,7 +44,7 @@ interface FooController
      * @param Output $param2
      * @return string
      */
-    public function barAction(Output $param2, ?array $param3, $param4 = '12\'3', int $param5 = 140): string;
+    abstract public function barAction(Output $param2, ?array $param3, $param4 = '12\'3', int $param5 = 140): string;
 
     /**
      * @Call           (                method="intType",          arguments={"param1"},                  return="param1_valid")
@@ -59,9 +58,9 @@ interface FooController
      * @param int $param2
      * @return \DateTime
      */
-    public function bazAction(int $param1, int $param2);
+    abstract public function bazAction(int $param1, int $param2);
 
-    public function skipped();
+    abstract public function skipped();
 }
 
 class FooControllerContext

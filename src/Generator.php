@@ -199,7 +199,12 @@ class Generator
                 $class_builder->setContract($reflection);
                 $class_builder->setNamespace($namespace);
                 $class_builder->setClassName($reflection->getShortName());
-                $class_builder->addInterface('\\' . $class);
+
+                if ($reflection->isInterface()) {
+                    $class_builder->addInterface('\\' . $class);
+                } else {
+                    $class_builder->setParentClass('\\' . $class);
+                }
 
                 foreach ($class_annotations as $annotation) {
                     if (!$annotation instanceof Annotation) {

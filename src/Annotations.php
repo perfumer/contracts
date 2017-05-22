@@ -401,24 +401,6 @@ class Error extends Call implements Decorator
 
 /**
  * @Annotation
- * @Target("CLASS")
- */
-class Extend implements Annotation
-{
-    public $class;
-
-    /**
-     * @param ClassBuilder $class_builder
-     * @param MethodBuilder|null $method_builder
-     */
-    public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
-    {
-        $class_builder->setParentClass($this->class);
-    }
-}
-
-/**
- * @Annotation
  * @Target({"CLASS", "METHOD", "ANNOTATION"})
  */
 class Inject implements Variable

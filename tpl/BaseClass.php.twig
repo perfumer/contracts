@@ -8,6 +8,10 @@ abstract class {{ builder.className }} extends {{ builder.parentClass }}{% if bu
 abstract class {{ builder.className }}{% if builder.interfaces|length > 0 %} implements {{ builder.interfaces|join(', ') }}{% endif %}
 {% endif %}
 {
+{% for trait in builder.traits %}
+    use {{ trait }};
+{% endfor %}
+
 {% for name, type in builder.publicProperties %}
     {% if type %}
         /**

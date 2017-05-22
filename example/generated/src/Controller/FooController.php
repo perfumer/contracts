@@ -2,7 +2,7 @@
 
 namespace Generated\Perfumer\Contracts\Example\Controller;
 
-abstract class FooController extends \Perfumer\Contracts\Example\ParentController implements \Perfumer\Contracts\Example\Contract\Controller\FooController
+abstract class FooController extends \Perfumer\Contracts\Example\Contract\Controller\FooController
 {
     protected $a;
 
