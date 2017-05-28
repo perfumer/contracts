@@ -107,23 +107,10 @@ final class ClassBuilder extends ClassGenerator
     {
         foreach ($this->contexts as $name => $class) {
             $property = new PropertyGenerator();
-            $property->setName('_context_' . $name);
             $property->setVisibility('private');
+            $property->setName('_context_' . $name);
 
             $this->addPropertyFromGenerator($property);
-
-            $getter = new MethodGenerator();
-            $getter->setName('get' . str_replace('_', '', ucwords($name, '_')) . 'Context');
-            $getter->setFinal(true);
-            $getter->setVisibility('private');
-            $getter->setReturnType($class);
-            $getter->setBody('
-                if ($this->_context_' . $name . ' === null) {
-                    $this->_context_' . $name . ' = new ' . $class . '();
-                }
-                
-                return $this->_context_' . $name . ';'
-            );
 
             $doc_block = DocBlockGenerator::fromArray([
                 'tags' => [
@@ -133,7 +120,20 @@ final class ClassBuilder extends ClassGenerator
                 ],
             ]);
 
+            $getter = new MethodGenerator();
             $getter->setDocBlock($doc_block);
+            $getter->setFinal(true);
+            $getter->setVisibility('private');
+            $getter->setName('get' . str_replace('_', '', ucwords($name, '_')) . 'Context');
+            $getter->setReturnType($class);
+
+            $getter->setBody('
+                if ($this->_context_' . $name . ' === null) {
+                    $this->_context_' . $name . ' = new ' . $class . '();
+                }
+                
+                return $this->_context_' . $name . ';'
+            );
 
             $this->addMethodFromGenerator($getter);
         }
@@ -143,8 +143,8 @@ final class ClassBuilder extends ClassGenerator
     {
         foreach ($this->injections as $name => $type) {
             $property = new PropertyGenerator();
-            $property->setName('_injection_' . $name);
             $property->setVisibility('private');
+            $property->setName('_injection_' . $name);
 
             $this->addPropertyFromGenerator($property);
 
@@ -152,24 +152,16 @@ final class ClassBuilder extends ClassGenerator
 
             if (!$constructor) {
                 $constructor = new MethodGenerator();
-                $constructor->setName('__construct');
                 $constructor->setVisibility('public');
+                $constructor->setName('__construct');
 
                 $this->addMethodFromGenerator($constructor);
             }
 
-            $constructor->setParameter(new ParameterGenerator($name, $type));
-
             $body = $constructor->getBody() . PHP_EOL . '$this->_injection_' . $name . ' = $' . $name . ';';
 
+            $constructor->setParameter(new ParameterGenerator($name, $type));
             $constructor->setBody($body);
-
-            $getter = new MethodGenerator();
-            $getter->setName('get' . str_replace('_', '', ucwords($name, '_')));
-            $getter->setFinal(true);
-            $getter->setVisibility('protected');
-            $getter->setReturnType($type);
-            $getter->setBody('return $this->_injection_' . $name . ';');
 
             $doc_block = DocBlockGenerator::fromArray([
                 'tags' => [
@@ -179,7 +171,13 @@ final class ClassBuilder extends ClassGenerator
                 ],
             ]);
 
+            $getter = new MethodGenerator();
             $getter->setDocBlock($doc_block);
+            $getter->setFinal(true);
+            $getter->setVisibility('protected');
+            $getter->setName('get' . str_replace('_', '', ucwords($name, '_')));
+            $getter->setReturnType($type);
+            $getter->setBody('return $this->_injection_' . $name . ';');
 
             $this->addMethodFromGenerator($getter);
         }

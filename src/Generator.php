@@ -133,8 +133,10 @@ class Generator
 
             $namespace = $reflection->getNamespaceName();
 
-            $class_builder->setNamespaceName($namespace);
+            $class_builder->setNamespaceName('Generated\\Tests\\' . $namespace);
+            $class_builder->setAbstract(true);
             $class_builder->setName($reflection->getShortName());
+            $class_builder->setExtendedClass('PHPUnit\\Framework\\TestCase');
 
             foreach ($reflection->getMethods() as $method) {
                 $method_annotations = $this->reader->getMethodAnnotations($method);
@@ -143,14 +145,56 @@ class Generator
                     if ($annotation instanceof Test) {
                         $tests = true;
 
-                        $method_builder = new MethodBuilder();
-                        $method_builder->setName($method->name);
+                        $data_provider = new MethodGenerator();
+                        $data_provider->setAbstract(true);
+                        $data_provider->setVisibility('public');
+                        $data_provider->setName($method->name . 'DataProvider');
+
+                        $class_builder->addMethodFromGenerator($data_provider);
+
+                        $test = new MethodGenerator();
+                        $test->setFinal(true);
+                        $test->setVisibility('public');
+                        $test->setName('test' . ucfirst($method->name));
 
                         foreach ($method->getParameters() as $parameter) {
-                            $method_builder->setParameter(ParameterGenerator::fromReflection($parameter));
+                            $argument = new ParameterGenerator();
+                            $argument->setName($parameter->getName());
+                            $argument->setPosition($parameter->getPosition());
+
+                            if ($parameter->getType() !== null) {
+                                $argument->setType($parameter->getType());
+                            }
+
+                            if ($parameter->isDefaultValueAvailable()) {
+                                $argument->setDefaultValue($parameter->getDefaultValue());
+                            }
+
+                            $test->setParameter($argument);
                         }
 
-                        $class_builder->addMethodFromGenerator($method_builder);
+                        $test->setParameter('expected');
+
+                        $arguments = array_map(function($value) {
+                            /** @var \ReflectionParameter $value */
+                            return '$' . $value->getName();
+                        }, $method->getParameters());
+
+                        $body = '$_class_instance = new ' . $class . '();' . PHP_EOL . PHP_EOL;
+                        $body .= '$this->assertTest' . ucfirst($method->name) . '($expected, $_class_instance->' . $method->name . '(' . implode(', ', $arguments) . '));';
+
+                        $test->setBody($body);
+
+                        $class_builder->addMethodFromGenerator($test);
+
+                        $assertion = new MethodGenerator();
+                        $assertion->setVisibility('protected');
+                        $assertion->setName('assertTest' . ucfirst($method->name));
+                        $assertion->setParameter('expected');
+                        $assertion->setParameter('result');
+                        $assertion->setBody('$this->assertEquals($expected, $result);');
+
+                        $class_builder->addMethodFromGenerator($assertion);
                     }
                 }
             }
@@ -275,12 +319,13 @@ class Generator
 //                $this->generateBaseClassTest($class_builder);
 //                $this->generateClassTest($class_builder);
 //
-//                foreach ($class_builder->getContexts() as $context) {
-//                    $this->generateContext($context);
-//                }
+                foreach ($class_builder->getContexts() as $context) {
+                    $this->generateContext($context);
+                }
             }
 
             shell_exec("vendor/bin/php-cs-fixer fix {$this->base_src_path} --rules=@Symfony");
+            shell_exec("vendor/bin/php-cs-fixer fix {$this->base_test_path} --rules=@Symfony");
         } catch (ContractsException $e) {
             exit($e->getMessage() . PHP_EOL);
         }
@@ -400,11 +445,11 @@ class Generator
     private function generateBaseContextTest(ClassBuilder $class_builder)
     {
         // If context is from another package
-        if (strpos($class_builder->getNamespaceName(), $this->context_prefix) !== 0) {
+        if (strpos($class_builder->getNamespaceName(), 'Generated\\Tests\\' . $this->context_prefix) !== 0) {
             return;
         }
 
-        $output_name = str_replace('\\', '/', trim(str_replace($this->context_prefix, '', $class_builder->getNamespaceName()), '\\'));
+        $output_name = str_replace('\\', '/', trim(str_replace('Generated\\Tests\\' . $this->context_prefix, '', $class_builder->getNamespaceName()), '\\'));
 
         if ($output_name) {
             $output_name .= '/';
@@ -412,11 +457,9 @@ class Generator
 
         $output_name = $this->root_dir . '/' . $this->base_test_path . '/' . $output_name . $class_builder->getName() . 'Test.php';
 
-        $content = $this->twig->render('BaseContextTest.php.twig', [
-            'builder' => $class_builder
-        ]);
+        $code = '<?php' . PHP_EOL . PHP_EOL . $class_builder->generate();
 
-        file_put_contents($output_name, $content);
+        file_put_contents($output_name, $code);
     }
 
     /**
