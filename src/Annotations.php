@@ -15,6 +15,8 @@ use Perfumer\Contracts\Service;
 use Perfumer\Contracts\Step;
 use Perfumer\Contracts\StepBuilder;
 use Perfumer\Contracts\Variable;
+use Zend\Code\Generator\ParameterGenerator;
+use Zend\Code\Generator\PropertyGenerator;
 
 /**
  * @Annotation
@@ -138,8 +140,8 @@ class Call extends Step
 
         if (!isset($contexts[$this->name]) && !isset($injections[$this->name])) {
             throw new ContractsException(sprintf('%s\\%s -> %s -> %s context or injected is not registered',
-                $class_builder->getNamespace(),
-                $class_builder->getClassName(),
+                $class_builder->getNamespaceName(),
+                $class_builder->getName(),
                 $method_builder->getName(),
                 $this->name
             ));
@@ -192,8 +194,8 @@ class Call extends Step
 
                 if (count($annotation_arguments) > 0) {
                     throw new ContractsException(sprintf('%s\\%s -> %s -> %s.%s has excessive arguments.',
-                        $class_builder->getNamespace(),
-                        $class_builder->getClassName(),
+                        $class_builder->getNamespaceName(),
+                        $class_builder->getName(),
                         $method_builder->getName(),
                         $this->name,
                         $this->method
@@ -208,8 +210,8 @@ class Call extends Step
             if ($method_found === false) {
                 throw new ContractsException(sprintf('Method "%s" is not found in %s\\%s -> %s -> %s.',
                     $this->method,
-                    $class_builder->getNamespace(),
-                    $class_builder->getClassName(),
+                    $class_builder->getNamespaceName(),
+                    $class_builder->getName(),
                     $method_builder->getName(),
                     $this->name
                 ));
@@ -263,16 +265,16 @@ class Context implements Annotation, Variable
         if ($this->class !== null) {
             if (!class_exists($this->class) && $this->name !== 'default') {
                 throw new ContractsException(sprintf('%s\\%s -> %s: context class not found.',
-                    $class_builder->getNamespace(),
-                    $class_builder->getClassName(),
+                    $class_builder->getNamespaceName(),
+                    $class_builder->getName(),
                     $this->name
                 ));
             }
 
             if (isset($class_builder->getContexts()[$this->name]) || isset($class_builder->getInjections()[$this->name])) {
                 throw new ContractsException(sprintf('%s\\%s -> %s: context or injected is already defined.',
-                    $class_builder->getNamespace(),
-                    $class_builder->getClassName(),
+                    $class_builder->getNamespaceName(),
+                    $class_builder->getName(),
                     $this->name
                 ));
             }
@@ -324,16 +326,16 @@ class Custom extends Step
 
         $method = new MethodBuilder();
         $method->setName($this->method);
-        $method->setIsAbstract(true);
-        $method->setAccess('protected');
+        $method->setAbstract(true);
+        $method->setVisibility('protected');
 
         foreach ($this->arguments as $item) {
             $name = $item instanceof Variable ? $item->asHeader() : $item;
 
-            $argument = new Argument();
+            $argument = new ParameterGenerator();
             $argument->setName($name);
 
-            $method->addArgument($argument);
+            $method->setParameter($argument);
         }
 
         $class_builder->addMethod($method);
@@ -430,8 +432,8 @@ class Inject implements Variable
         if ($this->type !== null) {
             if (isset($class_builder->getContexts()[$this->name]) || isset($class_builder->getInjections()[$this->name])) {
                 throw new ContractsException(sprintf('%s\\%s -> %s context or injected is already defined.',
-                    $class_builder->getNamespace(),
-                    $class_builder->getClassName(),
+                    $class_builder->getNamespaceName(),
+                    $class_builder->getName(),
                     $this->name
                 ));
             }
@@ -558,7 +560,7 @@ class Property implements Variable
      */
     public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
     {
-        $class_builder->addProtectedProperty($this->name);
+        $class_builder->addProperty($this->name, null, PropertyGenerator::FLAG_PROTECTED);
     }
 }
 
@@ -604,7 +606,7 @@ class ServiceProperty extends Service
      */
     public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
     {
-        $class_builder->addProtectedProperty($this->name);
+        $class_builder->addProperty($this->name, null, PropertyGenerator::FLAG_PROTECTED);
 
         parent::apply($class_builder, $method_builder);
     }

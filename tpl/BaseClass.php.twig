@@ -1,11 +1,11 @@
 <?php
 
-namespace Generated\{{ builder.namespace }};
+namespace Generated\{{ builder.namespaceName }};
 
-{% if builder.parentClass %}
-abstract class {{ builder.className }} extends {{ builder.parentClass }}{% if builder.interfaces|length > 0 %} implements {{ builder.interfaces|join(', ') }}{% endif %}
+{% if builder.extendedClass %}
+abstract class {{ builder.name }} extends {{ builder.parentClass }}{% if builder.interfaces|length > 0 %} implements {{ builder.interfaces|join(', ') }}{% endif %}
 {% else %}
-abstract class {{ builder.className }}{% if builder.interfaces|length > 0 %} implements {{ builder.interfaces|join(', ') }}{% endif %}
+abstract class {{ builder.name }}{% if builder.interfaces|length > 0 %} implements {{ builder.interfaces|join(', ') }}{% endif %}
 {% endif %}
 {
 {% for trait in builder.traits %}

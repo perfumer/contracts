@@ -132,8 +132,8 @@ abstract class Step implements Annotation
 
                     if (isset($method_builder->getInitialVariables()[$var])) {
                         throw new ContractsException(sprintf('%s\\%s -> %s -> %s.%s returns "%s" which is already in use.',
-                            $class_builder->getNamespace(),
-                            $class_builder->getClassName(),
+                            $class_builder->getNamespaceName(),
+                            $class_builder->getName(),
                             $method_builder->getName(),
                             $this->name,
                             $this->method,

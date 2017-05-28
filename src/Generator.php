@@ -5,6 +5,9 @@ namespace Perfumer\Contracts;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Perfumer\Contracts\Annotations\Test;
+use Zend\Code\Generator\ClassGenerator;
+use Zend\Code\Generator\MethodGenerator;
+use Zend\Code\Generator\ParameterGenerator;
 
 class Generator
 {
@@ -59,30 +62,13 @@ class Generator
     private $reader;
 
     /**
-     * @var \Twig_Environment
-     */
-    private $twig;
-
-    /**
-     * @var \Twig_Loader_Filesystem
-     */
-    private $loader;
-
-    /**
      * @param string $root_dir
      * @param array $options
      */
     public function __construct($root_dir, $options = [])
     {
         $this->reader = new AnnotationReader();
-        $this->loader = new \Twig_Loader_Filesystem();
-        $this->twig = new \Twig_Environment($this->loader, [
-            'autoescape' => false
-        ]);
 
-        $this->twig->addExtension(new TwigExtension());
-
-        $this->addTemplateDirectory(__DIR__ . '/../tpl');
         $this->addAnnotations(__DIR__ . '/Annotations.php');
 
         $this->root_dir = $root_dir;
@@ -117,14 +103,6 @@ class Generator
     }
 
     /**
-     * @param string $directory
-     */
-    public function addTemplateDirectory(string $directory)
-    {
-        $this->loader->addPath($directory);
-    }
-
-    /**
      * @param string $filename
      */
     public function addAnnotations(string $filename)
@@ -153,8 +131,8 @@ class Generator
 
             $namespace = $reflection->getNamespaceName();
 
-            $class_builder->setNamespace($namespace);
-            $class_builder->setClassName($reflection->getShortName());
+            $class_builder->setNamespaceName($namespace);
+            $class_builder->setName($reflection->getShortName());
 
             foreach ($reflection->getMethods() as $method) {
                 $method_annotations = $this->reader->getMethodAnnotations($method);
@@ -167,7 +145,7 @@ class Generator
                         $method_builder->setName($method->name);
 
                         foreach ($method->getParameters() as $parameter) {
-                            $method_builder->addArgument($parameter);
+                            $method_builder->setParameter(ParameterGenerator::fromReflection($parameter));
                         }
 
                         $class_builder->addMethod($method_builder);
@@ -197,13 +175,13 @@ class Generator
 
                 $class_builder = new ClassBuilder();
                 $class_builder->setContract($reflection);
-                $class_builder->setNamespace($namespace);
-                $class_builder->setClassName($reflection->getShortName());
+                $class_builder->setNamespaceName($namespace);
+                $class_builder->setName($reflection->getShortName());
 
                 if ($reflection->isInterface()) {
-                    $class_builder->addInterface('\\' . $class);
+                    $class_builder->setImplementedInterfaces(array_merge($class_builder->getImplementedInterfaces(), ['\\' . $class]));
                 } else {
-                    $class_builder->setParentClass('\\' . $class);
+                    $class_builder->setExtendedClass('\\' . $class);
                 }
 
                 foreach ($class_annotations as $annotation) {
@@ -216,9 +194,9 @@ class Generator
 
                 foreach ($reflection->getMethods() as $method) {
                     $method_builder = new MethodBuilder();
-                    $method_builder->setIsFinal(true);
+                    $method_builder->setFinal(true);
                     $method_builder->setName($method->name);
-                    $method_builder->setAccess('public');
+                    $method_builder->setVisibility('public');
 
                     $type = (string) $method->getReturnType();
 
@@ -229,13 +207,7 @@ class Generator
                     $method_builder->setReturnType($type);
 
                     foreach ($method->getParameters() as $parameter) {
-                        $type = (string) $parameter->getType();
-
-                        if ($type && !$parameter->getType()->isBuiltin()) {
-                            $type = '\\' . $type;
-                        }
-
-                        $method_builder->addArgument($parameter);
+                        $method_builder->setParameter(ParameterGenerator::fromReflection($parameter));
                         $method_builder->addTestVariable($parameter->name, false);
                     }
 
@@ -283,15 +255,15 @@ class Generator
             foreach ($bundle->getClassBuilders() as $class_builder) {
                 $this->generateBaseClass($class_builder);
                 $this->generateClass($class_builder);
-                $this->generateBaseClassTest($class_builder);
-                $this->generateClassTest($class_builder);
-
-                foreach ($class_builder->getContexts() as $context) {
-                    $this->generateContext($context);
-                }
+//                $this->generateBaseClassTest($class_builder);
+//                $this->generateClassTest($class_builder);
+//
+//                foreach ($class_builder->getContexts() as $context) {
+//                    $this->generateContext($context);
+//                }
             }
 
-            shell_exec("vendor/bin/php-cs-fixer fix {$this->base_src_path} --rules=@Symfony");
+            //shell_exec("vendor/bin/php-cs-fixer fix {$this->base_src_path} --rules=@Symfony");
         } catch (ContractsException $e) {
             exit($e->getMessage() . PHP_EOL);
         }
@@ -302,19 +274,15 @@ class Generator
      */
     private function generateBaseClass(ClassBuilder $class_builder)
     {
-        $output_name = str_replace('\\', '/', trim(str_replace($this->class_prefix, '', $class_builder->getNamespace()), '\\'));
+        $output_name = str_replace('\\', '/', trim(str_replace($this->class_prefix, '', $class_builder->getNamespaceName()), '\\'));
 
         if ($output_name) {
             $output_name .= '/';
         }
 
-        $output_name = $this->root_dir . '/' . $this->base_src_path . '/' . $output_name . $class_builder->getClassName() . '.php';
+        $output_name = $this->root_dir . '/' . $this->base_src_path . '/' . $output_name . $class_builder->getName() . '.php';
 
-        $content = $this->twig->render('BaseClass.php.twig', [
-            'builder' => $class_builder
-        ]);
-
-        file_put_contents($output_name, $content);
+        file_put_contents($output_name, $class_builder->generate());
     }
 
     /**
@@ -322,23 +290,37 @@ class Generator
      */
     private function generateClass(ClassBuilder $class_builder)
     {
-        $output_name = str_replace('\\', '/', trim(str_replace($this->class_prefix, '', $class_builder->getNamespace()), '\\'));
+        $output_name = str_replace('\\', '/', trim(str_replace($this->class_prefix, '', $class_builder->getNamespaceName()), '\\'));
 
         if ($output_name) {
             $output_name .= '/';
         }
 
-        $output_name = $this->root_dir . '/' . $this->src_path . '/' . $output_name . $class_builder->getClassName() . '.php';
+        $output_name = $this->root_dir . '/' . $this->src_path . '/' . $output_name . $class_builder->getName() . '.php';
 
         if (is_file($output_name)) {
             return;
         }
 
-        $content = $this->twig->render('Class.php.twig', [
-            'builder' => $class_builder
-        ]);
+        $class = new ClassGenerator();
+        $class->setNamespaceName($class_builder->getNamespaceName());
+        $class->setName($class_builder->getName());
+        $class->setExtendedClass('\\Generated\\' . $class_builder->getNamespaceName() . '\\' . $class_builder->getName());
 
-        file_put_contents($output_name, $content);
+        foreach ($class_builder->getMethods() as $method_builder) {
+            if ($method_builder->isAbstract()) {
+                $method = new MethodGenerator();
+                $method->setName($method_builder->getName());
+                $method->setParameters($method_builder->getParameters());
+                $method->setVisibility($method_builder->getVisibility());
+                $method->setReturnType($method_builder->getReturnType());
+                $method->setBody('throw new \Exception(\'Method "' . $method->getName() . '" is not implemented yet.\');');
+
+                $class->addMethod($method);
+            }
+        }
+
+        file_put_contents($output_name, $class->generate());
     }
 
     /**
@@ -346,13 +328,13 @@ class Generator
      */
     private function generateBaseClassTest(ClassBuilder $class_builder)
     {
-        $output_name = str_replace('\\', '/', trim(str_replace($this->class_prefix, '', $class_builder->getNamespace()), '\\'));
+        $output_name = str_replace('\\', '/', trim(str_replace($this->class_prefix, '', $class_builder->getNamespaceName()), '\\'));
 
         if ($output_name) {
             $output_name .= '/';
         }
 
-        $output_name = $this->root_dir . '/' . $this->base_test_path . '/' . $output_name . $class_builder->getClassName() . 'Test.php';
+        $output_name = $this->root_dir . '/' . $this->base_test_path . '/' . $output_name . $class_builder->getName() . 'Test.php';
 
         $content = $this->twig->render('BaseClassTest.php.twig', [
             'builder' => $class_builder
@@ -366,13 +348,13 @@ class Generator
      */
     private function generateClassTest(ClassBuilder $class_builder)
     {
-        $output_name = str_replace('\\', '/', trim(str_replace($this->class_prefix, '', $class_builder->getNamespace()), '\\'));
+        $output_name = str_replace('\\', '/', trim(str_replace($this->class_prefix, '', $class_builder->getNamespaceName()), '\\'));
 
         if ($output_name) {
             $output_name .= '/';
         }
 
-        $output_name = $this->root_dir . '/' . $this->test_path . '/' . $output_name . $class_builder->getClassName() . 'Test.php';
+        $output_name = $this->root_dir . '/' . $this->test_path . '/' . $output_name . $class_builder->getName() . 'Test.php';
 
         if (is_file($output_name)) {
             return;
@@ -391,17 +373,17 @@ class Generator
     private function generateBaseContextTest(ClassBuilder $class_builder)
     {
         // If context is from another package
-        if (strpos($class_builder->getNamespace(), $this->context_prefix) !== 0) {
+        if (strpos($class_builder->getNamespaceName(), $this->context_prefix) !== 0) {
             return;
         }
 
-        $output_name = str_replace('\\', '/', trim(str_replace($this->context_prefix, '', $class_builder->getNamespace()), '\\'));
+        $output_name = str_replace('\\', '/', trim(str_replace($this->context_prefix, '', $class_builder->getNamespaceName()), '\\'));
 
         if ($output_name) {
             $output_name .= '/';
         }
 
-        $output_name = $this->root_dir . '/' . $this->base_test_path . '/' . $output_name . $class_builder->getClassName() . 'Test.php';
+        $output_name = $this->root_dir . '/' . $this->base_test_path . '/' . $output_name . $class_builder->getName() . 'Test.php';
 
         $content = $this->twig->render('BaseContextTest.php.twig', [
             'builder' => $class_builder
@@ -416,17 +398,17 @@ class Generator
     private function generateContextTest(ClassBuilder $class_builder)
     {
         // If context is from another package
-        if (strpos($class_builder->getNamespace(), $this->context_prefix) !== 0) {
+        if (strpos($class_builder->getNamespaceName(), $this->context_prefix) !== 0) {
             return;
         }
 
-        $output_name = str_replace('\\', '/', trim(str_replace($this->context_prefix, '', $class_builder->getNamespace()), '\\'));
+        $output_name = str_replace('\\', '/', trim(str_replace($this->context_prefix, '', $class_builder->getNamespaceName()), '\\'));
 
         if ($output_name) {
             $output_name .= '/';
         }
 
-        $output_name = $this->root_dir . '/' . $this->test_path . '/' . $output_name . $class_builder->getClassName() . 'Test.php';
+        $output_name = $this->root_dir . '/' . $this->test_path . '/' . $output_name . $class_builder->getName() . 'Test.php';
 
         if (is_file($output_name)) {
             return;

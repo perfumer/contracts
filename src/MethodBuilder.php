@@ -2,43 +2,10 @@
 
 namespace Perfumer\Contracts;
 
-final class MethodBuilder
+use Zend\Code\Generator\MethodGenerator;
+
+final class MethodBuilder extends MethodGenerator
 {
-    /**
-     * @var bool
-     */
-    private $is_final = false;
-
-    /**
-     * @var bool
-     */
-    private $is_abstract = false;
-
-    /**
-     * @var bool
-     */
-    private $is_static = false;
-
-    /**
-     * @var null|string
-     */
-    private $access;
-
-    /**
-     * @var null|string
-     */
-    private $name;
-
-    /**
-     * @var array
-     */
-    private $arguments = [];
-
-    /**
-     * @var null|string
-     */
-    private $return_type;
-
     /**
      * @var array
      */
@@ -68,126 +35,6 @@ final class MethodBuilder
      * @var bool
      */
     private $validation = false;
-
-    /**
-     * @return bool
-     */
-    public function isFinal(): bool
-    {
-        return $this->is_final;
-    }
-
-    /**
-     * @param bool $is_final
-     */
-    public function setIsFinal(bool $is_final): void
-    {
-        $this->is_final = $is_final;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isAbstract(): bool
-    {
-        return $this->is_abstract;
-    }
-
-    /**
-     * @param bool $is_abstract
-     */
-    public function setIsAbstract(bool $is_abstract): void
-    {
-        $this->is_abstract = $is_abstract;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isStatic(): bool
-    {
-        return $this->is_static;
-    }
-
-    /**
-     * @param bool $is_static
-     */
-    public function setIsStatic(bool $is_static): void
-    {
-        $this->is_static = $is_static;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getAccess(): ?string
-    {
-        return $this->access;
-    }
-
-    /**
-     * @param null|string $access
-     */
-    public function setAccess($access): void
-    {
-        $this->access = $access;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param null|string $name
-     */
-    public function setName($name): void
-    {
-        $this->name = $name;
-    }
-
-    /**
-     * @return array
-     */
-    public function getArguments(): array
-    {
-        return $this->arguments;
-    }
-
-    /**
-     * @param array $arguments
-     */
-    public function setArguments(array $arguments): void
-    {
-        $this->arguments = $arguments;
-    }
-
-    /**
-     * @param Argument|\ReflectionParameter $argument
-     */
-    public function addArgument($argument): void
-    {
-        $this->arguments[] = $argument;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getReturnType(): ?string
-    {
-        return $this->return_type;
-    }
-
-    /**
-     * @param null|string $return_type
-     */
-    public function setReturnType($return_type): void
-    {
-        $this->return_type = $return_type;
-    }
 
     /**
      * @return array
