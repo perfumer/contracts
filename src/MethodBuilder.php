@@ -175,4 +175,73 @@ final class MethodBuilder extends MethodGenerator
     {
         $this->validation = $validation;
     }
+
+    public function generate()
+    {
+        $this->generateBody();
+
+        return parent::generate();
+    }
+
+    private function generateBody()
+    {
+        $body = '';
+
+        if ($this->hasValidation()) {
+            $body .= '$_valid = true;' . PHP_EOL;
+        }
+
+        foreach ($this->initial_variables as $name => $value) {
+            $body .= '$' . $name . ' = ' . $value . ';' . PHP_EOL;
+        }
+
+        $body .= PHP_EOL;
+
+        foreach ($this->prepended_code as $code) {
+            $body .= $code . PHP_EOL . PHP_EOL;
+        }
+
+        /** @var StepBuilder $step */
+        foreach ($this->steps as $step) {
+            foreach ($step->getBeforeCode() as $code) {
+                $body .= $code . PHP_EOL . PHP_EOL;
+            }
+
+            if ($this->hasValidation() && $step->getExtraCondition()) {
+                $body .= 'if ($_valid === ' . ($step->isValidationCondition() ? 'true' : 'false') . ' && ' . $step->getExtraCondition() . ') {' . PHP_EOL;
+            } elseif ($this->hasValidation() && !$step->getExtraCondition()) {
+                $body .= 'if ($_valid === ' . ($step->isValidationCondition() ? 'true' : 'false') . ') {' . PHP_EOL;
+            } elseif (!$this->hasValidation() && $step->getExtraCondition()) {
+                $body .= 'if (' . $step->getExtraCondition() . ') {' . PHP_EOL;
+            }
+
+            foreach ($step->getPrependedCode() as $code) {
+                $body .= $code . PHP_EOL . PHP_EOL;
+            }
+
+            if ($step->getReturnExpression()) {
+                $body .= $step->getReturnExpression() . ' = ';
+            }
+
+            $body .= $step->getCallExpression() . $step->getMethod() . '(' . implode(', ', $step->getArguments()) . ');' . PHP_EOL . PHP_EOL;
+
+            foreach ($step->getAppendedCode() as $code) {
+                $body .= $code . PHP_EOL . PHP_EOL;
+            }
+
+            if ($this->hasValidation() || $step->getExtraCondition()) {
+                $body .= '}' . PHP_EOL . PHP_EOL;
+            }
+
+            foreach ($step->getAfterCode() as $code) {
+                $body .= $code . PHP_EOL . PHP_EOL;
+            }
+        }
+
+        foreach ($this->appended_code as $code) {
+            $body .= $code . PHP_EOL . PHP_EOL;
+        }
+
+        $this->setBody($body);
+    }
 }

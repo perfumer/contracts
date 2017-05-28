@@ -338,7 +338,7 @@ class Custom extends Step
             $method->setParameter($argument);
         }
 
-        $class_builder->addMethod($method);
+        $class_builder->addMethodFromGenerator($method);
     }
 
     /**
@@ -560,7 +560,9 @@ class Property implements Variable
      */
     public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
     {
-        $class_builder->addProperty($this->name, null, PropertyGenerator::FLAG_PROTECTED);
+        if (!$class_builder->hasProperty($this->name)) {
+            $class_builder->addProperty($this->name, null, PropertyGenerator::FLAG_PROTECTED);
+        }
     }
 }
 
@@ -606,7 +608,9 @@ class ServiceProperty extends Service
      */
     public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
     {
-        $class_builder->addProperty($this->name, null, PropertyGenerator::FLAG_PROTECTED);
+        if (!$class_builder->hasProperty($this->name)) {
+            $class_builder->addProperty($this->name, null, PropertyGenerator::FLAG_PROTECTED);
+        }
 
         parent::apply($class_builder, $method_builder);
     }

@@ -3,6 +3,11 @@
 namespace Perfumer\Contracts;
 
 use Zend\Code\Generator\ClassGenerator;
+use Zend\Code\Generator\DocBlock\Tag\ReturnTag;
+use Zend\Code\Generator\DocBlockGenerator;
+use Zend\Code\Generator\MethodGenerator;
+use Zend\Code\Generator\ParameterGenerator;
+use Zend\Code\Generator\PropertyGenerator;
 
 final class ClassBuilder extends ClassGenerator
 {
@@ -85,5 +90,98 @@ final class ClassBuilder extends ClassGenerator
     public function addInjection(string $name, string $type): void
     {
         $this->injections[$name] = $type;
+    }
+
+    /**
+     * @return string
+     */
+    public function generate()
+    {
+        $this->generateContexts();
+        $this->generateInjections();
+
+        return parent::generate();
+    }
+
+    private function generateContexts()
+    {
+        foreach ($this->contexts as $name => $class) {
+            $property = new PropertyGenerator();
+            $property->setName('_context_' . $name);
+            $property->setVisibility('private');
+
+            $this->addPropertyFromGenerator($property);
+
+            $getter = new MethodGenerator();
+            $getter->setName('get' . str_replace('_', '', ucwords($name, '_')) . 'Context');
+            $getter->setFinal(true);
+            $getter->setVisibility('private');
+            $getter->setReturnType($class);
+            $getter->setBody('
+                if ($this->_context_' . $name . ' === null) {
+                    $this->_context_' . $name . ' = new ' . $class . '();
+                }
+                
+                return $this->_context_' . $name . ';'
+            );
+
+            $doc_block = DocBlockGenerator::fromArray([
+                'tags' => [
+                    new ReturnTag([
+                        'datatype'  => $class,
+                    ]),
+                ],
+            ]);
+
+            $getter->setDocBlock($doc_block);
+
+            $this->addMethodFromGenerator($getter);
+        }
+    }
+
+    private function generateInjections()
+    {
+        foreach ($this->injections as $name => $type) {
+            $property = new PropertyGenerator();
+            $property->setName('_injection_' . $name);
+            $property->setVisibility('private');
+
+            $this->addPropertyFromGenerator($property);
+
+            $constructor = $this->getMethod('__construct');
+
+            if (!$constructor) {
+                $constructor = new MethodGenerator();
+                $constructor->setName('__construct');
+                $constructor->setVisibility('public');
+
+                $this->addMethodFromGenerator($constructor);
+            }
+
+            $constructor->setParameter(new ParameterGenerator($name, $type));
+
+            $body = $constructor->getBody() . PHP_EOL . '$this->_injection_' . $name . ' = $' . $name . ';';
+
+            $constructor->setBody($body);
+
+            $getter = new MethodGenerator();
+            $getter->setName('get' . str_replace('_', '', ucwords($name, '_')));
+            $getter->setFinal(true);
+            $getter->setVisibility('protected');
+            $getter->setReturnType($type);
+            $getter->setBody('return $this->_injection_' . $name . ';');
+
+            $doc_block = DocBlockGenerator::fromArray([
+                'tags' => [
+                    new ReturnTag([
+                        'datatype'  => $type,
+                    ]),
+                ],
+            ]);
+
+            $getter->setDocBlock($doc_block);
+
+            $this->addMethodFromGenerator($getter);
+        }
     }
 }

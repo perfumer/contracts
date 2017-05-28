@@ -44,7 +44,7 @@ abstract class FooController extends ParentController
      * @param Output $param2
      * @return string
      */
-    abstract public function barAction(Output $param2, ?array $param3, $param4 = '12\'3', int $param5 = 140): string;
+    abstract public function barAction(Output $param2, array $param3, $param4 = '12\'3', int $param5 = 140): string;
 
     /**
      * @Call           (                method="intType",          arguments={"param1"},                  return="param1_valid")

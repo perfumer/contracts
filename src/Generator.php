@@ -8,6 +8,8 @@ use Perfumer\Contracts\Annotations\Test;
 use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
+use Zend\Code\Reflection\MethodReflection;
+use Zend\Code\Reflection\ParameterReflection;
 
 class Generator
 {
@@ -148,7 +150,7 @@ class Generator
                             $method_builder->setParameter(ParameterGenerator::fromReflection($parameter));
                         }
 
-                        $class_builder->addMethod($method_builder);
+                        $class_builder->addMethodFromGenerator($method_builder);
                     }
                 }
             }
@@ -174,6 +176,7 @@ class Generator
                 $namespace = str_replace($this->contract_prefix, $this->class_prefix, $reflection->getNamespaceName());
 
                 $class_builder = new ClassBuilder();
+                $class_builder->setAbstract(true);
                 $class_builder->setContract($reflection);
                 $class_builder->setNamespaceName($namespace);
                 $class_builder->setName($reflection->getShortName());
@@ -198,16 +201,30 @@ class Generator
                     $method_builder->setName($method->name);
                     $method_builder->setVisibility('public');
 
-                    $type = (string) $method->getReturnType();
+                    if ($method->getReturnType() !== null) {
+                        $type = (string) $method->getReturnType();
 
-                    if ($type && !$method->getReturnType()->isBuiltin()) {
-                        $type = '\\' . $type;
+                        if ($type && !$method->getReturnType()->isBuiltin()) {
+                            $type = '\\' . $type;
+                        }
+
+                        $method_builder->setReturnType($type);
                     }
 
-                    $method_builder->setReturnType($type);
-
                     foreach ($method->getParameters() as $parameter) {
-                        $method_builder->setParameter(ParameterGenerator::fromReflection($parameter));
+                        $argument = new ParameterGenerator();
+                        $argument->setName($parameter->getName());
+                        $argument->setPosition($parameter->getPosition());
+
+                        if ($parameter->getType() !== null) {
+                            $argument->setType($parameter->getType());
+                        }
+
+                        if ($parameter->isDefaultValueAvailable()) {
+                            $argument->setDefaultValue($parameter->getDefaultValue());
+                        }
+
+                        $method_builder->setParameter($argument);
                         $method_builder->addTestVariable($parameter->name, false);
                     }
 
@@ -245,7 +262,7 @@ class Generator
                     }
 
                     if (count($method_builder->getSteps()) > 0) {
-                        $class_builder->addMethod($method_builder);
+                        $class_builder->addMethodFromGenerator($method_builder);
                     }
                 }
 
@@ -263,7 +280,7 @@ class Generator
 //                }
             }
 
-            //shell_exec("vendor/bin/php-cs-fixer fix {$this->base_src_path} --rules=@Symfony");
+            shell_exec("vendor/bin/php-cs-fixer fix {$this->base_src_path} --rules=@Symfony");
         } catch (ContractsException $e) {
             exit($e->getMessage() . PHP_EOL);
         }
@@ -282,7 +299,15 @@ class Generator
 
         $output_name = $this->root_dir . '/' . $this->base_src_path . '/' . $output_name . $class_builder->getName() . '.php';
 
-        file_put_contents($output_name, $class_builder->generate());
+        $namespace = $class_builder->getNamespaceName();
+
+        $class_builder->setNamespaceName('Generated\\' . $namespace);
+
+        $code = '<?php' . PHP_EOL . PHP_EOL . $class_builder->generate();
+
+        file_put_contents($output_name, $code);
+
+        $class_builder->setNamespaceName($namespace);
     }
 
     /**
@@ -316,11 +341,13 @@ class Generator
                 $method->setReturnType($method_builder->getReturnType());
                 $method->setBody('throw new \Exception(\'Method "' . $method->getName() . '" is not implemented yet.\');');
 
-                $class->addMethod($method);
+                $class->addMethodFromGenerator($method);
             }
         }
 
-        file_put_contents($output_name, $class->generate());
+        $code = '<?php' . PHP_EOL . PHP_EOL . $class->generate();
+
+        file_put_contents($output_name, $code);
     }
 
     /**
