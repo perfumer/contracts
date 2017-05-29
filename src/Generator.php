@@ -138,6 +138,10 @@ class Generator
             $class_builder->setName($reflection->getShortName());
             $class_builder->setExtendedClass('PHPUnit\\Framework\\TestCase');
 
+            $data_providers = [];
+            $test_methods = [];
+            $assertions = [];
+
             foreach ($reflection->getMethods() as $method) {
                 $method_annotations = $this->reader->getMethodAnnotations($method);
 
@@ -150,7 +154,7 @@ class Generator
                         $data_provider->setVisibility('public');
                         $data_provider->setName($method->name . 'DataProvider');
 
-                        $class_builder->addMethodFromGenerator($data_provider);
+                        $data_providers[] = $data_provider;
 
                         $test = new MethodGenerator();
                         $test->setFinal(true);
@@ -185,7 +189,7 @@ class Generator
 
                         $test->setBody($body);
 
-                        $class_builder->addMethodFromGenerator($test);
+                        $test_methods[] = $test;
 
                         $assertion = new MethodGenerator();
                         $assertion->setVisibility('protected');
@@ -194,9 +198,21 @@ class Generator
                         $assertion->setParameter('result');
                         $assertion->setBody('$this->assertEquals($expected, $result);');
 
-                        $class_builder->addMethodFromGenerator($assertion);
+                        $assertions[] = $assertion;
                     }
                 }
+            }
+
+            foreach ($data_providers as $data_provider) {
+                $class_builder->addMethodFromGenerator($data_provider);
+            }
+
+            foreach ($test_methods as $test_method) {
+                $class_builder->addMethodFromGenerator($test_method);
+            }
+
+            foreach ($assertions as $assertion) {
+                $class_builder->addMethodFromGenerator($assertion);
             }
 
             if ($tests) {

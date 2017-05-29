@@ -6,19 +6,16 @@ abstract class FooControllerContext extends \PHPUnit\Framework\TestCase
 {
     abstract public function intTypeDataProvider();
 
+    abstract public function sumDataProvider();
+
+    abstract public function fooErrorsDataProvider();
+
     final public function testIntType($value, $expected)
     {
         $_class_instance = new \Perfumer\Contracts\Example\Contract\Controller\FooControllerContext();
 
         $this->assertTestIntType($expected, $_class_instance->intType($value));
     }
-
-    protected function assertTestIntType($expected, $result)
-    {
-        $this->assertEquals($expected, $result);
-    }
-
-    abstract public function sumDataProvider();
 
     final public function testSum(int $a, int $staff, $expected)
     {
@@ -27,18 +24,21 @@ abstract class FooControllerContext extends \PHPUnit\Framework\TestCase
         $this->assertTestSum($expected, $_class_instance->sum($a, $staff));
     }
 
-    protected function assertTestSum($expected, $result)
-    {
-        $this->assertEquals($expected, $result);
-    }
-
-    abstract public function fooErrorsDataProvider();
-
     final public function testFooErrors($expected)
     {
         $_class_instance = new \Perfumer\Contracts\Example\Contract\Controller\FooControllerContext();
 
         $this->assertTestFooErrors($expected, $_class_instance->fooErrors());
+    }
+
+    protected function assertTestIntType($expected, $result)
+    {
+        $this->assertEquals($expected, $result);
+    }
+
+    protected function assertTestSum($expected, $result)
+    {
+        $this->assertEquals($expected, $result);
     }
 
     protected function assertTestFooErrors($expected, $result)
