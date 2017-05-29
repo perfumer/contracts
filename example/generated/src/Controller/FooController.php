@@ -12,12 +12,24 @@ abstract class FooController extends \Perfumer\Contracts\Example\Contract\Contro
 
     protected $foobar = null;
 
+    /**
+     * @var \Perfumer\Contracts\Example\Contract\Controller\FooControllerContext
+     */
     private $_context_default = null;
 
+    /**
+     * @var \Iterator
+     */
     private $_injection_iterator = null;
 
+    /**
+     * @var \Perfumer\Contracts\Example\FooService
+     */
     private $_injection_foo = null;
 
+    /**
+     * @var string
+     */
     private $_injection_some_string = null;
 
     abstract protected function sumDoubled($a);

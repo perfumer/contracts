@@ -6,6 +6,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Perfumer\Contracts\Annotations\Test;
 use Zend\Code\Generator\ClassGenerator;
+use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
 use Zend\Code\Reflection\MethodReflection;
@@ -156,7 +157,17 @@ class Generator
 
                         $data_providers[] = $data_provider;
 
+                        $doc_block = DocBlockGenerator::fromArray([
+                            'tags' => [
+                                [
+                                    'name'        => 'dataProvider',
+                                    'description' => $method->name . 'DataProvider',
+                                ]
+                            ],
+                        ]);
+
                         $test = new MethodGenerator();
+                        $test->setDocBlock($doc_block);
                         $test->setFinal(true);
                         $test->setVisibility('public');
                         $test->setName('test' . ucfirst($method->name));

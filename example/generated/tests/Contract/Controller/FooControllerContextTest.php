@@ -10,6 +10,9 @@ abstract class FooControllerContext extends \PHPUnit\Framework\TestCase
 
     abstract public function fooErrorsDataProvider();
 
+    /**
+     * @dataProvider intTypeDataProvider
+     */
     final public function testIntType($value, $expected)
     {
         $_class_instance = new \Perfumer\Contracts\Example\Contract\Controller\FooControllerContext();
@@ -17,6 +20,9 @@ abstract class FooControllerContext extends \PHPUnit\Framework\TestCase
         $this->assertTestIntType($expected, $_class_instance->intType($value));
     }
 
+    /**
+     * @dataProvider sumDataProvider
+     */
     final public function testSum(int $a, int $staff, $expected)
     {
         $_class_instance = new \Perfumer\Contracts\Example\Contract\Controller\FooControllerContext();
@@ -24,6 +30,9 @@ abstract class FooControllerContext extends \PHPUnit\Framework\TestCase
         $this->assertTestSum($expected, $_class_instance->sum($a, $staff));
     }
 
+    /**
+     * @dataProvider fooErrorsDataProvider
+     */
     final public function testFooErrors($expected)
     {
         $_class_instance = new \Perfumer\Contracts\Example\Contract\Controller\FooControllerContext();

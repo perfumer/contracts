@@ -106,7 +106,17 @@ final class ClassBuilder extends ClassGenerator
     private function generateContexts()
     {
         foreach ($this->contexts as $name => $class) {
+            $doc_block = DocBlockGenerator::fromArray([
+                'tags' => [
+                    [
+                        'name'        => 'var',
+                        'description' => $class,
+                    ]
+                ],
+            ]);
+
             $property = new PropertyGenerator();
+            $property->setDocBlock($doc_block);
             $property->setVisibility('private');
             $property->setName('_context_' . $name);
 
@@ -142,7 +152,17 @@ final class ClassBuilder extends ClassGenerator
     private function generateInjections()
     {
         foreach ($this->injections as $name => $type) {
+            $doc_block = DocBlockGenerator::fromArray([
+                'tags' => [
+                    [
+                        'name'        => 'var',
+                        'description' => $type,
+                    ]
+                ],
+            ]);
+
             $property = new PropertyGenerator();
+            $property->setDocBlock($doc_block);
             $property->setVisibility('private');
             $property->setName('_injection_' . $name);
 
