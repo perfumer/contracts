@@ -495,11 +495,11 @@ class Generator
     private function generateContextTest(ClassBuilder $class_builder)
     {
         // If context is from another package
-        if (strpos($class_builder->getNamespaceName(), $this->context_prefix) !== 0) {
+        if (strpos($class_builder->getNamespaceName(), 'Generated\\Tests\\' . $this->context_prefix) !== 0) {
             return;
         }
 
-        $output_name = str_replace('\\', '/', trim(str_replace($this->context_prefix, '', $class_builder->getNamespaceName()), '\\'));
+        $output_name = str_replace('\\', '/', trim(str_replace('Generated\\Tests\\' . $this->context_prefix, '', $class_builder->getNamespaceName()), '\\'));
 
         if ($output_name) {
             $output_name .= '/';
@@ -511,10 +511,26 @@ class Generator
             return;
         }
 
-        $content = $this->twig->render('ContextTest.php.twig', [
-            'builder' => $class_builder
-        ]);
+        $class = new ClassGenerator();
+        $class->setNamespaceName(str_replace('Generated\\', '', $class_builder->getNamespaceName()));
+        $class->setName($class_builder->getName());
+        $class->setExtendedClass($class_builder->getNamespaceName() . '\\' . $class_builder->getName());
 
-        file_put_contents($output_name, $content);
+        foreach ($class_builder->getMethods() as $method_builder) {
+            if ($method_builder->isAbstract()) {
+                $method = new MethodGenerator();
+                $method->setName($method_builder->getName());
+                $method->setParameters($method_builder->getParameters());
+                $method->setVisibility($method_builder->getVisibility());
+                $method->setReturnType($method_builder->getReturnType());
+                $method->setBody('throw new \Exception(\'Method "' . $method->getName() . '" is not implemented yet.\');');
+
+                $class->addMethodFromGenerator($method);
+            }
+        }
+
+        $code = '<?php' . PHP_EOL . PHP_EOL . $class->generate();
+
+        file_put_contents($output_name, $code);
     }
 }
