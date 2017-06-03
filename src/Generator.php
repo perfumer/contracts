@@ -333,6 +333,14 @@ class Generator
 
                     $method_annotations = $this->reader->getMethodAnnotations($method);
 
+                    foreach ($class_annotations as $annotation) {
+                        if ($annotation instanceof MethodAnnotationDecorator) {
+                            foreach ($method_annotations as $another) {
+                                $annotation->decorateMethodAnnotation($another);
+                            }
+                        }
+                    }
+
                     foreach ($method_annotations as $annotation) {
                         if ($annotation instanceof MethodAnnotationDecorator) {
                             foreach ($method_annotations as $another) {
@@ -358,6 +366,12 @@ class Generator
 
                         if ($annotation instanceof TestCaseDecorator) {
                             $annotation->decorateTestCase($test_case_builder);
+                        }
+                    }
+
+                    foreach ($class_annotations as $annotation) {
+                        if ($annotation instanceof MethodDecorator) {
+                            $annotation->decorateMethod($method_builder);
                         }
                     }
 
