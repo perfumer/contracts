@@ -275,6 +275,16 @@ class Generator
                 }
 
                 foreach ($class_annotations as $annotation) {
+                    if ($annotation instanceof ClassAnnotationDecorator) {
+                        foreach ($class_annotations as $another) {
+                            if ($annotation !== $another) {
+                                $annotation->decorateClassAnnotation($another);
+                            }
+                        }
+                    }
+                }
+
+                foreach ($class_annotations as $annotation) {
                     if (!$annotation instanceof Annotation) {
                         continue;
                     }
@@ -285,14 +295,6 @@ class Generator
 
                     if ($annotation instanceof TestCaseDecorator) {
                         $annotation->decorateTestCase($test_case_builder);
-                    }
-
-                    if ($annotation instanceof ClassAnnotationDecorator) {
-                        foreach ($class_annotations as $another) {
-                            if ($annotation !== $another) {
-                                $annotation->decorateClassAnnotation($another);
-                            }
-                        }
                     }
                 }
 
@@ -331,7 +333,16 @@ class Generator
 
                     $method_annotations = $this->reader->getMethodAnnotations($method);
 
-                    // Set validate=true
+                    foreach ($method_annotations as $annotation) {
+                        if ($annotation instanceof MethodAnnotationDecorator) {
+                            foreach ($method_annotations as $another) {
+                                if ($annotation !== $another) {
+                                    $annotation->decorateMethodAnnotation($another);
+                                }
+                            }
+                        }
+                    }
+
                     foreach ($method_annotations as $annotation) {
                         if (!$annotation instanceof Annotation) {
                             continue;
@@ -348,15 +359,9 @@ class Generator
                         if ($annotation instanceof TestCaseDecorator) {
                             $annotation->decorateTestCase($test_case_builder);
                         }
+                    }
 
-                        if ($annotation instanceof MethodAnnotationDecorator) {
-                            foreach ($method_annotations as $another) {
-                                if ($annotation !== $another) {
-                                    $annotation->decorateMethodAnnotation($another);
-                                }
-                            }
-                        }
-
+                    foreach ($method_annotations as $annotation) {
                         if ($annotation instanceof Step) {
                             $step_builders = $annotation->getBuilder($class_builder, $method_builder);
 
