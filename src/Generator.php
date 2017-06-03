@@ -5,12 +5,15 @@ namespace Perfumer\Contracts;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Perfumer\Contracts\Annotations\Test;
+use Perfumer\Contracts\Decorator\ClassAnnotationDecorator;
+use Perfumer\Contracts\Decorator\ClassDecorator;
+use Perfumer\Contracts\Decorator\MethodAnnotationDecorator;
+use Perfumer\Contracts\Decorator\MethodDecorator;
+use Perfumer\Contracts\Decorator\TestCaseDecorator;
 use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
-use Zend\Code\Reflection\MethodReflection;
-use Zend\Code\Reflection\ParameterReflection;
 
 class Generator
 {
@@ -246,6 +249,19 @@ class Generator
 
                 $namespace = str_replace($this->contract_prefix, $this->class_prefix, $reflection->getNamespaceName());
 
+                $test_case_builder = new TestCaseBuilder();
+                $test_case_builder->setNamespaceName('Generated\\Tests\\' . $namespace);
+                $test_case_builder->setAbstract(true);
+                $test_case_builder->setName($reflection->getShortName() . 'Test');
+                $test_case_builder->setExtendedClass('PHPUnit\\Framework\\TestCase');
+
+                $reflection_test = new MethodGenerator();
+                $reflection_test->setFinal(true);
+                $reflection_test->setName('testSyntax');
+                $reflection_test->setBody('new \\ReflectionClass(\\' . $namespace . '\\' . $reflection->getShortName() . '::class);');
+
+                $test_case_builder->addMethodFromGenerator($reflection_test);
+
                 $class_builder = new ClassBuilder();
                 $class_builder->setAbstract(true);
                 $class_builder->setContract($reflection);
@@ -263,7 +279,21 @@ class Generator
                         continue;
                     }
 
-                    $annotation->apply($class_builder);
+                    if ($annotation instanceof ClassDecorator) {
+                        $annotation->decorateClass($class_builder);
+                    }
+
+                    if ($annotation instanceof TestCaseDecorator) {
+                        $annotation->decorateTestCase($test_case_builder);
+                    }
+
+                    if ($annotation instanceof ClassAnnotationDecorator) {
+                        foreach ($class_annotations as $another) {
+                            if ($annotation !== $another) {
+                                $annotation->decorateClassAnnotation($another);
+                            }
+                        }
+                    }
                 }
 
                 foreach ($reflection->getMethods() as $method) {
@@ -303,17 +333,29 @@ class Generator
 
                     // Set validate=true
                     foreach ($method_annotations as $annotation) {
-                        if ($annotation instanceof Decorator) {
-                            $annotation->decorate($method_annotations);
-                        }
-                    }
-
-                    foreach ($method_annotations as $annotation) {
                         if (!$annotation instanceof Annotation) {
                             continue;
                         }
 
-                        $annotation->apply($class_builder, $method_builder);
+                        if ($annotation instanceof ClassDecorator) {
+                            $annotation->decorateClass($class_builder);
+                        }
+
+                        if ($annotation instanceof MethodDecorator) {
+                            $annotation->decorateMethod($method_builder);
+                        }
+
+                        if ($annotation instanceof TestCaseDecorator) {
+                            $annotation->decorateTestCase($test_case_builder);
+                        }
+
+                        if ($annotation instanceof MethodAnnotationDecorator) {
+                            foreach ($method_annotations as $another) {
+                                if ($annotation !== $another) {
+                                    $annotation->decorateMethodAnnotation($another);
+                                }
+                            }
+                        }
 
                         if ($annotation instanceof Step) {
                             $step_builders = $annotation->getBuilder($class_builder, $method_builder);
@@ -338,17 +380,21 @@ class Generator
                 }
 
                 $bundle->getClassBuilders()->append($class_builder);
+                $bundle->getTestCaseBuilders()->append($test_case_builder);
             }
 
             foreach ($bundle->getClassBuilders() as $class_builder) {
                 $this->generateBaseClass($class_builder);
                 $this->generateClass($class_builder);
-//                $this->generateBaseClassTest($class_builder);
-//                $this->generateClassTest($class_builder);
-//
+
                 foreach ($class_builder->getContexts() as $context) {
                     $this->generateContext($context);
                 }
+            }
+
+            foreach ($bundle->getTestCaseBuilders() as $builder) {
+                $this->generateBaseClassTest($builder);
+                $this->generateClassTest($builder);
             }
 
             shell_exec("vendor/bin/php-cs-fixer fix {$this->base_src_path} --rules=@Symfony");
@@ -423,47 +469,48 @@ class Generator
     }
 
     /**
-     * @param ClassBuilder $class_builder
+     * @param TestCaseBuilder $builder
      */
-    private function generateBaseClassTest(ClassBuilder $class_builder)
+    private function generateBaseClassTest(TestCaseBuilder $builder)
     {
-        $output_name = str_replace('\\', '/', trim(str_replace($this->class_prefix, '', $class_builder->getNamespaceName()), '\\'));
+        $output_name = str_replace('\\', '/', trim(str_replace('Generated\\Tests\\' . $this->class_prefix, '', $builder->getNamespaceName()), '\\'));
 
         if ($output_name) {
             $output_name .= '/';
         }
 
-        $output_name = $this->root_dir . '/' . $this->base_test_path . '/' . $output_name . $class_builder->getName() . 'Test.php';
+        $output_name = $this->root_dir . '/' . $this->base_test_path . '/' . $output_name . $builder->getName() . '.php';
 
-        $content = $this->twig->render('BaseClassTest.php.twig', [
-            'builder' => $class_builder
-        ]);
+        $code = '<?php' . PHP_EOL . PHP_EOL . $builder->generate();
 
-        file_put_contents($output_name, $content);
+        file_put_contents($output_name, $code);
     }
 
     /**
-     * @param ClassBuilder $class_builder
+     * @param TestCaseBuilder $builder
      */
-    private function generateClassTest(ClassBuilder $class_builder)
+    private function generateClassTest(TestCaseBuilder $builder)
     {
-        $output_name = str_replace('\\', '/', trim(str_replace($this->class_prefix, '', $class_builder->getNamespaceName()), '\\'));
+        $output_name = str_replace('\\', '/', trim(str_replace('Generated\\Tests\\' . $this->class_prefix, '', $builder->getNamespaceName()), '\\'));
 
         if ($output_name) {
             $output_name .= '/';
         }
 
-        $output_name = $this->root_dir . '/' . $this->test_path . '/' . $output_name . $class_builder->getName() . 'Test.php';
+        $output_name = $this->root_dir . '/' . $this->test_path . '/' . $output_name . $builder->getName() . '.php';
 
         if (is_file($output_name)) {
             return;
         }
 
-        $content = $this->twig->render('ClassTest.php.twig', [
-            'builder' => $class_builder
-        ]);
+        $class = new ClassGenerator();
+        $class->setNamespaceName(str_replace('Generated\\', '', $builder->getNamespaceName()));
+        $class->setName($builder->getName());
+        $class->setExtendedClass($builder->getNamespaceName() . '\\' . $builder->getName());
 
-        file_put_contents($output_name, $content);
+        $code = '<?php' . PHP_EOL . PHP_EOL . $class->generate();
+
+        file_put_contents($output_name, $code);
     }
 
     /**

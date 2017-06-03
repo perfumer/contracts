@@ -10,11 +10,17 @@ class Bundle
     private $class_builders;
 
     /**
+     * @var \ArrayObject
+     */
+    private $test_case_builders;
+
+    /**
      * Bundle constructor.
      */
     public function __construct()
     {
         $this->class_builders = new \ArrayObject();
+        $this->test_case_builders = new \ArrayObject();
     }
 
     /**
@@ -23,5 +29,13 @@ class Bundle
     public function getClassBuilders(): \ArrayObject
     {
         return $this->class_builders;
+    }
+
+    /**
+     * @return \ArrayObject
+     */
+    public function getTestCaseBuilders(): \ArrayObject
+    {
+        return $this->test_case_builders;
     }
 }

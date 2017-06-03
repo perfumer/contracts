@@ -2,7 +2,11 @@
 
 namespace Perfumer\Contracts;
 
-abstract class Step implements Annotation
+use Perfumer\Contracts\Decorator\ClassDecorator;
+use Perfumer\Contracts\Decorator\MethodDecorator;
+use Perfumer\Contracts\Decorator\TestCaseDecorator;
+
+abstract class Step implements Annotation, ClassDecorator, MethodDecorator, TestCaseDecorator
 {
     /**
      * @var string
@@ -156,33 +160,92 @@ abstract class Step implements Annotation
     }
 
     /**
-     * @param ClassBuilder $class_builder
-     * @param MethodBuilder|null $method_builder
+     * @param ClassBuilder $builder
      */
-    public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
+    public function decorateClass(ClassBuilder $builder): void
     {
         foreach ($this->arguments as $argument) {
-            if ($argument instanceof Annotation) {
-                $argument->apply($class_builder, $method_builder);
+            if ($argument instanceof ClassDecorator) {
+                $argument->decorateClass($builder);
             }
         }
 
         if (is_array($this->return)) {
             foreach ($this->return as $return) {
-                if ($return instanceof Annotation) {
-                    $return->apply($class_builder, $method_builder);
+                if ($return instanceof ClassDecorator) {
+                    $return->decorateClass($builder);
                 }
             }
-        } elseif ($this->return instanceof Annotation) {
-            $this->return->apply($class_builder, $method_builder);
+        } elseif ($this->return instanceof ClassDecorator) {
+            $this->return->decorateClass($builder);
         }
 
-        if ($this->if instanceof Annotation) {
-            $this->if->apply($class_builder, $method_builder);
+        if ($this->if instanceof ClassDecorator) {
+            $this->if->decorateClass($builder);
         }
 
-        if ($this->unless instanceof Annotation) {
-            $this->unless->apply($class_builder, $method_builder);
+        if ($this->unless instanceof ClassDecorator) {
+            $this->unless->decorateClass($builder);
+        }
+    }
+
+    /**
+     * @param MethodBuilder $builder
+     */
+    public function decorateMethod(MethodBuilder $builder): void
+    {
+        foreach ($this->arguments as $argument) {
+            if ($argument instanceof MethodDecorator) {
+                $argument->decorateMethod($builder);
+            }
+        }
+
+        if (is_array($this->return)) {
+            foreach ($this->return as $return) {
+                if ($return instanceof MethodDecorator) {
+                    $return->decorateMethod($builder);
+                }
+            }
+        } elseif ($this->return instanceof MethodDecorator) {
+            $this->return->decorateMethod($builder);
+        }
+
+        if ($this->if instanceof MethodDecorator) {
+            $this->if->decorateMethod($builder);
+        }
+
+        if ($this->unless instanceof MethodDecorator) {
+            $this->unless->decorateMethod($builder);
+        }
+    }
+
+    /**
+     * @param TestCaseBuilder $builder
+     */
+    public function decorateTestCase(TestCaseBuilder $builder): void
+    {
+        foreach ($this->arguments as $argument) {
+            if ($argument instanceof TestCaseDecorator) {
+                $argument->decorateTestCase($builder);
+            }
+        }
+
+        if (is_array($this->return)) {
+            foreach ($this->return as $return) {
+                if ($return instanceof TestCaseDecorator) {
+                    $return->decorateTestCase($builder);
+                }
+            }
+        } elseif ($this->return instanceof TestCaseDecorator) {
+            $this->return->decorateTestCase($builder);
+        }
+
+        if ($this->if instanceof TestCaseDecorator) {
+            $this->if->decorateTestCase($builder);
+        }
+
+        if ($this->unless instanceof TestCaseDecorator) {
+            $this->unless->decorateTestCase($builder);
         }
     }
 }

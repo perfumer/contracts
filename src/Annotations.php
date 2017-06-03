@@ -5,11 +5,12 @@ namespace Perfumer\Contracts\Annotations;
 use Doctrine\Common\Annotations\Annotation\Target;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Perfumer\Contracts\Annotation;
-use Perfumer\Contracts\Argument;
 use Perfumer\Contracts\ClassBuilder;
 use Perfumer\Contracts\Collection;
 use Perfumer\Contracts\ContractsException;
-use Perfumer\Contracts\Decorator;
+use Perfumer\Contracts\Decorator\ClassDecorator;
+use Perfumer\Contracts\Decorator\MethodAnnotationDecorator;
+use Perfumer\Contracts\Decorator\MethodDecorator;
 use Perfumer\Contracts\MethodBuilder;
 use Perfumer\Contracts\Service;
 use Perfumer\Contracts\Step;
@@ -22,7 +23,7 @@ use Zend\Code\Generator\PropertyGenerator;
  * @Annotation
  * @Target("METHOD")
  */
-class Alias implements Annotation, Decorator
+class Alias implements Annotation, MethodAnnotationDecorator
 {
     /**
      * @var string
@@ -35,26 +36,16 @@ class Alias implements Annotation, Decorator
     public $variable;
 
     /**
-     * @param ClassBuilder $class_builder
-     * @param MethodBuilder|null $method_builder
+     * @param Annotation $annotation
      */
-    public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
+    public function decorateMethodAnnotation(Annotation $annotation): void
     {
-    }
-
-    /**
-     * @param array $annotations
-     */
-    public function decorate(array &$annotations): void
-    {
-        foreach ($annotations as $annotation) {
-            if ($annotation instanceof Collection) {
-                foreach ($annotation->steps as $step) {
-                    $this->decorateStep($step);
-                }
-            } elseif ($annotation instanceof Step) {
-                $this->decorateStep($annotation);
+        if ($annotation instanceof Collection) {
+            foreach ($annotation->steps as $step) {
+                $this->decorateStep($step);
             }
+        } elseif ($annotation instanceof Step) {
+            $this->decorateStep($annotation);
         }
     }
 
@@ -105,22 +96,20 @@ class Call extends Step
     public $aliases = [];
 
     /**
-     * @param ClassBuilder $class_builder
-     * @param MethodBuilder|null $method_builder
-     * @throws ContractsException
+     * @param ClassBuilder $builder
      */
-    public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
+    public function decorateClass(ClassBuilder $builder): void
     {
-        $contexts = $class_builder->getContexts();
-        $reflection = $class_builder->getContract();
+        $contexts = $builder->getContexts();
+        $reflection = $builder->getContract();
 
         $context_class = '\\' . $reflection->getNamespaceName() . '\\' . $reflection->getShortName() . 'Context';
 
         if (!isset($contexts['default']) && class_exists($context_class, false)) {
-            $class_builder->addContext('default', $context_class);
+            $builder->addContext('default', $context_class);
         }
 
-        parent::apply($class_builder, $method_builder);
+        parent::decorateClass($builder);
     }
 
     /**
@@ -221,7 +210,16 @@ class Call extends Step
         foreach ($this->arguments as $i => $argument) {
             if (is_string($argument) && isset($this->aliases[$argument])) {
                 $this->arguments[$i] = $this->aliases[$argument];
-                $this->arguments[$i]->apply($class_builder, $method_builder);
+
+                $argument = $this->arguments[$i];
+
+                if ($argument instanceof ClassDecorator) {
+                    $argument->decorateClass($class_builder);
+                }
+
+                if ($argument instanceof MethodDecorator) {
+                    $argument->decorateMethod($method_builder);
+                }
             }
         }
 
@@ -243,7 +241,7 @@ class Call extends Step
  * @Annotation
  * @Target({"CLASS", "METHOD", "ANNOTATION"})
  */
-class Context implements Annotation, Variable
+class Context implements Annotation, Variable, ClassDecorator
 {
     /**
      * @var string
@@ -256,31 +254,30 @@ class Context implements Annotation, Variable
     public $class;
 
     /**
-     * @param ClassBuilder $class_builder
-     * @param MethodBuilder|null $method_builder
+     * @param ClassBuilder $builder
      * @throws ContractsException
      */
-    public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
+    public function decorateClass(ClassBuilder $builder): void
     {
         if ($this->class !== null) {
             if (!class_exists($this->class) && $this->name !== 'default') {
                 throw new ContractsException(sprintf('%s\\%s -> %s: context class not found.',
-                    $class_builder->getNamespaceName(),
-                    $class_builder->getName(),
+                    $builder->getNamespaceName(),
+                    $builder->getName(),
                     $this->name
                 ));
             }
 
-            if (isset($class_builder->getContexts()[$this->name]) || isset($class_builder->getInjections()[$this->name])) {
+            if (isset($builder->getContexts()[$this->name]) || isset($builder->getInjections()[$this->name])) {
                 throw new ContractsException(sprintf('%s\\%s -> %s: context or injected is already defined.',
-                    $class_builder->getNamespaceName(),
-                    $class_builder->getName(),
+                    $builder->getNamespaceName(),
+                    $builder->getName(),
                     $this->name
                 ));
             }
 
             if ($this->name !== 'default') {
-                $class_builder->addContext($this->name, $this->class);
+                $builder->addContext($this->name, $this->class);
             }
         }
     }
@@ -317,12 +314,11 @@ class Context implements Annotation, Variable
 class Custom extends Step
 {
     /**
-     * @param ClassBuilder $class_builder
-     * @param MethodBuilder|null $method_builder
+     * @param ClassBuilder $builder
      */
-    public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
+    public function decorateClass(ClassBuilder $builder): void
     {
-        parent::apply($class_builder, $method_builder);
+        parent::decorateClass($builder);
 
         $method = new MethodBuilder();
         $method->setName($this->method);
@@ -338,7 +334,7 @@ class Custom extends Step
             $method->setParameter($argument);
         }
 
-        $class_builder->addMethodFromGenerator($method);
+        $builder->addMethodFromGenerator($method);
     }
 
     /**
@@ -360,16 +356,19 @@ class Custom extends Step
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Error extends Call implements Decorator
+class Error extends Call implements MethodAnnotationDecorator
 {
-    public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
+    /**
+     * @param MethodBuilder $builder
+     */
+    public function decorateMethod(MethodBuilder $builder): void
     {
-        parent::apply($class_builder, $method_builder);
+        parent::decorateMethod($builder);
 
-        $method_builder->addInitialVariable('_return', 'null');
+        $builder->addInitialVariable('_return', 'null');
 
-        if (!isset($method_builder->getAppendedCode()['_return'])) {
-            $method_builder->addAppendedCode('_return', 'return $_return;');
+        if (!isset($builder->getAppendedCode()['_return'])) {
+            $builder->addAppendedCode('_return', 'return $_return;');
         }
     }
 
@@ -389,14 +388,12 @@ class Error extends Call implements Decorator
     }
 
     /**
-     * @param array $annotations
+     * @param Annotation $annotation
      */
-    public function decorate(array &$annotations): void
+    public function decorateMethodAnnotation(Annotation $annotation): void
     {
-        foreach ($annotations as $annotation) {
-            if ($annotation instanceof Step && $annotation->return === $this->unless) {
-                $annotation->validate = true;
-            }
+        if ($annotation instanceof Step && $annotation->return === $this->unless) {
+            $annotation->validate = true;
         }
     }
 }
@@ -405,7 +402,7 @@ class Error extends Call implements Decorator
  * @Annotation
  * @Target({"CLASS", "METHOD", "ANNOTATION"})
  */
-class Inject implements Variable
+class Inject implements Variable, ClassDecorator
 {
     /**
      * @var string
@@ -423,22 +420,21 @@ class Inject implements Variable
     public $type;
 
     /**
-     * @param ClassBuilder $class_builder
-     * @param MethodBuilder|null $method_builder
+     * @param ClassBuilder $builder
      * @throws ContractsException
      */
-    public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
+    public function decorateClass(ClassBuilder $builder): void
     {
         if ($this->type !== null) {
-            if (isset($class_builder->getContexts()[$this->name]) || isset($class_builder->getInjections()[$this->name])) {
+            if (isset($builder->getContexts()[$this->name]) || isset($builder->getInjections()[$this->name])) {
                 throw new ContractsException(sprintf('%s\\%s -> %s context or injected is already defined.',
-                    $class_builder->getNamespaceName(),
-                    $class_builder->getName(),
+                    $builder->getNamespaceName(),
+                    $builder->getName(),
                     $this->name
                 ));
             }
 
-            $class_builder->addInjection($this->name, $this->type);
+            $builder->addInjection($this->name, $this->type);
         }
     }
 
@@ -471,7 +467,7 @@ class Inject implements Variable
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Output implements Variable
+class Output implements Variable, MethodDecorator
 {
     /**
      * @throws ContractsException
@@ -498,15 +494,14 @@ class Output implements Variable
     }
 
     /**
-     * @param ClassBuilder $class_builder
-     * @param MethodBuilder|null $method_builder
+     * @param MethodBuilder $builder
      */
-    public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
+    public function decorateMethod(MethodBuilder $builder): void
     {
-        $method_builder->addInitialVariable('_return', 'null');
+        $builder->addInitialVariable('_return', 'null');
 
-        if (!isset($method_builder->getAppendedCode()['_return'])) {
-            $method_builder->addAppendedCode('_return', 'return $_return;');
+        if (!isset($builder->getAppendedCode()['_return'])) {
+            $builder->addAppendedCode('_return', 'return $_return;');
         }
     }
 }
@@ -515,7 +510,7 @@ class Output implements Variable
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Property implements Variable
+class Property implements Variable, ClassDecorator
 {
     /**
      * @var string
@@ -555,13 +550,12 @@ class Property implements Variable
     }
 
     /**
-     * @param ClassBuilder $class_builder
-     * @param MethodBuilder|null $method_builder
+     * @param ClassBuilder $builder
      */
-    public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
+    public function decorateClass(ClassBuilder $builder): void
     {
-        if (!$class_builder->hasProperty($this->name)) {
-            $class_builder->addProperty($this->name, null, PropertyGenerator::FLAG_PROTECTED);
+        if (!$builder->hasProperty($this->name)) {
+            $builder->addProperty($this->name, null, PropertyGenerator::FLAG_PROTECTED);
         }
     }
 }
@@ -603,16 +597,15 @@ class ServiceParent extends Service
 class ServiceProperty extends Service
 {
     /**
-     * @param ClassBuilder $class_builder
-     * @param MethodBuilder|null $method_builder
+     * @param ClassBuilder $builder
      */
-    public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
+    public function decorateClass(ClassBuilder $builder): void
     {
-        if (!$class_builder->hasProperty($this->name)) {
-            $class_builder->addProperty($this->name, null, PropertyGenerator::FLAG_PROTECTED);
+        if (!$builder->hasProperty($this->name)) {
+            $builder->addProperty($this->name, null, PropertyGenerator::FLAG_PROTECTED);
         }
 
-        parent::apply($class_builder, $method_builder);
+        parent::decorateClass($builder);
     }
 
     /**

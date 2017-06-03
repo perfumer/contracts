@@ -2,7 +2,12 @@
 
 namespace Perfumer\Contracts;
 
-abstract class Collection extends Step
+use Perfumer\Contracts\Decorator\ClassDecorator;
+use Perfumer\Contracts\Decorator\MethodAnnotationDecorator;
+use Perfumer\Contracts\Decorator\MethodDecorator;
+use Perfumer\Contracts\Decorator\TestCaseDecorator;
+
+abstract class Collection extends Step implements MethodAnnotationDecorator
 {
     /**
      * @var array
@@ -53,14 +58,49 @@ abstract class Collection extends Step
     }
 
     /**
-     * @param ClassBuilder $class_builder
-     * @param MethodBuilder|null $method_builder
+     * @param ClassBuilder $builder
      */
-    public function apply(ClassBuilder $class_builder, MethodBuilder $method_builder = null): void
+    public function decorateClass(ClassBuilder $builder): void
     {
         foreach ($this->steps as $step) {
-            if ($step instanceof Annotation) {
-                $step->apply($class_builder, $method_builder);
+            if ($step instanceof ClassDecorator) {
+                $step->decorateClass($builder);
+            }
+        }
+    }
+
+    /**
+     * @param MethodBuilder $builder
+     */
+    public function decorateMethod(MethodBuilder $builder): void
+    {
+        foreach ($this->steps as $step) {
+            if ($step instanceof MethodDecorator) {
+                $step->decorateMethod($builder);
+            }
+        }
+    }
+
+    /**
+     * @param TestCaseBuilder $builder
+     */
+    public function decorateTestCase(TestCaseBuilder $builder): void
+    {
+        foreach ($this->steps as $step) {
+            if ($step instanceof TestCaseDecorator) {
+                $step->decorateTestCase($builder);
+            }
+        }
+    }
+
+    /**
+     * @param Annotation $annotation
+     */
+    public function decorateMethodAnnotation(Annotation $annotation): void
+    {
+        foreach ($this->steps as $step) {
+            if ($step instanceof MethodAnnotationDecorator) {
+                $step->decorateMethodAnnotation($annotation);
             }
         }
     }
