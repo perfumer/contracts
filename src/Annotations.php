@@ -7,10 +7,10 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Perfumer\Contracts\Annotation;
 use Perfumer\Contracts\ClassBuilder;
 use Perfumer\Contracts\Collection;
-use Perfumer\Contracts\ContractsException;
 use Perfumer\Contracts\Decorator\ClassDecorator;
 use Perfumer\Contracts\Decorator\MethodAnnotationDecorator;
 use Perfumer\Contracts\Decorator\MethodDecorator;
+use Perfumer\Contracts\Exception\DecoratorException;
 use Perfumer\Contracts\MethodBuilder;
 use Perfumer\Contracts\Service;
 use Perfumer\Contracts\Step;
@@ -116,7 +116,7 @@ class Call extends Step
      * @param ClassBuilder $class_builder
      * @param MethodBuilder $method_builder
      * @return null|StepBuilder|StepBuilder[]
-     * @throws ContractsException
+     * @throws DecoratorException
      */
     public function getBuilder(ClassBuilder $class_builder, MethodBuilder $method_builder)
     {
@@ -128,10 +128,7 @@ class Call extends Step
         $injections = $class_builder->getInjections();
 
         if (!isset($contexts[$this->name]) && !isset($injections[$this->name])) {
-            throw new ContractsException(sprintf('%s\\%s -> %s -> %s context or injected is not registered',
-                $class_builder->getNamespaceName(),
-                $class_builder->getName(),
-                $method_builder->getName(),
+            throw new DecoratorException(sprintf('%s context or injected is not registered',
                 $this->name
             ));
         }
@@ -182,10 +179,7 @@ class Call extends Step
                 }
 
                 if (count($annotation_arguments) > 0) {
-                    throw new ContractsException(sprintf('%s\\%s -> %s -> %s.%s has excessive arguments.',
-                        $class_builder->getNamespaceName(),
-                        $class_builder->getName(),
-                        $method_builder->getName(),
+                    throw new DecoratorException(sprintf('%s.%s has excessive arguments.',
                         $this->name,
                         $this->method
                     ));
@@ -197,11 +191,8 @@ class Call extends Step
             }
 
             if ($method_found === false) {
-                throw new ContractsException(sprintf('Method "%s" is not found in %s\\%s -> %s -> %s.',
+                throw new DecoratorException(sprintf('method "%s" is not found in "%s".',
                     $this->method,
-                    $class_builder->getNamespaceName(),
-                    $class_builder->getName(),
-                    $method_builder->getName(),
                     $this->name
                 ));
             }
@@ -255,23 +246,19 @@ class Context implements Annotation, Variable, ClassDecorator
 
     /**
      * @param ClassBuilder $builder
-     * @throws ContractsException
+     * @throws DecoratorException
      */
     public function decorateClass(ClassBuilder $builder): void
     {
         if ($this->class !== null) {
             if (!class_exists($this->class) && $this->name !== 'default') {
-                throw new ContractsException(sprintf('%s\\%s -> %s: context class not found.',
-                    $builder->getNamespaceName(),
-                    $builder->getName(),
+                throw new DecoratorException(sprintf('"%s" context class not found.',
                     $this->name
                 ));
             }
 
             if (isset($builder->getContexts()[$this->name]) || isset($builder->getInjections()[$this->name])) {
-                throw new ContractsException(sprintf('%s\\%s -> %s: context or injected is already defined.',
-                    $builder->getNamespaceName(),
-                    $builder->getName(),
+                throw new DecoratorException(sprintf('"%s" context or injected is already defined.',
                     $this->name
                 ));
             }
@@ -299,11 +286,11 @@ class Context implements Annotation, Variable, ClassDecorator
     }
 
     /**
-     * @throws ContractsException
+     * @throws DecoratorException
      */
     public function asReturn(): string
     {
-        throw new ContractsException('@Context annotation can not be used for "return".');
+        throw new DecoratorException('@Context annotation can not be used for "return".');
     }
 }
 
@@ -421,15 +408,13 @@ class Inject implements Variable, ClassDecorator
 
     /**
      * @param ClassBuilder $builder
-     * @throws ContractsException
+     * @throws DecoratorException
      */
     public function decorateClass(ClassBuilder $builder): void
     {
         if ($this->type !== null) {
             if (isset($builder->getContexts()[$this->name]) || isset($builder->getInjections()[$this->name])) {
-                throw new ContractsException(sprintf('%s\\%s -> %s context or injected is already defined.',
-                    $builder->getNamespaceName(),
-                    $builder->getName(),
+                throw new DecoratorException(sprintf('"%s" context or injected is already defined.',
                     $this->name
                 ));
             }
@@ -455,11 +440,11 @@ class Inject implements Variable, ClassDecorator
     }
 
     /**
-     * @throws ContractsException
+     * @throws DecoratorException
      */
     public function asReturn(): string
     {
-        throw new ContractsException('@Inject annotation can not be used for "return".');
+        throw new DecoratorException('@Inject annotation can not be used for "return".');
     }
 }
 
@@ -470,19 +455,19 @@ class Inject implements Variable, ClassDecorator
 class Output implements Variable, MethodDecorator
 {
     /**
-     * @throws ContractsException
+     * @throws DecoratorException
      */
     public function asArgument(): string
     {
-        throw new ContractsException('@Output annotation can not be used for "args".');
+        throw new DecoratorException('@Output annotation can not be used for "args".');
     }
 
     /**
-     * @throws ContractsException
+     * @throws DecoratorException
      */
     public function asHeader(): string
     {
-        throw new ContractsException('@Output annotation can not be used for "args".');
+        throw new DecoratorException('@Output annotation can not be used for "args".');
     }
 
     /**

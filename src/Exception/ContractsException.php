@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Contracts;
+namespace Perfumer\Contracts\Exception;
 
 class ContractsException extends \Exception
 {

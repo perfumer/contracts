@@ -10,6 +10,8 @@ use Perfumer\Contracts\Decorator\ClassDecorator;
 use Perfumer\Contracts\Decorator\MethodAnnotationDecorator;
 use Perfumer\Contracts\Decorator\MethodDecorator;
 use Perfumer\Contracts\Decorator\TestCaseDecorator;
+use Perfumer\Contracts\Exception\ContractsException;
+use Perfumer\Contracts\Exception\DecoratorException;
 use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\MethodGenerator;
@@ -274,28 +276,35 @@ class Generator
                     $class_builder->setExtendedClass('\\' . $class);
                 }
 
-                foreach ($class_annotations as $annotation) {
-                    if ($annotation instanceof ClassAnnotationDecorator) {
-                        foreach ($class_annotations as $another) {
-                            if ($annotation !== $another) {
-                                $annotation->decorateClassAnnotation($another);
+                try {
+                    foreach ($class_annotations as $annotation) {
+                        if ($annotation instanceof ClassAnnotationDecorator) {
+                            foreach ($class_annotations as $another) {
+                                if ($annotation !== $another) {
+                                    $annotation->decorateClassAnnotation($another);
+                                }
                             }
                         }
                     }
-                }
 
-                foreach ($class_annotations as $annotation) {
-                    if (!$annotation instanceof Annotation) {
-                        continue;
-                    }
+                    foreach ($class_annotations as $annotation) {
+                        if (!$annotation instanceof Annotation) {
+                            continue;
+                        }
 
-                    if ($annotation instanceof ClassDecorator) {
-                        $annotation->decorateClass($class_builder);
-                    }
+                        if ($annotation instanceof ClassDecorator) {
+                            $annotation->decorateClass($class_builder);
+                        }
 
-                    if ($annotation instanceof TestCaseDecorator) {
-                        $annotation->decorateTestCase($test_case_builder);
+                        if ($annotation instanceof TestCaseDecorator) {
+                            $annotation->decorateTestCase($test_case_builder);
+                        }
                     }
+                } catch (DecoratorException $e) {
+                    throw new ContractsException(sprintf('%s\\%s: ' . $e->getMessage(),
+                        $class_builder->getNamespaceName(),
+                        $class_builder->getName()
+                    ));
                 }
 
                 foreach ($reflection->getMethods() as $method) {
@@ -333,64 +342,72 @@ class Generator
 
                     $method_annotations = $this->reader->getMethodAnnotations($method);
 
-                    foreach ($class_annotations as $annotation) {
-                        if ($annotation instanceof MethodAnnotationDecorator) {
-                            foreach ($method_annotations as $another) {
-                                $annotation->decorateMethodAnnotation($another);
-                            }
-                        }
-                    }
-
-                    foreach ($method_annotations as $annotation) {
-                        if ($annotation instanceof MethodAnnotationDecorator) {
-                            foreach ($method_annotations as $another) {
-                                if ($annotation !== $another) {
+                    try {
+                        foreach ($class_annotations as $annotation) {
+                            if ($annotation instanceof MethodAnnotationDecorator) {
+                                foreach ($method_annotations as $another) {
                                     $annotation->decorateMethodAnnotation($another);
                                 }
                             }
                         }
-                    }
 
-                    foreach ($method_annotations as $annotation) {
-                        if (!$annotation instanceof Annotation) {
-                            continue;
+                        foreach ($method_annotations as $annotation) {
+                            if ($annotation instanceof MethodAnnotationDecorator) {
+                                foreach ($method_annotations as $another) {
+                                    if ($annotation !== $another) {
+                                        $annotation->decorateMethodAnnotation($another);
+                                    }
+                                }
+                            }
                         }
 
-                        if ($annotation instanceof ClassDecorator) {
-                            $annotation->decorateClass($class_builder);
-                        }
-
-                        if ($annotation instanceof MethodDecorator) {
-                            $annotation->decorateMethod($method_builder);
-                        }
-
-                        if ($annotation instanceof TestCaseDecorator) {
-                            $annotation->decorateTestCase($test_case_builder);
-                        }
-                    }
-
-                    foreach ($class_annotations as $annotation) {
-                        if ($annotation instanceof MethodDecorator) {
-                            $annotation->decorateMethod($method_builder);
-                        }
-                    }
-
-                    foreach ($method_annotations as $annotation) {
-                        if ($annotation instanceof Step) {
-                            $step_builders = $annotation->getBuilder($class_builder, $method_builder);
-
-                            if ($step_builders === null) {
+                        foreach ($method_annotations as $annotation) {
+                            if (!$annotation instanceof Annotation) {
                                 continue;
                             }
 
-                            if (!is_array($step_builders)) {
-                                $step_builders = [$step_builders];
+                            if ($annotation instanceof ClassDecorator) {
+                                $annotation->decorateClass($class_builder);
                             }
 
-                            foreach ($step_builders as $step_builder) {
-                                $method_builder->addStep($step_builder);
+                            if ($annotation instanceof MethodDecorator) {
+                                $annotation->decorateMethod($method_builder);
+                            }
+
+                            if ($annotation instanceof TestCaseDecorator) {
+                                $annotation->decorateTestCase($test_case_builder);
                             }
                         }
+
+                        foreach ($class_annotations as $annotation) {
+                            if ($annotation instanceof MethodDecorator) {
+                                $annotation->decorateMethod($method_builder);
+                            }
+                        }
+
+                        foreach ($method_annotations as $annotation) {
+                            if ($annotation instanceof Step) {
+                                $step_builders = $annotation->getBuilder($class_builder, $method_builder);
+
+                                if ($step_builders === null) {
+                                    continue;
+                                }
+
+                                if (!is_array($step_builders)) {
+                                    $step_builders = [$step_builders];
+                                }
+
+                                foreach ($step_builders as $step_builder) {
+                                    $method_builder->addStep($step_builder);
+                                }
+                            }
+                        }
+                    } catch (DecoratorException $e) {
+                        throw new ContractsException(sprintf('%s\\%s -> %s: ' . $e->getMessage(),
+                            $class_builder->getNamespaceName(),
+                            $class_builder->getName(),
+                            $method_builder->getName()
+                        ));
                     }
 
                     if (count($method_builder->getSteps()) > 0) {

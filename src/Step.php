@@ -5,6 +5,7 @@ namespace Perfumer\Contracts;
 use Perfumer\Contracts\Decorator\ClassDecorator;
 use Perfumer\Contracts\Decorator\MethodDecorator;
 use Perfumer\Contracts\Decorator\TestCaseDecorator;
+use Perfumer\Contracts\Exception\DecoratorException;
 
 abstract class Step implements Annotation, ClassDecorator, MethodDecorator, TestCaseDecorator
 {
@@ -63,7 +64,7 @@ abstract class Step implements Annotation, ClassDecorator, MethodDecorator, Test
      * @param ClassBuilder $class_builder
      * @param MethodBuilder $method_builder
      * @return null|StepBuilder|StepBuilder[]
-     * @throws ContractsException
+     * @throws DecoratorException
      */
     public function getBuilder(ClassBuilder $class_builder, MethodBuilder $method_builder)
     {
@@ -135,10 +136,7 @@ abstract class Step implements Annotation, ClassDecorator, MethodDecorator, Test
                     $value = $this->validate ? 'true' : 'null';
 
                     if (isset($method_builder->getInitialVariables()[$var])) {
-                        throw new ContractsException(sprintf('%s\\%s -> %s -> %s.%s returns "%s" which is already in use.',
-                            $class_builder->getNamespaceName(),
-                            $class_builder->getName(),
-                            $method_builder->getName(),
+                        throw new DecoratorException(sprintf('%s.%s returns "%s" which is already in use.',
                             $this->name,
                             $this->method,
                             $var
