@@ -152,14 +152,6 @@ abstract class Step extends Annotation implements ClassDecorator, MethodDecorato
             $builder->setValidation(true);
         }
 
-        if ($this->if && is_string($this->if) && !isset($builder->getInitialVariables()[$this->if])) {
-            $builder->addInitialVariable($this->if, 'null');
-        }
-
-        if ($this->unless && is_string($this->unless) && !isset($builder->getInitialVariables()[$this->unless])) {
-            $builder->addInitialVariable($this->unless, 'null');
-        }
-
         foreach ($this->arguments as $argument) {
             if ($argument instanceof MethodDecorator) {
                 $argument->decorateMethod($builder);

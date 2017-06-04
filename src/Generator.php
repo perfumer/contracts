@@ -405,7 +405,7 @@ class Generator
 
                         foreach ($method_annotations as $annotation) {
                             if ($annotation instanceof Step) {
-                                $step_builders = $annotation->getBuilder($class_builder, $method_builder);
+                                $step_builders = $annotation->getBuilder();
 
                                 if ($step_builders === null) {
                                     continue;
