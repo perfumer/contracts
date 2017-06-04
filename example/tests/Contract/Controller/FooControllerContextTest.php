@@ -2,7 +2,7 @@
 
 namespace Tests\Perfumer\Contracts\Example\Contract\Controller;
 
-class FooControllerContext extends \Generated\Tests\Perfumer\Contracts\Example\Contract\Controller\FooControllerContext
+class FooControllerContextTest extends \Generated\Tests\Perfumer\Contracts\Example\Contract\Controller\FooControllerContextTest
 {
     /**
      * @return array

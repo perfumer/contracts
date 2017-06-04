@@ -24,6 +24,28 @@ abstract class Collection extends Step implements MethodAnnotationDecorator
      */
     abstract public function getAfterCode(): string;
 
+    public function setReflectionClass(\ReflectionClass $reflection_class): void
+    {
+        foreach ($this->steps as $step) {
+            if ($step instanceof Annotation) {
+                $step->setReflectionClass($reflection_class);
+            }
+        }
+
+        parent::setReflectionClass($reflection_class);
+    }
+
+    public function setReflectionMethod(\ReflectionMethod $reflection_method): void
+    {
+        foreach ($this->steps as $step) {
+            if ($step instanceof Annotation) {
+                $step->setReflectionMethod($reflection_method);
+            }
+        }
+
+        parent::setReflectionMethod($reflection_method);
+    }
+
     /**
      * @param ClassBuilder $class_builder
      * @param MethodBuilder $method_builder

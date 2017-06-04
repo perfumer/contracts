@@ -6,8 +6,9 @@ use Perfumer\Contracts\Decorator\ClassDecorator;
 use Perfumer\Contracts\Decorator\MethodDecorator;
 use Perfumer\Contracts\Decorator\TestCaseDecorator;
 use Perfumer\Contracts\Exception\DecoratorException;
+use Zend\Code\Generator\MethodGenerator;
 
-abstract class Step implements Annotation, ClassDecorator, MethodDecorator, TestCaseDecorator
+abstract class Step extends Annotation implements ClassDecorator, MethodDecorator, TestCaseDecorator
 {
     /**
      * @var string
@@ -222,7 +223,42 @@ abstract class Step implements Annotation, ClassDecorator, MethodDecorator, Test
      */
     public function decorateTestCase(TestCaseBuilder $builder): void
     {
+        $test_method = 'test' . ucfirst($this->getReflectionMethod()->getName()) . 'LocalVariables';
+
+        if (!$builder->hasMethod($test_method)) {
+            $method = new MethodGenerator();
+            $method->setVisibility('public');
+            $method->setName($test_method);
+
+            $body = '';
+
+            foreach ($this->getReflectionMethod()->getParameters() as $parameter) {
+                $body .= '$' . $parameter->getName() . ' = true;';
+            }
+
+            $method->setBody($body);
+
+            $builder->addMethodFromGenerator($method);
+        } else {
+            $method = $builder->getMethod($test_method);
+        }
+
+        if ($this->if && is_string($this->if)) {
+            $body = $method->getBody() . '$this->assertNotEmpty($' . $this->if . ');';
+            $method->setBody($body);
+        }
+
+        if ($this->unless && is_string($this->unless)) {
+            $body = $method->getBody() . '$this->assertNotEmpty($' . $this->unless . ');';
+            $method->setBody($body);
+        }
+
         foreach ($this->arguments as $argument) {
+            if (is_string($argument)) {
+                $body = $method->getBody() . '$this->assertNotEmpty($' . $argument . ');';
+                $method->setBody($body);
+            }
+
             if ($argument instanceof TestCaseDecorator) {
                 $argument->decorateTestCase($builder);
             }
@@ -230,10 +266,18 @@ abstract class Step implements Annotation, ClassDecorator, MethodDecorator, Test
 
         if (is_array($this->return)) {
             foreach ($this->return as $return) {
+                if (is_string($return)) {
+                    $body = $method->getBody() . '$' . $return . ' = true;';
+                    $method->setBody($body);
+                }
+
                 if ($return instanceof TestCaseDecorator) {
                     $return->decorateTestCase($builder);
                 }
             }
+        } elseif (is_string($this->return)) {
+            $body = $method->getBody() . '$' . $this->return . ' = true;';
+            $method->setBody($body);
         } elseif ($this->return instanceof TestCaseDecorator) {
             $this->return->decorateTestCase($builder);
         }

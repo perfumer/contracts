@@ -2,7 +2,7 @@
 
 namespace Generated\Tests\Perfumer\Contracts\Example\Contract\Controller;
 
-abstract class FooControllerContext extends \PHPUnit\Framework\TestCase
+abstract class FooControllerContextTest extends \PHPUnit\Framework\TestCase
 {
     abstract public function intTypeDataProvider();
 

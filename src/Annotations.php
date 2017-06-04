@@ -23,7 +23,7 @@ use Zend\Code\Generator\PropertyGenerator;
  * @Annotation
  * @Target("METHOD")
  */
-class Alias implements Annotation, MethodAnnotationDecorator
+class Alias extends Annotation implements MethodAnnotationDecorator
 {
     /**
      * @var string
@@ -128,7 +128,7 @@ class Call extends Step
         $injections = $class_builder->getInjections();
 
         if (!isset($contexts[$this->name]) && !isset($injections[$this->name])) {
-            throw new DecoratorException(sprintf('%s context or injected is not registered',
+            throw new DecoratorException(sprintf('"%s" context or injection is not registered',
                 $this->name
             ));
         }
@@ -232,7 +232,7 @@ class Call extends Step
  * @Annotation
  * @Target({"CLASS", "METHOD", "ANNOTATION"})
  */
-class Context implements Annotation, Variable, ClassDecorator
+class Context extends Annotation implements Variable, ClassDecorator
 {
     /**
      * @var string
@@ -389,7 +389,7 @@ class Error extends Call implements MethodAnnotationDecorator
  * @Annotation
  * @Target({"CLASS", "METHOD", "ANNOTATION"})
  */
-class Inject implements Variable, ClassDecorator
+class Inject extends Annotation implements Variable, ClassDecorator
 {
     /**
      * @var string
@@ -452,7 +452,7 @@ class Inject implements Variable, ClassDecorator
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Output implements Variable, MethodDecorator
+class Output extends Annotation implements Variable, MethodDecorator
 {
     /**
      * @throws DecoratorException
@@ -495,7 +495,7 @@ class Output implements Variable, MethodDecorator
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Property implements Variable, ClassDecorator
+class Property extends Annotation implements Variable, ClassDecorator
 {
     /**
      * @var string

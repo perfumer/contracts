@@ -2,7 +2,7 @@
 
 namespace Perfumer\Contracts;
 
-interface Variable extends Annotation
+interface Variable
 {
     /**
      * @return string

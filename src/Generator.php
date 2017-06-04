@@ -141,7 +141,7 @@ class Generator
 
             $class_builder->setNamespaceName('Generated\\Tests\\' . $namespace);
             $class_builder->setAbstract(true);
-            $class_builder->setName($reflection->getShortName());
+            $class_builder->setName($reflection->getShortName() . 'Test');
             $class_builder->setExtendedClass('PHPUnit\\Framework\\TestCase');
 
             $data_providers = [];
@@ -247,7 +247,6 @@ class Generator
 
             foreach ($this->classes as $class) {
                 $reflection = new \ReflectionClass($class);
-                $class_annotations = $this->reader->getClassAnnotations($reflection);
 
                 $namespace = str_replace($this->contract_prefix, $this->class_prefix, $reflection->getNamespaceName());
 
@@ -276,11 +275,19 @@ class Generator
                     $class_builder->setExtendedClass('\\' . $class);
                 }
 
+                $class_annotations = $this->reader->getClassAnnotations($reflection);
+
                 try {
                     foreach ($class_annotations as $annotation) {
+                        if (!$annotation instanceof Annotation) {
+                            continue;
+                        }
+
+                        $annotation->setReflectionClass($reflection);
+
                         if ($annotation instanceof ClassAnnotationDecorator) {
                             foreach ($class_annotations as $another) {
-                                if ($annotation !== $another) {
+                                if ($annotation instanceof Annotation && $annotation !== $another) {
                                     $annotation->decorateClassAnnotation($another);
                                 }
                             }
@@ -344,17 +351,29 @@ class Generator
 
                     try {
                         foreach ($class_annotations as $annotation) {
+                            if (!$annotation instanceof Annotation) {
+                                continue;
+                            }
+
                             if ($annotation instanceof MethodAnnotationDecorator) {
                                 foreach ($method_annotations as $another) {
-                                    $annotation->decorateMethodAnnotation($another);
+                                    if ($annotation instanceof Annotation) {
+                                        $annotation->decorateMethodAnnotation($another);
+                                    }
                                 }
                             }
                         }
 
                         foreach ($method_annotations as $annotation) {
+                            if (!$annotation instanceof Annotation) {
+                                continue;
+                            }
+
+                            $annotation->setReflectionMethod($method);
+
                             if ($annotation instanceof MethodAnnotationDecorator) {
                                 foreach ($method_annotations as $another) {
-                                    if ($annotation !== $another) {
+                                    if ($annotation instanceof Annotation && $annotation !== $another) {
                                         $annotation->decorateMethodAnnotation($another);
                                     }
                                 }
@@ -565,7 +584,7 @@ class Generator
             $output_name .= '/';
         }
 
-        $output_name = $this->root_dir . '/' . $this->base_test_path . '/' . $output_name . $class_builder->getName() . 'Test.php';
+        $output_name = $this->root_dir . '/' . $this->base_test_path . '/' . $output_name . $class_builder->getName() . '.php';
 
         $code = '<?php' . PHP_EOL . PHP_EOL . $class_builder->generate();
 
@@ -588,7 +607,7 @@ class Generator
             $output_name .= '/';
         }
 
-        $output_name = $this->root_dir . '/' . $this->test_path . '/' . $output_name . $class_builder->getName() . 'Test.php';
+        $output_name = $this->root_dir . '/' . $this->test_path . '/' . $output_name . $class_builder->getName() . '.php';
 
         if (is_file($output_name)) {
             return;
