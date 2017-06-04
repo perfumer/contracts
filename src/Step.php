@@ -62,12 +62,10 @@ abstract class Step extends Annotation implements ClassDecorator, MethodDecorato
     }
 
     /**
-     * @param ClassBuilder $class_builder
-     * @param MethodBuilder $method_builder
      * @return null|StepBuilder|StepBuilder[]
      * @throws DecoratorException
      */
-    public function getBuilder(ClassBuilder $class_builder, MethodBuilder $method_builder)
+    public function getBuilder()
     {
         $step_builder = new StepBuilder();
         $step_builder->setMethod($this->method);

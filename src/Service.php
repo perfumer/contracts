@@ -10,13 +10,11 @@ abstract class Service extends Step
     abstract public function getCallExpression(): string;
 
     /**
-     * @param ClassBuilder $class_builder
-     * @param MethodBuilder $method_builder
      * @return null|StepBuilder|StepBuilder[]
      */
-    public function getBuilder(ClassBuilder $class_builder, MethodBuilder $method_builder)
+    public function getBuilder()
     {
-        $step_builder = parent::getBuilder($class_builder, $method_builder);
+        $step_builder = parent::getBuilder();
 
         $step_builder->setCallExpression($this->getCallExpression());
 

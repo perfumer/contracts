@@ -96,52 +96,52 @@ class Call extends Step
     public $aliases = [];
 
     /**
+     * @var bool
+     */
+    private $is_context_call = false;
+
+    /**
+     * @var bool
+     */
+    private $is_injection_call = false;
+
+    /**
      * @param ClassBuilder $builder
+     * @throws DecoratorException
      */
     public function decorateClass(ClassBuilder $builder): void
     {
-        $contexts = $builder->getContexts();
-        $reflection = $builder->getContract();
-
-        $context_class = '\\' . $reflection->getNamespaceName() . '\\' . $reflection->getShortName() . 'Context';
-
-        if (!isset($contexts['default']) && class_exists($context_class, false)) {
-            $builder->addContext('default', $context_class);
-        }
-
-        parent::decorateClass($builder);
-    }
-
-    /**
-     * @param ClassBuilder $class_builder
-     * @param MethodBuilder $method_builder
-     * @return null|StepBuilder|StepBuilder[]
-     * @throws DecoratorException
-     */
-    public function getBuilder(ClassBuilder $class_builder, MethodBuilder $method_builder)
-    {
-        if ($this->name === null) {
+        if ($this->name) {
+            if (!isset($builder->getContexts()[$this->name]) && !isset($builder->getInjections()[$this->name])) {
+                throw new DecoratorException(sprintf('"%s" context or injection is not registered',
+                    $this->name
+                ));
+            }
+        } else {
             $this->name = 'default';
+
+            $reflection = $builder->getContract();
+
+            $context_class = '\\' . $reflection->getNamespaceName() . '\\' . $reflection->getShortName() . 'Context';
+
+            if (!isset($builder->getContexts()[$this->name]) && class_exists($context_class, false)) {
+                $builder->addContext($this->name, $context_class);
+            }
         }
 
-        $contexts = $class_builder->getContexts();
-        $injections = $class_builder->getInjections();
-
-        if (!isset($contexts[$this->name]) && !isset($injections[$this->name])) {
-            throw new DecoratorException(sprintf('"%s" context or injection is not registered',
-                $this->name
-            ));
+        if (isset($builder->getContexts()[$this->name])) {
+            $this->is_context_call = true;
+        } else {
+            $this->is_injection_call = true;
         }
 
         $annotation_arguments = $this->arguments;
 
-        if (isset($contexts[$this->name]) || isset($injections[$this->name])) {
-            $is_context = isset($contexts[$this->name]);
-
-            if ($is_context) {
-                $reflection_context = new \ReflectionClass($contexts[$this->name]);
+        if (isset($builder->getContexts()[$this->name]) || isset($builder->getInjections()[$this->name])) {
+            if ($this->is_context_call) {
+                $reflection_context = new \ReflectionClass($builder->getContexts()[$this->name]);
             } else {
-                $reflection_context = new \ReflectionClass($injections[$this->name]);
+                $reflection_context = new \ReflectionClass($builder->getInjections()[$this->name]);
             }
 
             $method_found = false;
@@ -161,7 +161,7 @@ class Call extends Step
                     $found = false;
 
                     foreach ($method_annotations as $method_annotation) {
-                        if ($is_context && $method_annotation instanceof Inject && $parameter->getName() == $method_annotation->name) {
+                        if ($this->is_context_call && $method_annotation instanceof Inject && $parameter->getName() == $method_annotation->name) {
                             $tmp_arguments[] = $method_annotation->variable;
                             $found = true;
                         }
@@ -201,24 +201,23 @@ class Call extends Step
         foreach ($this->arguments as $i => $argument) {
             if (is_string($argument) && isset($this->aliases[$argument])) {
                 $this->arguments[$i] = $this->aliases[$argument];
-
-                $argument = $this->arguments[$i];
-
-                if ($argument instanceof ClassDecorator) {
-                    $argument->decorateClass($class_builder);
-                }
-
-                if ($argument instanceof MethodDecorator) {
-                    $argument->decorateMethod($method_builder);
-                }
             }
         }
 
-        $builder = parent::getBuilder($class_builder, $method_builder);
+        parent::decorateClass($builder);
+    }
+
+    /**
+     * @return null|StepBuilder|StepBuilder[]
+     * @throws DecoratorException
+     */
+    public function getBuilder()
+    {
+        $builder = parent::getBuilder();
 
         $name = str_replace('_', '', ucwords($this->name, '_.'));
 
-        if (isset($contexts[$this->name])) {
+        if ($this->is_context_call) {
             $builder->setCallExpression("\$this->get{$name}Context()->");
         } else {
             $builder->setCallExpression("\$this->get{$name}()->");
@@ -325,13 +324,11 @@ class Custom extends Step
     }
 
     /**
-     * @param ClassBuilder $class_builder
-     * @param MethodBuilder $method_builder
      * @return null|StepBuilder|StepBuilder[]
      */
-    public function getBuilder(ClassBuilder $class_builder, MethodBuilder $method_builder)
+    public function getBuilder()
     {
-        $builder = parent::getBuilder($class_builder, $method_builder);
+        $builder = parent::getBuilder();
 
         $builder->setCallExpression("\$this->");
 
@@ -360,13 +357,11 @@ class Error extends Call implements MethodAnnotationDecorator
     }
 
     /**
-     * @param ClassBuilder $class_builder
-     * @param MethodBuilder $method_builder
      * @return null|StepBuilder|StepBuilder[]
      */
-    public function getBuilder(ClassBuilder $class_builder, MethodBuilder $method_builder)
+    public function getBuilder()
     {
-        $builder = parent::getBuilder($class_builder, $method_builder);
+        $builder = parent::getBuilder();
 
         $builder->setValidationCondition(false);
         $builder->setReturnExpression('$_return');

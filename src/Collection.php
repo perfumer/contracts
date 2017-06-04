@@ -47,17 +47,15 @@ abstract class Collection extends Step implements MethodAnnotationDecorator
     }
 
     /**
-     * @param ClassBuilder $class_builder
-     * @param MethodBuilder $method_builder
      * @return null|StepBuilder|StepBuilder[]
      */
-    public function getBuilder(ClassBuilder $class_builder, MethodBuilder $method_builder)
+    public function getBuilder()
     {
         $builders = [];
 
         foreach ($this->steps as $step) {
             if ($step instanceof Step) {
-                $step_builders = $step->getBuilder($class_builder, $method_builder);
+                $step_builders = $step->getBuilder();
 
                 if ($step_builders === null) {
                     continue;
