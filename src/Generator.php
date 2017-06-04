@@ -344,7 +344,6 @@ class Generator
                         }
 
                         $method_builder->setParameter($argument);
-                        $method_builder->addTestVariable($parameter->name, false);
                     }
 
                     $method_annotations = $this->reader->getMethodAnnotations($method);

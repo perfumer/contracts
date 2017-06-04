@@ -14,11 +14,6 @@ final class MethodBuilder extends MethodGenerator
     /**
      * @var array
      */
-    private $test_variables = [];
-
-    /**
-     * @var array
-     */
     private $prepended_code = [];
 
     /**
@@ -59,31 +54,6 @@ final class MethodBuilder extends MethodGenerator
     public function addInitialVariable(string $name, string $value): void
     {
         $this->initial_variables[$name] = $value;
-    }
-
-    /**
-     * @return array
-     */
-    public function getTestVariables(): array
-    {
-        return $this->test_variables;
-    }
-
-    /**
-     * @param array $test_variables
-     */
-    public function setTestVariables(array $test_variables): void
-    {
-        $this->test_variables = $test_variables;
-    }
-
-    /**
-     * @param string $name
-     * @param bool $assert
-     */
-    public function addTestVariable(string $name, bool $assert): void
-    {
-        $this->test_variables[] = [$name, $assert];
     }
 
     /**

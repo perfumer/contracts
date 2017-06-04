@@ -37,11 +37,11 @@ abstract class FooController extends \Perfumer\Contracts\Example\Contract\Contro
     final public function barAction(\Perfumer\Contracts\Annotations\Output $param2, array $param3, $param4 = '12\'3', int $param5 = 140): string
     {
         $_valid = true;
-        $_return = null;
         $a_valid = true;
         $param2_valid = true;
         $double_sum = null;
         $sand = null;
+        $_return = null;
 
         if ($_valid === true) {
             $_valid = (bool) $a_valid = $this->getDefaultContext()->intType($this->a);

@@ -78,10 +78,6 @@ abstract class Step extends Annotation implements ClassDecorator, MethodDecorato
         if ($this->if || $this->unless) {
             $condition = $this->if ?: $this->unless;
 
-            if (is_string($condition)) {
-                $method_builder->addTestVariable($condition, true);
-            }
-
             $body_argument = $condition instanceof Variable ? $condition->asArgument() : '$' . $condition;
 
             if ($this->unless) {
@@ -89,19 +85,9 @@ abstract class Step extends Annotation implements ClassDecorator, MethodDecorato
             }
 
             $step_builder->setExtraCondition($body_argument);
-
-            if (is_string($condition)) {
-                if (!isset($method_builder->getInitialVariables()[$condition])) {
-                    $method_builder->addInitialVariable($condition, 'null');
-                }
-            }
         }
 
         foreach ($this->arguments as $argument) {
-            if (is_string($argument)) {
-                $method_builder->addTestVariable($argument, true);
-            }
-
             $value = $argument instanceof Variable ? $argument->asArgument() : '$' . $argument;
 
             $step_builder->addArgument($value);
@@ -109,49 +95,19 @@ abstract class Step extends Annotation implements ClassDecorator, MethodDecorato
 
         if ($this->return) {
             if (is_array($this->return)) {
-                foreach ($this->return as $value) {
-                    if (is_string($value)) {
-                        $method_builder->addTestVariable($value, false);
-                    }
-                }
-
                 $vars = array_map(function ($v) {
                     return $v instanceof Variable ? $v->asReturn() : '$' . $v;
                 }, $this->return);
 
                 $expression = 'list(' . implode(', ', $vars) . ')';
             } else {
-                if (is_string($this->return)) {
-                    $method_builder->addTestVariable($this->return, false);
-                }
-
                 $expression = $this->return instanceof Variable ? $this->return->asReturn() : '$' . $this->return;
             }
 
             $step_builder->setReturnExpression($expression);
-
-            $return_values = is_array($this->return) ? $this->return : [$this->return];
-
-            foreach ($return_values as $var) {
-                if (!$var instanceof Variable) {
-                    $value = $this->validate ? 'true' : 'null';
-
-                    if (isset($method_builder->getInitialVariables()[$var])) {
-                        throw new DecoratorException(sprintf('%s.%s returns "%s" which is already in use.',
-                            $this->name,
-                            $this->method,
-                            $var
-                        ));
-                    }
-
-                    $method_builder->addInitialVariable($var, $value);
-                }
-            }
         }
 
         if ($this->validate) {
-            $method_builder->setValidation(true);
-
             $step_builder->setReturnExpression('$_valid = (bool) ' . $step_builder->getReturnExpression());
         }
 
@@ -190,23 +146,47 @@ abstract class Step extends Annotation implements ClassDecorator, MethodDecorato
 
     /**
      * @param MethodBuilder $builder
+     * @throws DecoratorException
      */
     public function decorateMethod(MethodBuilder $builder): void
     {
+        if ($this->validate) {
+            $builder->setValidation(true);
+        }
+
+        if ($this->if && is_string($this->if) && !isset($builder->getInitialVariables()[$this->if])) {
+            $builder->addInitialVariable($this->if, 'null');
+        }
+
+        if ($this->unless && is_string($this->unless) && !isset($builder->getInitialVariables()[$this->unless])) {
+            $builder->addInitialVariable($this->unless, 'null');
+        }
+
         foreach ($this->arguments as $argument) {
             if ($argument instanceof MethodDecorator) {
                 $argument->decorateMethod($builder);
             }
         }
 
-        if (is_array($this->return)) {
-            foreach ($this->return as $return) {
-                if ($return instanceof MethodDecorator) {
-                    $return->decorateMethod($builder);
+        $return = is_array($this->return) ? $this->return : [$this->return];
+
+        foreach ($return as $item) {
+            if (is_string($item)) {
+                if (isset($builder->getInitialVariables()[$item])) {
+                    throw new DecoratorException(sprintf('%s.%s returns "%s" which is already in use.',
+                        $this->name,
+                        $this->method,
+                        $item
+                    ));
                 }
+
+                $value = $this->validate ? 'true' : 'null';
+                $builder->addInitialVariable($item, $value);
             }
-        } elseif ($this->return instanceof MethodDecorator) {
-            $this->return->decorateMethod($builder);
+
+            if ($item instanceof MethodDecorator) {
+                $item->decorateMethod($builder);
+            }
         }
 
         if ($this->if instanceof MethodDecorator) {
