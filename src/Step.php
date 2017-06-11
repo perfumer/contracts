@@ -2,17 +2,19 @@
 
 namespace Perfumer\Contracts;
 
-use Perfumer\Contracts\Decorator\ClassDecorator;
-use Perfumer\Contracts\Decorator\MethodDecorator;
-use Perfumer\Contracts\Decorator\TestCaseDecorator;
+use Perfumer\Contracts\Decorator\ClassGeneratorDecorator;
+use Perfumer\Contracts\Decorator\MethodGeneratorDecorator;
+use Perfumer\Contracts\Decorator\TestCaseGeneratorDecorator;
 use Perfumer\Contracts\Exception\DecoratorException;
 use Perfumer\Contracts\Generator\ClassGenerator;
 use Perfumer\Contracts\Generator\MethodGenerator;
 use Perfumer\Contracts\Generator\StepGenerator;
 use Perfumer\Contracts\Generator\TestCaseGenerator;
+use Perfumer\Contracts\Variable\ArgumentVariable;
+use Perfumer\Contracts\Variable\ReturnedVariable;
 use Zend\Code\Generator\MethodGenerator as BaseMethodGenerator;
 
-abstract class Step extends Annotation implements ClassDecorator, MethodDecorator, TestCaseDecorator
+abstract class Step extends Annotation implements ClassGeneratorDecorator, MethodGeneratorDecorator, TestCaseGeneratorDecorator
 {
     /**
      * @var string
@@ -80,7 +82,7 @@ abstract class Step extends Annotation implements ClassDecorator, MethodDecorato
         if ($this->if || $this->unless) {
             $condition = $this->if ?: $this->unless;
 
-            $body_argument = $condition instanceof Variable ? $condition->asArgument() : '$' . $condition;
+            $body_argument = $condition instanceof ArgumentVariable ? $condition->getArgumentVariableExpression() : '$' . $condition;
 
             if ($this->unless) {
                 $body_argument = '!' . $body_argument;
@@ -90,7 +92,7 @@ abstract class Step extends Annotation implements ClassDecorator, MethodDecorato
         }
 
         foreach ($this->arguments as $argument) {
-            $value = $argument instanceof Variable ? $argument->asArgument() : '$' . $argument;
+            $value = $argument instanceof ArgumentVariable ? $argument->getArgumentVariableExpression() : '$' . $argument;
 
             $step_generator->addArgument($value);
         }
@@ -98,12 +100,12 @@ abstract class Step extends Annotation implements ClassDecorator, MethodDecorato
         if ($this->return) {
             if (is_array($this->return)) {
                 $vars = array_map(function ($v) {
-                    return $v instanceof Variable ? $v->asReturn() : '$' . $v;
+                    return $v instanceof ReturnedVariable ? $v->getReturnedVariableExpression() : '$' . $v;
                 }, $this->return);
 
                 $expression = 'list(' . implode(', ', $vars) . ')';
             } else {
-                $expression = $this->return instanceof Variable ? $this->return->asReturn() : '$' . $this->return;
+                $expression = $this->return instanceof ReturnedVariable ? $this->return->getReturnedVariableExpression() : '$' . $this->return;
             }
 
             $step_generator->setReturnExpression($expression);
@@ -119,30 +121,30 @@ abstract class Step extends Annotation implements ClassDecorator, MethodDecorato
     /**
      * @param ClassGenerator $generator
      */
-    public function decorateClass(ClassGenerator $generator): void
+    public function decorateClassGenerator(ClassGenerator $generator): void
     {
         foreach ($this->arguments as $argument) {
-            if ($argument instanceof ClassDecorator) {
-                $argument->decorateClass($generator);
+            if ($argument instanceof ClassGeneratorDecorator) {
+                $argument->decorateClassGenerator($generator);
             }
         }
 
         if (is_array($this->return)) {
             foreach ($this->return as $return) {
-                if ($return instanceof ClassDecorator) {
-                    $return->decorateClass($generator);
+                if ($return instanceof ClassGeneratorDecorator) {
+                    $return->decorateClassGenerator($generator);
                 }
             }
-        } elseif ($this->return instanceof ClassDecorator) {
-            $this->return->decorateClass($generator);
+        } elseif ($this->return instanceof ClassGeneratorDecorator) {
+            $this->return->decorateClassGenerator($generator);
         }
 
-        if ($this->if instanceof ClassDecorator) {
-            $this->if->decorateClass($generator);
+        if ($this->if instanceof ClassGeneratorDecorator) {
+            $this->if->decorateClassGenerator($generator);
         }
 
-        if ($this->unless instanceof ClassDecorator) {
-            $this->unless->decorateClass($generator);
+        if ($this->unless instanceof ClassGeneratorDecorator) {
+            $this->unless->decorateClassGenerator($generator);
         }
     }
 
@@ -150,15 +152,15 @@ abstract class Step extends Annotation implements ClassDecorator, MethodDecorato
      * @param MethodGenerator $generator
      * @throws DecoratorException
      */
-    public function decorateMethod(MethodGenerator $generator): void
+    public function decorateMethodGenerator(MethodGenerator $generator): void
     {
         if ($this->validate) {
             $generator->setValidation(true);
         }
 
         foreach ($this->arguments as $argument) {
-            if ($argument instanceof MethodDecorator) {
-                $argument->decorateMethod($generator);
+            if ($argument instanceof MethodGeneratorDecorator) {
+                $argument->decorateMethodGenerator($generator);
             }
         }
 
@@ -178,24 +180,24 @@ abstract class Step extends Annotation implements ClassDecorator, MethodDecorato
                 $generator->addInitialVariable($item, $value);
             }
 
-            if ($item instanceof MethodDecorator) {
-                $item->decorateMethod($generator);
+            if ($item instanceof MethodGeneratorDecorator) {
+                $item->decorateMethodGenerator($generator);
             }
         }
 
-        if ($this->if instanceof MethodDecorator) {
-            $this->if->decorateMethod($generator);
+        if ($this->if instanceof MethodGeneratorDecorator) {
+            $this->if->decorateMethodGenerator($generator);
         }
 
-        if ($this->unless instanceof MethodDecorator) {
-            $this->unless->decorateMethod($generator);
+        if ($this->unless instanceof MethodGeneratorDecorator) {
+            $this->unless->decorateMethodGenerator($generator);
         }
     }
 
     /**
      * @param TestCaseGenerator $generator
      */
-    public function decorateTestCase(TestCaseGenerator $generator): void
+    public function decorateTestCaseGenerator(TestCaseGenerator $generator): void
     {
         $test_method = 'test' . ucfirst($this->getReflectionMethod()->getName()) . 'LocalVariables';
 
@@ -233,8 +235,8 @@ abstract class Step extends Annotation implements ClassDecorator, MethodDecorato
                 $method->setBody($body);
             }
 
-            if ($argument instanceof TestCaseDecorator) {
-                $argument->decorateTestCase($generator);
+            if ($argument instanceof TestCaseGeneratorDecorator) {
+                $argument->decorateTestCaseGenerator($generator);
             }
         }
 
@@ -245,23 +247,23 @@ abstract class Step extends Annotation implements ClassDecorator, MethodDecorato
                     $method->setBody($body);
                 }
 
-                if ($return instanceof TestCaseDecorator) {
-                    $return->decorateTestCase($generator);
+                if ($return instanceof TestCaseGeneratorDecorator) {
+                    $return->decorateTestCaseGenerator($generator);
                 }
             }
         } elseif (is_string($this->return)) {
             $body = $method->getBody() . '$' . $this->return . ' = true;';
             $method->setBody($body);
-        } elseif ($this->return instanceof TestCaseDecorator) {
-            $this->return->decorateTestCase($generator);
+        } elseif ($this->return instanceof TestCaseGeneratorDecorator) {
+            $this->return->decorateTestCaseGenerator($generator);
         }
 
-        if ($this->if instanceof TestCaseDecorator) {
-            $this->if->decorateTestCase($generator);
+        if ($this->if instanceof TestCaseGeneratorDecorator) {
+            $this->if->decorateTestCaseGenerator($generator);
         }
 
-        if ($this->unless instanceof TestCaseDecorator) {
-            $this->unless->decorateTestCase($generator);
+        if ($this->unless instanceof TestCaseGeneratorDecorator) {
+            $this->unless->decorateTestCaseGenerator($generator);
         }
     }
 }

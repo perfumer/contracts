@@ -6,16 +6,17 @@ use Doctrine\Common\Annotations\Annotation\Target;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Perfumer\Contracts\Annotation;
 use Perfumer\Contracts\Collection;
-use Perfumer\Contracts\Decorator\ClassDecorator;
+use Perfumer\Contracts\Decorator\ClassGeneratorDecorator;
 use Perfumer\Contracts\Decorator\MethodAnnotationDecorator;
-use Perfumer\Contracts\Decorator\MethodDecorator;
+use Perfumer\Contracts\Decorator\MethodGeneratorDecorator;
 use Perfumer\Contracts\Exception\DecoratorException;
 use Perfumer\Contracts\Generator\ClassGenerator;
 use Perfumer\Contracts\Generator\MethodGenerator;
 use Perfumer\Contracts\Generator\StepGenerator;
 use Perfumer\Contracts\Service;
 use Perfumer\Contracts\Step;
-use Perfumer\Contracts\Variable;
+use Perfumer\Contracts\Variable\ArgumentVariable;
+use Perfumer\Contracts\Variable\ReturnedVariable;
 use Zend\Code\Generator\MethodGenerator as BaseMethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
 use Zend\Code\Generator\PropertyGenerator;
@@ -110,7 +111,7 @@ class Call extends Step
      * @param ClassGenerator $generator
      * @throws DecoratorException
      */
-    public function decorateClass(ClassGenerator $generator): void
+    public function decorateClassGenerator(ClassGenerator $generator): void
     {
         if ($this->name) {
             if (!isset($generator->getContexts()[$this->name]) && !isset($generator->getInjections()[$this->name])) {
@@ -205,7 +206,7 @@ class Call extends Step
             }
         }
 
-        parent::decorateClass($generator);
+        parent::decorateClassGenerator($generator);
     }
 
     /**
@@ -232,7 +233,7 @@ class Call extends Step
  * @Annotation
  * @Target({"CLASS", "METHOD", "ANNOTATION"})
  */
-class Context extends Annotation implements Variable, ClassDecorator
+class Context extends Annotation implements ArgumentVariable, ClassGeneratorDecorator
 {
     /**
      * @var string
@@ -248,7 +249,7 @@ class Context extends Annotation implements Variable, ClassDecorator
      * @param ClassGenerator $generator
      * @throws DecoratorException
      */
-    public function decorateClass(ClassGenerator $generator): void
+    public function decorateClassGenerator(ClassGenerator $generator): void
     {
         if ($this->class !== null) {
             if (!class_exists($this->class) && $this->name !== 'default') {
@@ -272,25 +273,17 @@ class Context extends Annotation implements Variable, ClassDecorator
     /**
      * @return string
      */
-    public function asArgument(): string
-    {
-        return '$this->get' . str_replace('_', '', ucwords($this->name, '_')) . 'Context()';
-    }
-
-    /**
-     * @return string
-     */
-    public function asHeader(): string
+    public function getArgumentVariableName(): string
     {
         return $this->name;
     }
 
     /**
-     * @throws DecoratorException
+     * @return string
      */
-    public function asReturn(): string
+    public function getArgumentVariableExpression(): string
     {
-        throw new DecoratorException('@Context annotation can not be used for "return".');
+        return '$this->get' . str_replace('_', '', ucwords($this->name, '_')) . 'Context()';
     }
 }
 
@@ -303,9 +296,9 @@ class Custom extends Step
     /**
      * @param ClassGenerator $generator
      */
-    public function decorateClass(ClassGenerator $generator): void
+    public function decorateClassGenerator(ClassGenerator $generator): void
     {
-        parent::decorateClass($generator);
+        parent::decorateClassGenerator($generator);
 
         $method = new BaseMethodGenerator();
         $method->setName($this->method);
@@ -313,7 +306,7 @@ class Custom extends Step
         $method->setVisibility('protected');
 
         foreach ($this->arguments as $item) {
-            $name = $item instanceof Variable ? $item->asHeader() : $item;
+            $name = $item instanceof ArgumentVariable ? $item->getArgumentVariableName() : $item;
 
             $argument = new ParameterGenerator();
             $argument->setName($name);
@@ -346,9 +339,9 @@ class Error extends Call implements MethodAnnotationDecorator
     /**
      * @param MethodGenerator $generator
      */
-    public function decorateMethod(MethodGenerator $generator): void
+    public function decorateMethodGenerator(MethodGenerator $generator): void
     {
-        parent::decorateMethod($generator);
+        parent::decorateMethodGenerator($generator);
 
         $generator->addInitialVariable('_return', 'null');
 
@@ -385,7 +378,7 @@ class Error extends Call implements MethodAnnotationDecorator
  * @Annotation
  * @Target({"CLASS", "METHOD", "ANNOTATION"})
  */
-class Inject extends Annotation implements Variable, ClassDecorator
+class Inject extends Annotation implements ArgumentVariable, ClassGeneratorDecorator
 {
     /**
      * @var string
@@ -406,7 +399,7 @@ class Inject extends Annotation implements Variable, ClassDecorator
      * @param ClassGenerator $generator
      * @throws DecoratorException
      */
-    public function decorateClass(ClassGenerator $generator): void
+    public function decorateClassGenerator(ClassGenerator $generator): void
     {
         if ($this->type !== null) {
             if (isset($generator->getContexts()[$this->name]) || isset($generator->getInjections()[$this->name])) {
@@ -422,25 +415,17 @@ class Inject extends Annotation implements Variable, ClassDecorator
     /**
      * @return string
      */
-    public function asArgument(): string
-    {
-        return '$this->_injected_' . $this->name;
-    }
-
-    /**
-     * @return string
-     */
-    public function asHeader(): string
+    public function getArgumentVariableName(): string
     {
         return $this->name;
     }
 
     /**
-     * @throws DecoratorException
+     * @return string
      */
-    public function asReturn(): string
+    public function getArgumentVariableExpression(): string
     {
-        throw new DecoratorException('@Inject annotation can not be used for "return".');
+        return '$this->_injected_' . $this->name;
     }
 }
 
@@ -448,28 +433,12 @@ class Inject extends Annotation implements Variable, ClassDecorator
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Output extends Annotation implements Variable, MethodDecorator
+class Output extends Annotation implements ReturnedVariable, MethodGeneratorDecorator
 {
-    /**
-     * @throws DecoratorException
-     */
-    public function asArgument(): string
-    {
-        throw new DecoratorException('@Output annotation can not be used for "args".');
-    }
-
-    /**
-     * @throws DecoratorException
-     */
-    public function asHeader(): string
-    {
-        throw new DecoratorException('@Output annotation can not be used for "args".');
-    }
-
     /**
      * @return string
      */
-    public function asReturn(): string
+    public function getReturnedVariableExpression(): string
     {
         return '$_return';
     }
@@ -477,7 +446,7 @@ class Output extends Annotation implements Variable, MethodDecorator
     /**
      * @param MethodGenerator $generator
      */
-    public function decorateMethod(MethodGenerator $generator): void
+    public function decorateMethodGenerator(MethodGenerator $generator): void
     {
         $generator->addInitialVariable('_return', 'null');
 
@@ -491,7 +460,7 @@ class Output extends Annotation implements Variable, MethodDecorator
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Property extends Annotation implements Variable, ClassDecorator
+class Property extends Annotation implements ArgumentVariable, ReturnedVariable, ClassGeneratorDecorator
 {
     /**
      * @var string
@@ -509,7 +478,7 @@ class Property extends Annotation implements Variable, ClassDecorator
     /**
      * @return string
      */
-    public function asArgument(): string
+    public function getArgumentVariableExpression(): string
     {
         return '$this->' . $this->name;
     }
@@ -517,7 +486,7 @@ class Property extends Annotation implements Variable, ClassDecorator
     /**
      * @return string
      */
-    public function asHeader(): string
+    public function getArgumentVariableName(): string
     {
         return $this->name;
     }
@@ -525,7 +494,7 @@ class Property extends Annotation implements Variable, ClassDecorator
     /**
      * @return string
      */
-    public function asReturn(): string
+    public function getReturnedVariableExpression(): string
     {
         return '$this->' . $this->name;
     }
@@ -533,7 +502,7 @@ class Property extends Annotation implements Variable, ClassDecorator
     /**
      * @param ClassGenerator $generator
      */
-    public function decorateClass(ClassGenerator $generator): void
+    public function decorateClassGenerator(ClassGenerator $generator): void
     {
         if (!$generator->hasProperty($this->name)) {
             $generator->addProperty($this->name, null, PropertyGenerator::FLAG_PROTECTED);
@@ -580,13 +549,13 @@ class ServiceProperty extends Service
     /**
      * @param ClassGenerator $generator
      */
-    public function decorateClass(ClassGenerator $generator): void
+    public function decorateClassGenerator(ClassGenerator $generator): void
     {
         if (!$generator->hasProperty($this->name)) {
             $generator->addProperty($this->name, null, PropertyGenerator::FLAG_PROTECTED);
         }
 
-        parent::decorateClass($generator);
+        parent::decorateClassGenerator($generator);
     }
 
     /**

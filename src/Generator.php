@@ -6,10 +6,10 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Perfumer\Contracts\Annotations\Test;
 use Perfumer\Contracts\Decorator\ClassAnnotationDecorator;
-use Perfumer\Contracts\Decorator\ClassDecorator;
+use Perfumer\Contracts\Decorator\ClassGeneratorDecorator;
 use Perfumer\Contracts\Decorator\MethodAnnotationDecorator;
-use Perfumer\Contracts\Decorator\MethodDecorator;
-use Perfumer\Contracts\Decorator\TestCaseDecorator;
+use Perfumer\Contracts\Decorator\MethodGeneratorDecorator;
+use Perfumer\Contracts\Decorator\TestCaseGeneratorDecorator;
 use Perfumer\Contracts\Exception\ContractsException;
 use Perfumer\Contracts\Exception\DecoratorException;
 use Perfumer\Contracts\Generator\ClassGenerator;
@@ -302,12 +302,12 @@ class Generator
                             continue;
                         }
 
-                        if ($annotation instanceof ClassDecorator) {
-                            $annotation->decorateClass($class_generator);
+                        if ($annotation instanceof ClassGeneratorDecorator) {
+                            $annotation->decorateClassGenerator($class_generator);
                         }
 
-                        if ($annotation instanceof TestCaseDecorator) {
-                            $annotation->decorateTestCase($test_case_generator);
+                        if ($annotation instanceof TestCaseGeneratorDecorator) {
+                            $annotation->decorateTestCaseGenerator($test_case_generator);
                         }
                     }
                 } catch (DecoratorException $e) {
@@ -387,22 +387,22 @@ class Generator
                                 continue;
                             }
 
-                            if ($annotation instanceof ClassDecorator) {
-                                $annotation->decorateClass($class_generator);
+                            if ($annotation instanceof ClassGeneratorDecorator) {
+                                $annotation->decorateClassGenerator($class_generator);
                             }
 
-                            if ($annotation instanceof MethodDecorator) {
-                                $annotation->decorateMethod($method_generator);
+                            if ($annotation instanceof MethodGeneratorDecorator) {
+                                $annotation->decorateMethodGenerator($method_generator);
                             }
 
-                            if ($annotation instanceof TestCaseDecorator) {
-                                $annotation->decorateTestCase($test_case_generator);
+                            if ($annotation instanceof TestCaseGeneratorDecorator) {
+                                $annotation->decorateTestCaseGenerator($test_case_generator);
                             }
                         }
 
                         foreach ($class_annotations as $annotation) {
-                            if ($annotation instanceof MethodDecorator) {
-                                $annotation->decorateMethod($method_generator);
+                            if ($annotation instanceof MethodGeneratorDecorator) {
+                                $annotation->decorateMethodGenerator($method_generator);
                             }
                         }
 

@@ -2,10 +2,10 @@
 
 namespace Perfumer\Contracts;
 
-use Perfumer\Contracts\Decorator\ClassDecorator;
+use Perfumer\Contracts\Decorator\ClassGeneratorDecorator;
 use Perfumer\Contracts\Decorator\MethodAnnotationDecorator;
-use Perfumer\Contracts\Decorator\MethodDecorator;
-use Perfumer\Contracts\Decorator\TestCaseDecorator;
+use Perfumer\Contracts\Decorator\MethodGeneratorDecorator;
+use Perfumer\Contracts\Decorator\TestCaseGeneratorDecorator;
 use Perfumer\Contracts\Generator\ClassGenerator;
 use Perfumer\Contracts\Generator\MethodGenerator;
 use Perfumer\Contracts\Generator\StepGenerator;
@@ -84,11 +84,11 @@ abstract class Collection extends Step implements MethodAnnotationDecorator
     /**
      * @param ClassGenerator $generator
      */
-    public function decorateClass(ClassGenerator $generator): void
+    public function decorateClassGenerator(ClassGenerator $generator): void
     {
         foreach ($this->steps as $step) {
-            if ($step instanceof ClassDecorator) {
-                $step->decorateClass($generator);
+            if ($step instanceof ClassGeneratorDecorator) {
+                $step->decorateClassGenerator($generator);
             }
         }
     }
@@ -96,11 +96,11 @@ abstract class Collection extends Step implements MethodAnnotationDecorator
     /**
      * @param MethodGenerator $generator
      */
-    public function decorateMethod(MethodGenerator $generator): void
+    public function decorateMethodGenerator(MethodGenerator $generator): void
     {
         foreach ($this->steps as $step) {
-            if ($step instanceof MethodDecorator) {
-                $step->decorateMethod($generator);
+            if ($step instanceof MethodGeneratorDecorator) {
+                $step->decorateMethodGenerator($generator);
             }
         }
     }
@@ -108,11 +108,11 @@ abstract class Collection extends Step implements MethodAnnotationDecorator
     /**
      * @param TestCaseGenerator $generator
      */
-    public function decorateTestCase(TestCaseGenerator $generator): void
+    public function decorateTestCaseGenerator(TestCaseGenerator $generator): void
     {
         foreach ($this->steps as $step) {
-            if ($step instanceof TestCaseDecorator) {
-                $step->decorateTestCase($generator);
+            if ($step instanceof TestCaseGeneratorDecorator) {
+                $step->decorateTestCaseGenerator($generator);
             }
         }
     }
