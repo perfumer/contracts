@@ -5,17 +5,18 @@ namespace Perfumer\Contracts\Annotations;
 use Doctrine\Common\Annotations\Annotation\Target;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Perfumer\Contracts\Annotation;
-use Perfumer\Contracts\ClassBuilder;
 use Perfumer\Contracts\Collection;
 use Perfumer\Contracts\Decorator\ClassDecorator;
 use Perfumer\Contracts\Decorator\MethodAnnotationDecorator;
 use Perfumer\Contracts\Decorator\MethodDecorator;
 use Perfumer\Contracts\Exception\DecoratorException;
-use Perfumer\Contracts\MethodBuilder;
+use Perfumer\Contracts\Generator\ClassGenerator;
+use Perfumer\Contracts\Generator\MethodGenerator;
+use Perfumer\Contracts\Generator\StepGenerator;
 use Perfumer\Contracts\Service;
 use Perfumer\Contracts\Step;
-use Perfumer\Contracts\StepBuilder;
 use Perfumer\Contracts\Variable;
+use Zend\Code\Generator\MethodGenerator as BaseMethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
 use Zend\Code\Generator\PropertyGenerator;
 
@@ -106,13 +107,13 @@ class Call extends Step
     private $is_injection_call = false;
 
     /**
-     * @param ClassBuilder $builder
+     * @param ClassGenerator $generator
      * @throws DecoratorException
      */
-    public function decorateClass(ClassBuilder $builder): void
+    public function decorateClass(ClassGenerator $generator): void
     {
         if ($this->name) {
-            if (!isset($builder->getContexts()[$this->name]) && !isset($builder->getInjections()[$this->name])) {
+            if (!isset($generator->getContexts()[$this->name]) && !isset($generator->getInjections()[$this->name])) {
                 throw new DecoratorException(sprintf('"%s" context or injection is not registered',
                     $this->name
                 ));
@@ -120,16 +121,16 @@ class Call extends Step
         } else {
             $this->name = 'default';
 
-            $reflection = $builder->getContract();
+            $reflection = $generator->getContract();
 
             $context_class = '\\' . $reflection->getNamespaceName() . '\\' . $reflection->getShortName() . 'Context';
 
-            if (!isset($builder->getContexts()[$this->name]) && class_exists($context_class, false)) {
-                $builder->addContext($this->name, $context_class);
+            if (!isset($generator->getContexts()[$this->name]) && class_exists($context_class, false)) {
+                $generator->addContext($this->name, $context_class);
             }
         }
 
-        if (isset($builder->getContexts()[$this->name])) {
+        if (isset($generator->getContexts()[$this->name])) {
             $this->is_context_call = true;
         } else {
             $this->is_injection_call = true;
@@ -137,11 +138,11 @@ class Call extends Step
 
         $annotation_arguments = $this->arguments;
 
-        if (isset($builder->getContexts()[$this->name]) || isset($builder->getInjections()[$this->name])) {
+        if (isset($generator->getContexts()[$this->name]) || isset($generator->getInjections()[$this->name])) {
             if ($this->is_context_call) {
-                $reflection_context = new \ReflectionClass($builder->getContexts()[$this->name]);
+                $reflection_context = new \ReflectionClass($generator->getContexts()[$this->name]);
             } else {
-                $reflection_context = new \ReflectionClass($builder->getInjections()[$this->name]);
+                $reflection_context = new \ReflectionClass($generator->getInjections()[$this->name]);
             }
 
             $method_found = false;
@@ -204,26 +205,26 @@ class Call extends Step
             }
         }
 
-        parent::decorateClass($builder);
+        parent::decorateClass($generator);
     }
 
     /**
-     * @return null|StepBuilder|StepBuilder[]
+     * @return null|StepGenerator|StepGenerator[]
      * @throws DecoratorException
      */
-    public function getBuilder()
+    public function getGenerator()
     {
-        $builder = parent::getBuilder();
+        $generator = parent::getGenerator();
 
         $name = str_replace('_', '', ucwords($this->name, '_.'));
 
         if ($this->is_context_call) {
-            $builder->setCallExpression("\$this->get{$name}Context()->");
+            $generator->setCallExpression("\$this->get{$name}Context()->");
         } else {
-            $builder->setCallExpression("\$this->get{$name}()->");
+            $generator->setCallExpression("\$this->get{$name}()->");
         }
 
-        return $builder;
+        return $generator;
     }
 }
 
@@ -244,10 +245,10 @@ class Context extends Annotation implements Variable, ClassDecorator
     public $class;
 
     /**
-     * @param ClassBuilder $builder
+     * @param ClassGenerator $generator
      * @throws DecoratorException
      */
-    public function decorateClass(ClassBuilder $builder): void
+    public function decorateClass(ClassGenerator $generator): void
     {
         if ($this->class !== null) {
             if (!class_exists($this->class) && $this->name !== 'default') {
@@ -256,14 +257,14 @@ class Context extends Annotation implements Variable, ClassDecorator
                 ));
             }
 
-            if (isset($builder->getContexts()[$this->name]) || isset($builder->getInjections()[$this->name])) {
+            if (isset($generator->getContexts()[$this->name]) || isset($generator->getInjections()[$this->name])) {
                 throw new DecoratorException(sprintf('"%s" context or injected is already defined.',
                     $this->name
                 ));
             }
 
             if ($this->name !== 'default') {
-                $builder->addContext($this->name, $this->class);
+                $generator->addContext($this->name, $this->class);
             }
         }
     }
@@ -300,13 +301,13 @@ class Context extends Annotation implements Variable, ClassDecorator
 class Custom extends Step
 {
     /**
-     * @param ClassBuilder $builder
+     * @param ClassGenerator $generator
      */
-    public function decorateClass(ClassBuilder $builder): void
+    public function decorateClass(ClassGenerator $generator): void
     {
-        parent::decorateClass($builder);
+        parent::decorateClass($generator);
 
-        $method = new MethodBuilder();
+        $method = new BaseMethodGenerator();
         $method->setName($this->method);
         $method->setAbstract(true);
         $method->setVisibility('protected');
@@ -320,19 +321,19 @@ class Custom extends Step
             $method->setParameter($argument);
         }
 
-        $builder->addMethodFromGenerator($method);
+        $generator->addMethodFromGenerator($method);
     }
 
     /**
-     * @return null|StepBuilder|StepBuilder[]
+     * @return null|StepGenerator|StepGenerator[]
      */
-    public function getBuilder()
+    public function getGenerator()
     {
-        $builder = parent::getBuilder();
+        $generator = parent::getGenerator();
 
-        $builder->setCallExpression("\$this->");
+        $generator->setCallExpression("\$this->");
 
-        return $builder;
+        return $generator;
     }
 }
 
@@ -343,30 +344,30 @@ class Custom extends Step
 class Error extends Call implements MethodAnnotationDecorator
 {
     /**
-     * @param MethodBuilder $builder
+     * @param MethodGenerator $generator
      */
-    public function decorateMethod(MethodBuilder $builder): void
+    public function decorateMethod(MethodGenerator $generator): void
     {
-        parent::decorateMethod($builder);
+        parent::decorateMethod($generator);
 
-        $builder->addInitialVariable('_return', 'null');
+        $generator->addInitialVariable('_return', 'null');
 
-        if (!isset($builder->getAppendedCode()['_return'])) {
-            $builder->addAppendedCode('_return', 'return $_return;');
+        if (!isset($generator->getAppendedCode()['_return'])) {
+            $generator->addAppendedCode('_return', 'return $_return;');
         }
     }
 
     /**
-     * @return null|StepBuilder|StepBuilder[]
+     * @return null|StepGenerator|StepGenerator[]
      */
-    public function getBuilder()
+    public function getGenerator()
     {
-        $builder = parent::getBuilder();
+        $generator = parent::getGenerator();
 
-        $builder->setValidationCondition(false);
-        $builder->setReturnExpression('$_return');
+        $generator->setValidationCondition(false);
+        $generator->setReturnExpression('$_return');
 
-        return $builder;
+        return $generator;
     }
 
     /**
@@ -402,19 +403,19 @@ class Inject extends Annotation implements Variable, ClassDecorator
     public $type;
 
     /**
-     * @param ClassBuilder $builder
+     * @param ClassGenerator $generator
      * @throws DecoratorException
      */
-    public function decorateClass(ClassBuilder $builder): void
+    public function decorateClass(ClassGenerator $generator): void
     {
         if ($this->type !== null) {
-            if (isset($builder->getContexts()[$this->name]) || isset($builder->getInjections()[$this->name])) {
+            if (isset($generator->getContexts()[$this->name]) || isset($generator->getInjections()[$this->name])) {
                 throw new DecoratorException(sprintf('"%s" context or injected is already defined.',
                     $this->name
                 ));
             }
 
-            $builder->addInjection($this->name, $this->type);
+            $generator->addInjection($this->name, $this->type);
         }
     }
 
@@ -474,14 +475,14 @@ class Output extends Annotation implements Variable, MethodDecorator
     }
 
     /**
-     * @param MethodBuilder $builder
+     * @param MethodGenerator $generator
      */
-    public function decorateMethod(MethodBuilder $builder): void
+    public function decorateMethod(MethodGenerator $generator): void
     {
-        $builder->addInitialVariable('_return', 'null');
+        $generator->addInitialVariable('_return', 'null');
 
-        if (!isset($builder->getAppendedCode()['_return'])) {
-            $builder->addAppendedCode('_return', 'return $_return;');
+        if (!isset($generator->getAppendedCode()['_return'])) {
+            $generator->addAppendedCode('_return', 'return $_return;');
         }
     }
 }
@@ -530,12 +531,12 @@ class Property extends Annotation implements Variable, ClassDecorator
     }
 
     /**
-     * @param ClassBuilder $builder
+     * @param ClassGenerator $generator
      */
-    public function decorateClass(ClassBuilder $builder): void
+    public function decorateClass(ClassGenerator $generator): void
     {
-        if (!$builder->hasProperty($this->name)) {
-            $builder->addProperty($this->name, null, PropertyGenerator::FLAG_PROTECTED);
+        if (!$generator->hasProperty($this->name)) {
+            $generator->addProperty($this->name, null, PropertyGenerator::FLAG_PROTECTED);
         }
     }
 }
@@ -577,15 +578,15 @@ class ServiceParent extends Service
 class ServiceProperty extends Service
 {
     /**
-     * @param ClassBuilder $builder
+     * @param ClassGenerator $generator
      */
-    public function decorateClass(ClassBuilder $builder): void
+    public function decorateClass(ClassGenerator $generator): void
     {
-        if (!$builder->hasProperty($this->name)) {
-            $builder->addProperty($this->name, null, PropertyGenerator::FLAG_PROTECTED);
+        if (!$generator->hasProperty($this->name)) {
+            $generator->addProperty($this->name, null, PropertyGenerator::FLAG_PROTECTED);
         }
 
-        parent::decorateClass($builder);
+        parent::decorateClass($generator);
     }
 
     /**

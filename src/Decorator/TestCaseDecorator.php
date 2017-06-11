@@ -2,9 +2,9 @@
 
 namespace Perfumer\Contracts\Decorator;
 
-use Perfumer\Contracts\TestCaseBuilder;
+use Perfumer\Contracts\Generator\TestCaseGenerator;
 
 interface TestCaseDecorator
 {
-    public function decorateTestCase(TestCaseBuilder $builder): void;
+    public function decorateTestCase(TestCaseGenerator $generator): void;
 }

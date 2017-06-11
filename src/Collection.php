@@ -6,6 +6,10 @@ use Perfumer\Contracts\Decorator\ClassDecorator;
 use Perfumer\Contracts\Decorator\MethodAnnotationDecorator;
 use Perfumer\Contracts\Decorator\MethodDecorator;
 use Perfumer\Contracts\Decorator\TestCaseDecorator;
+use Perfumer\Contracts\Generator\ClassGenerator;
+use Perfumer\Contracts\Generator\MethodGenerator;
+use Perfumer\Contracts\Generator\StepGenerator;
+use Perfumer\Contracts\Generator\TestCaseGenerator;
 
 abstract class Collection extends Step implements MethodAnnotationDecorator
 {
@@ -47,68 +51,68 @@ abstract class Collection extends Step implements MethodAnnotationDecorator
     }
 
     /**
-     * @return null|StepBuilder|StepBuilder[]
+     * @return null|StepGenerator|StepGenerator[]
      */
-    public function getBuilder()
+    public function getGenerator()
     {
-        $builders = [];
+        $generators = [];
 
         foreach ($this->steps as $step) {
             if ($step instanceof Step) {
-                $step_builders = $step->getBuilder();
+                $step_generators = $step->getGenerator();
 
-                if ($step_builders === null) {
+                if ($step_generators === null) {
                     continue;
                 }
 
-                if (!is_array($step_builders)) {
-                    $builders[] = $step_builders;
+                if (!is_array($step_generators)) {
+                    $generators[] = $step_generators;
                 } else {
-                    $builders = array_merge($builders, $step_builders);
+                    $generators = array_merge($generators, $step_generators);
                 }
             }
         }
 
-        if (count($builders) > 0) {
-            $builders[0]->addBeforeCode('_collection', $this->getBeforeCode());
-            $builders[count($builders) - 1]->addAfterCode('_collection', $this->getAfterCode());
+        if (count($generators) > 0) {
+            $generators[0]->addBeforeCode('_collection', $this->getBeforeCode());
+            $generators[count($generators) - 1]->addAfterCode('_collection', $this->getAfterCode());
         }
 
-        return $builders;
+        return $generators;
     }
 
     /**
-     * @param ClassBuilder $builder
+     * @param ClassGenerator $generator
      */
-    public function decorateClass(ClassBuilder $builder): void
+    public function decorateClass(ClassGenerator $generator): void
     {
         foreach ($this->steps as $step) {
             if ($step instanceof ClassDecorator) {
-                $step->decorateClass($builder);
+                $step->decorateClass($generator);
             }
         }
     }
 
     /**
-     * @param MethodBuilder $builder
+     * @param MethodGenerator $generator
      */
-    public function decorateMethod(MethodBuilder $builder): void
+    public function decorateMethod(MethodGenerator $generator): void
     {
         foreach ($this->steps as $step) {
             if ($step instanceof MethodDecorator) {
-                $step->decorateMethod($builder);
+                $step->decorateMethod($generator);
             }
         }
     }
 
     /**
-     * @param TestCaseBuilder $builder
+     * @param TestCaseGenerator $generator
      */
-    public function decorateTestCase(TestCaseBuilder $builder): void
+    public function decorateTestCase(TestCaseGenerator $generator): void
     {
         foreach ($this->steps as $step) {
             if ($step instanceof TestCaseDecorator) {
-                $step->decorateTestCase($builder);
+                $step->decorateTestCase($generator);
             }
         }
     }

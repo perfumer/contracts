@@ -2,40 +2,66 @@
 
 namespace Perfumer\Contracts;
 
-class Bundle
+use Perfumer\Contracts\Generator\ClassGenerator;
+use Perfumer\Contracts\Generator\TestCaseGenerator;
+
+final class Bundle
 {
     /**
-     * @var \ArrayObject
+     * @var array
      */
-    private $class_builders;
+    private $class_generators = [];
 
     /**
-     * @var \ArrayObject
+     * @var array
      */
-    private $test_case_builders;
+    private $test_case_generators = [];
 
     /**
-     * Bundle constructor.
+     * @return ClassGenerator[]
      */
-    public function __construct()
+    public function getClassGenerators(): array
     {
-        $this->class_builders = new \ArrayObject();
-        $this->test_case_builders = new \ArrayObject();
+        return $this->class_generators;
     }
 
     /**
-     * @return \ArrayObject
+     * @param array $class_generators
      */
-    public function getClassBuilders(): \ArrayObject
+    public function setClassGenerators(array $class_generators): void
     {
-        return $this->class_builders;
+        $this->class_generators = $class_generators;
     }
 
     /**
-     * @return \ArrayObject
+     * @param ClassGenerator $class_generator
      */
-    public function getTestCaseBuilders(): \ArrayObject
+    public function addClassGenerator(ClassGenerator $class_generator): void
     {
-        return $this->test_case_builders;
+        $this->class_generators[] = $class_generator;
+    }
+
+    /**
+     * @return TestCaseGenerator[]
+     */
+    public function getTestCaseGenerators(): array
+    {
+        return $this->test_case_generators;
+    }
+
+    /**
+     * @param array $test_case_generators
+     */
+    public function setTestCaseGenerators(array $test_case_generators): void
+    {
+        $this->test_case_generators = $test_case_generators;
+    }
+
+    /**
+     * @param TestCaseGenerator $test_case_generator
+     */
+    public function addTestCaseGenerator(TestCaseGenerator $test_case_generator): void
+    {
+        $this->test_case_generators[] = $test_case_generator;
     }
 }

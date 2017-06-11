@@ -2,9 +2,9 @@
 
 namespace Perfumer\Contracts\Decorator;
 
-use Perfumer\Contracts\ClassBuilder;
+use Perfumer\Contracts\Generator\ClassGenerator;
 
 interface ClassDecorator
 {
-    public function decorateClass(ClassBuilder $builder): void;
+    public function decorateClass(ClassGenerator $generator): void;
 }

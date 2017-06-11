@@ -2,6 +2,8 @@
 
 namespace Perfumer\Contracts;
 
+use Perfumer\Contracts\Generator\StepGenerator;
+
 abstract class Service extends Step
 {
     /**
@@ -10,14 +12,14 @@ abstract class Service extends Step
     abstract public function getCallExpression(): string;
 
     /**
-     * @return null|StepBuilder|StepBuilder[]
+     * @return null|StepGenerator|StepGenerator[]
      */
-    public function getBuilder()
+    public function getGenerator()
     {
-        $step_builder = parent::getBuilder();
+        $step_generator = parent::getGenerator();
 
-        $step_builder->setCallExpression($this->getCallExpression());
+        $step_generator->setCallExpression($this->getCallExpression());
 
-        return $step_builder;
+        return $step_generator;
     }
 }

@@ -1,15 +1,15 @@
 <?php
 
-namespace Perfumer\Contracts;
+namespace Perfumer\Contracts\Generator;
 
-use Zend\Code\Generator\ClassGenerator;
+use Zend\Code\Generator\ClassGenerator as BaseGenerator;
 use Zend\Code\Generator\DocBlock\Tag\ReturnTag;
 use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
 use Zend\Code\Generator\PropertyGenerator;
 
-final class ClassBuilder extends ClassGenerator
+final class ClassGenerator extends BaseGenerator
 {
     /**
      * @var \ReflectionClass

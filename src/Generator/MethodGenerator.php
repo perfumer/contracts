@@ -1,10 +1,10 @@
 <?php
 
-namespace Perfumer\Contracts;
+namespace Perfumer\Contracts\Generator;
 
-use Zend\Code\Generator\MethodGenerator;
+use Zend\Code\Generator\MethodGenerator as BaseGenerator;
 
-final class MethodBuilder extends MethodGenerator
+final class MethodGenerator extends BaseGenerator
 {
     /**
      * @var array
@@ -123,9 +123,9 @@ final class MethodBuilder extends MethodGenerator
     }
 
     /**
-     * @param StepBuilder $step
+     * @param StepGenerator $step
      */
-    public function addStep(StepBuilder $step): void
+    public function addStep(StepGenerator $step): void
     {
         $this->steps[] = $step;
     }
@@ -171,7 +171,7 @@ final class MethodBuilder extends MethodGenerator
             $body .= $code . PHP_EOL . PHP_EOL;
         }
 
-        /** @var StepBuilder $step */
+        /** @var StepGenerator $step */
         foreach ($this->steps as $step) {
             foreach ($step->getBeforeCode() as $code) {
                 $body .= $code . PHP_EOL . PHP_EOL;

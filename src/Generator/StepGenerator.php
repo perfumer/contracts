@@ -1,8 +1,8 @@
 <?php
 
-namespace Perfumer\Contracts;
+namespace Perfumer\Contracts\Generator;
 
-final class StepBuilder
+final class StepGenerator
 {
     /**
      * @var array

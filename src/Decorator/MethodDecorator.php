@@ -2,9 +2,9 @@
 
 namespace Perfumer\Contracts\Decorator;
 
-use Perfumer\Contracts\MethodBuilder;
+use Perfumer\Contracts\Generator\MethodGenerator;
 
 interface MethodDecorator
 {
-    public function decorateMethod(MethodBuilder $builder): void;
+    public function decorateMethod(MethodGenerator $generator): void;
 }

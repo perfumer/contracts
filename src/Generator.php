@@ -12,9 +12,12 @@ use Perfumer\Contracts\Decorator\MethodDecorator;
 use Perfumer\Contracts\Decorator\TestCaseDecorator;
 use Perfumer\Contracts\Exception\ContractsException;
 use Perfumer\Contracts\Exception\DecoratorException;
-use Zend\Code\Generator\ClassGenerator;
+use Perfumer\Contracts\Generator\ClassGenerator;
+use Perfumer\Contracts\Generator\MethodGenerator;
+use Perfumer\Contracts\Generator\TestCaseGenerator;
+use Zend\Code\Generator\ClassGenerator as BaseClassGenerator;
 use Zend\Code\Generator\DocBlockGenerator;
-use Zend\Code\Generator\MethodGenerator;
+use Zend\Code\Generator\MethodGenerator as BaseMethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
 
 class Generator
@@ -135,14 +138,14 @@ class Generator
             $reflection = new \ReflectionClass($class);
             $tests = false;
 
-            $class_builder = new ClassBuilder();
+            $class_generator = new BaseClassGenerator();
 
             $namespace = $reflection->getNamespaceName();
 
-            $class_builder->setNamespaceName('Generated\\Tests\\' . $namespace);
-            $class_builder->setAbstract(true);
-            $class_builder->setName($reflection->getShortName() . 'Test');
-            $class_builder->setExtendedClass('PHPUnit\\Framework\\TestCase');
+            $class_generator->setNamespaceName('Generated\\Tests\\' . $namespace);
+            $class_generator->setAbstract(true);
+            $class_generator->setName($reflection->getShortName() . 'Test');
+            $class_generator->setExtendedClass('PHPUnit\\Framework\\TestCase');
 
             $data_providers = [];
             $test_methods = [];
@@ -155,7 +158,7 @@ class Generator
                     if ($annotation instanceof Test) {
                         $tests = true;
 
-                        $data_provider = new MethodGenerator();
+                        $data_provider = new BaseMethodGenerator();
                         $data_provider->setAbstract(true);
                         $data_provider->setVisibility('public');
                         $data_provider->setName($method->name . 'DataProvider');
@@ -171,7 +174,7 @@ class Generator
                             ],
                         ]);
 
-                        $test = new MethodGenerator();
+                        $test = new BaseMethodGenerator();
                         $test->setDocBlock($doc_block);
                         $test->setFinal(true);
                         $test->setVisibility('public');
@@ -207,7 +210,7 @@ class Generator
 
                         $test_methods[] = $test;
 
-                        $assertion = new MethodGenerator();
+                        $assertion = new BaseMethodGenerator();
                         $assertion->setVisibility('protected');
                         $assertion->setName('assertTest' . ucfirst($method->name));
                         $assertion->setParameter('expected');
@@ -220,20 +223,20 @@ class Generator
             }
 
             foreach ($data_providers as $data_provider) {
-                $class_builder->addMethodFromGenerator($data_provider);
+                $class_generator->addMethodFromGenerator($data_provider);
             }
 
             foreach ($test_methods as $test_method) {
-                $class_builder->addMethodFromGenerator($test_method);
+                $class_generator->addMethodFromGenerator($test_method);
             }
 
             foreach ($assertions as $assertion) {
-                $class_builder->addMethodFromGenerator($assertion);
+                $class_generator->addMethodFromGenerator($assertion);
             }
 
             if ($tests) {
-                $this->generateBaseContextTest($class_builder);
-                $this->generateContextTest($class_builder);
+                $this->generateBaseContextTest($class_generator);
+                $this->generateContextTest($class_generator);
             }
         } catch (ContractsException $e) {
             exit($e->getMessage() . PHP_EOL);
@@ -250,29 +253,29 @@ class Generator
 
                 $namespace = str_replace($this->contract_prefix, $this->class_prefix, $reflection->getNamespaceName());
 
-                $test_case_builder = new TestCaseBuilder();
-                $test_case_builder->setNamespaceName('Generated\\Tests\\' . $namespace);
-                $test_case_builder->setAbstract(true);
-                $test_case_builder->setName($reflection->getShortName() . 'Test');
-                $test_case_builder->setExtendedClass('PHPUnit\\Framework\\TestCase');
+                $test_case_generator = new TestCaseGenerator();
+                $test_case_generator->setNamespaceName('Generated\\Tests\\' . $namespace);
+                $test_case_generator->setAbstract(true);
+                $test_case_generator->setName($reflection->getShortName() . 'Test');
+                $test_case_generator->setExtendedClass('PHPUnit\\Framework\\TestCase');
 
-                $reflection_test = new MethodGenerator();
+                $reflection_test = new BaseMethodGenerator();
                 $reflection_test->setFinal(true);
                 $reflection_test->setName('testSyntax');
                 $reflection_test->setBody('new \\ReflectionClass(\\' . $namespace . '\\' . $reflection->getShortName() . '::class);');
 
-                $test_case_builder->addMethodFromGenerator($reflection_test);
+                $test_case_generator->addMethodFromGenerator($reflection_test);
 
-                $class_builder = new ClassBuilder();
-                $class_builder->setAbstract(true);
-                $class_builder->setContract($reflection);
-                $class_builder->setNamespaceName($namespace);
-                $class_builder->setName($reflection->getShortName());
+                $class_generator = new ClassGenerator();
+                $class_generator->setAbstract(true);
+                $class_generator->setContract($reflection);
+                $class_generator->setNamespaceName($namespace);
+                $class_generator->setName($reflection->getShortName());
 
                 if ($reflection->isInterface()) {
-                    $class_builder->setImplementedInterfaces(array_merge($class_builder->getImplementedInterfaces(), ['\\' . $class]));
+                    $class_generator->setImplementedInterfaces(array_merge($class_generator->getImplementedInterfaces(), ['\\' . $class]));
                 } else {
-                    $class_builder->setExtendedClass('\\' . $class);
+                    $class_generator->setExtendedClass('\\' . $class);
                 }
 
                 $class_annotations = $this->reader->getClassAnnotations($reflection);
@@ -300,25 +303,25 @@ class Generator
                         }
 
                         if ($annotation instanceof ClassDecorator) {
-                            $annotation->decorateClass($class_builder);
+                            $annotation->decorateClass($class_generator);
                         }
 
                         if ($annotation instanceof TestCaseDecorator) {
-                            $annotation->decorateTestCase($test_case_builder);
+                            $annotation->decorateTestCase($test_case_generator);
                         }
                     }
                 } catch (DecoratorException $e) {
                     throw new ContractsException(sprintf('%s\\%s: ' . $e->getMessage(),
-                        $class_builder->getNamespaceName(),
-                        $class_builder->getName()
+                        $class_generator->getNamespaceName(),
+                        $class_generator->getName()
                     ));
                 }
 
                 foreach ($reflection->getMethods() as $method) {
-                    $method_builder = new MethodBuilder();
-                    $method_builder->setFinal(true);
-                    $method_builder->setName($method->name);
-                    $method_builder->setVisibility('public');
+                    $method_generator = new MethodGenerator();
+                    $method_generator->setFinal(true);
+                    $method_generator->setName($method->name);
+                    $method_generator->setVisibility('public');
 
                     if ($method->getReturnType() !== null) {
                         $type = (string) $method->getReturnType();
@@ -327,7 +330,7 @@ class Generator
                             $type = '\\' . $type;
                         }
 
-                        $method_builder->setReturnType($type);
+                        $method_generator->setReturnType($type);
                     }
 
                     foreach ($method->getParameters() as $parameter) {
@@ -343,7 +346,7 @@ class Generator
                             $argument->setDefaultValue($parameter->getDefaultValue());
                         }
 
-                        $method_builder->setParameter($argument);
+                        $method_generator->setParameter($argument);
                     }
 
                     $method_annotations = $this->reader->getMethodAnnotations($method);
@@ -385,70 +388,70 @@ class Generator
                             }
 
                             if ($annotation instanceof ClassDecorator) {
-                                $annotation->decorateClass($class_builder);
+                                $annotation->decorateClass($class_generator);
                             }
 
                             if ($annotation instanceof MethodDecorator) {
-                                $annotation->decorateMethod($method_builder);
+                                $annotation->decorateMethod($method_generator);
                             }
 
                             if ($annotation instanceof TestCaseDecorator) {
-                                $annotation->decorateTestCase($test_case_builder);
+                                $annotation->decorateTestCase($test_case_generator);
                             }
                         }
 
                         foreach ($class_annotations as $annotation) {
                             if ($annotation instanceof MethodDecorator) {
-                                $annotation->decorateMethod($method_builder);
+                                $annotation->decorateMethod($method_generator);
                             }
                         }
 
                         foreach ($method_annotations as $annotation) {
                             if ($annotation instanceof Step) {
-                                $step_builders = $annotation->getBuilder();
+                                $step_generators = $annotation->getGenerator();
 
-                                if ($step_builders === null) {
+                                if ($step_generators === null) {
                                     continue;
                                 }
 
-                                if (!is_array($step_builders)) {
-                                    $step_builders = [$step_builders];
+                                if (!is_array($step_generators)) {
+                                    $step_generators = [$step_generators];
                                 }
 
-                                foreach ($step_builders as $step_builder) {
-                                    $method_builder->addStep($step_builder);
+                                foreach ($step_generators as $step_generator) {
+                                    $method_generator->addStep($step_generator);
                                 }
                             }
                         }
                     } catch (DecoratorException $e) {
                         throw new ContractsException(sprintf('%s\\%s -> %s: ' . $e->getMessage(),
-                            $class_builder->getNamespaceName(),
-                            $class_builder->getName(),
-                            $method_builder->getName()
+                            $class_generator->getNamespaceName(),
+                            $class_generator->getName(),
+                            $method_generator->getName()
                         ));
                     }
 
-                    if (count($method_builder->getSteps()) > 0) {
-                        $class_builder->addMethodFromGenerator($method_builder);
+                    if (count($method_generator->getSteps()) > 0) {
+                        $class_generator->addMethodFromGenerator($method_generator);
                     }
                 }
 
-                $bundle->getClassBuilders()->append($class_builder);
-                $bundle->getTestCaseBuilders()->append($test_case_builder);
+                $bundle->addClassGenerator($class_generator);
+                $bundle->addTestCaseGenerator($test_case_generator);
             }
 
-            foreach ($bundle->getClassBuilders() as $class_builder) {
-                $this->generateBaseClass($class_builder);
-                $this->generateClass($class_builder);
+            foreach ($bundle->getClassGenerators() as $class_generator) {
+                $this->generateBaseClass($class_generator);
+                $this->generateClass($class_generator);
 
-                foreach ($class_builder->getContexts() as $context) {
+                foreach ($class_generator->getContexts() as $context) {
                     $this->generateContext($context);
                 }
             }
 
-            foreach ($bundle->getTestCaseBuilders() as $builder) {
-                $this->generateBaseClassTest($builder);
-                $this->generateClassTest($builder);
+            foreach ($bundle->getTestCaseGenerators() as $generator) {
+                $this->generateBaseClassTest($generator);
+                $this->generateClassTest($generator);
             }
 
             shell_exec("vendor/bin/php-cs-fixer fix {$this->base_src_path} --rules=@Symfony");
@@ -459,58 +462,62 @@ class Generator
     }
 
     /**
-     * @param ClassBuilder $class_builder
+     * @param ClassGenerator $class_generator
      */
-    private function generateBaseClass(ClassBuilder $class_builder)
+    private function generateBaseClass(ClassGenerator $class_generator)
     {
-        $output_name = str_replace('\\', '/', trim(str_replace($this->class_prefix, '', $class_builder->getNamespaceName()), '\\'));
+        $output_name = str_replace('\\', '/', trim(str_replace($this->class_prefix, '', $class_generator->getNamespaceName()), '\\'));
 
         if ($output_name) {
             $output_name .= '/';
         }
 
-        $output_name = $this->root_dir . '/' . $this->base_src_path . '/' . $output_name . $class_builder->getName() . '.php';
+        @mkdir($this->root_dir . '/' . $this->base_src_path . '/' . $output_name, 0777, true);
 
-        $namespace = $class_builder->getNamespaceName();
+        $output_name = $this->root_dir . '/' . $this->base_src_path . '/' . $output_name . $class_generator->getName() . '.php';
 
-        $class_builder->setNamespaceName('Generated\\' . $namespace);
+        $namespace = $class_generator->getNamespaceName();
 
-        $code = '<?php' . PHP_EOL . PHP_EOL . $class_builder->generate();
+        $class_generator->setNamespaceName('Generated\\' . $namespace);
+
+        $code = '<?php' . PHP_EOL . PHP_EOL . $class_generator->generate();
 
         file_put_contents($output_name, $code);
 
-        $class_builder->setNamespaceName($namespace);
+        $class_generator->setNamespaceName($namespace);
     }
 
     /**
-     * @param ClassBuilder $class_builder
+     * @param ClassGenerator $class_generator
      */
-    private function generateClass(ClassBuilder $class_builder)
+    private function generateClass(ClassGenerator $class_generator)
     {
-        $output_name = str_replace('\\', '/', trim(str_replace($this->class_prefix, '', $class_builder->getNamespaceName()), '\\'));
+        $output_name = str_replace('\\', '/', trim(str_replace($this->class_prefix, '', $class_generator->getNamespaceName()), '\\'));
 
         if ($output_name) {
             $output_name .= '/';
         }
 
-        $output_name = $this->root_dir . '/' . $this->src_path . '/' . $output_name . $class_builder->getName() . '.php';
+        @mkdir($this->root_dir . '/' . $this->src_path . '/' . $output_name, 0777, true);
+
+        $output_name = $this->root_dir . '/' . $this->src_path . '/' . $output_name . $class_generator->getName() . '.php';
 
         if (is_file($output_name)) {
             return;
         }
 
-        $class = new ClassGenerator();
-        $class->setNamespaceName($class_builder->getNamespaceName());
-        $class->setName($class_builder->getName());
-        $class->setExtendedClass('\\Generated\\' . $class_builder->getNamespaceName() . '\\' . $class_builder->getName());
+        $class = new BaseClassGenerator();
+        $class->setNamespaceName($class_generator->getNamespaceName());
+        $class->setName($class_generator->getName());
+        $class->setExtendedClass('\\Generated\\' . $class_generator->getNamespaceName() . '\\' . $class_generator->getName());
 
-        foreach ($class_builder->getMethods() as $method_builder) {
-            if ($method_builder->isAbstract()) {
-                $method = new MethodGenerator();
-                $method->setName($method_builder->getName());
-                $method->setParameters($method_builder->getParameters());
-                $method->setVisibility($method_builder->getVisibility());
-                $method->setReturnType($method_builder->getReturnType());
+        foreach ($class_generator->getMethods() as $method_generator) {
+            if ($method_generator->isAbstract()) {
+                $method = new BaseMethodGenerator();
+                $method->setName($method_generator->getName());
+                $method->setParameters($method_generator->getParameters());
+                $method->setVisibility($method_generator->getVisibility());
+                $method->setReturnType($method_generator->getReturnType());
                 $method->setBody('throw new \Exception(\'Method "' . $method->getName() . '" is not implemented yet.\');');
 
                 $class->addMethodFromGenerator($method);
@@ -523,44 +530,48 @@ class Generator
     }
 
     /**
-     * @param TestCaseBuilder $builder
+     * @param TestCaseGenerator $generator
      */
-    private function generateBaseClassTest(TestCaseBuilder $builder)
+    private function generateBaseClassTest(TestCaseGenerator $generator)
     {
-        $output_name = str_replace('\\', '/', trim(str_replace('Generated\\Tests\\' . $this->class_prefix, '', $builder->getNamespaceName()), '\\'));
+        $output_name = str_replace('\\', '/', trim(str_replace('Generated\\Tests\\' . $this->class_prefix, '', $generator->getNamespaceName()), '\\'));
 
         if ($output_name) {
             $output_name .= '/';
         }
 
-        $output_name = $this->root_dir . '/' . $this->base_test_path . '/' . $output_name . $builder->getName() . '.php';
+        @mkdir($this->root_dir . '/' . $this->base_test_path . '/' . $output_name, 0777, true);
 
-        $code = '<?php' . PHP_EOL . PHP_EOL . $builder->generate();
+        $output_name = $this->root_dir . '/' . $this->base_test_path . '/' . $output_name . $generator->getName() . '.php';
+
+        $code = '<?php' . PHP_EOL . PHP_EOL . $generator->generate();
 
         file_put_contents($output_name, $code);
     }
 
     /**
-     * @param TestCaseBuilder $builder
+     * @param TestCaseGenerator $generator
      */
-    private function generateClassTest(TestCaseBuilder $builder)
+    private function generateClassTest(TestCaseGenerator $generator)
     {
-        $output_name = str_replace('\\', '/', trim(str_replace('Generated\\Tests\\' . $this->class_prefix, '', $builder->getNamespaceName()), '\\'));
+        $output_name = str_replace('\\', '/', trim(str_replace('Generated\\Tests\\' . $this->class_prefix, '', $generator->getNamespaceName()), '\\'));
 
         if ($output_name) {
             $output_name .= '/';
         }
 
-        $output_name = $this->root_dir . '/' . $this->test_path . '/' . $output_name . $builder->getName() . '.php';
+        @mkdir($this->root_dir . '/' . $this->test_path . '/' . $output_name, 0777, true);
+
+        $output_name = $this->root_dir . '/' . $this->test_path . '/' . $output_name . $generator->getName() . '.php';
 
         if (is_file($output_name)) {
             return;
         }
 
-        $class = new ClassGenerator();
-        $class->setNamespaceName(str_replace('Generated\\', '', $builder->getNamespaceName()));
-        $class->setName($builder->getName());
-        $class->setExtendedClass($builder->getNamespaceName() . '\\' . $builder->getName());
+        $class = new BaseClassGenerator();
+        $class->setNamespaceName(str_replace('Generated\\', '', $generator->getNamespaceName()));
+        $class->setName($generator->getName());
+        $class->setExtendedClass($generator->getNamespaceName() . '\\' . $generator->getName());
 
         $code = '<?php' . PHP_EOL . PHP_EOL . $class->generate();
 
@@ -568,62 +579,66 @@ class Generator
     }
 
     /**
-     * @param ClassBuilder $class_builder
+     * @param BaseClassGenerator $class_generator
      */
-    private function generateBaseContextTest(ClassBuilder $class_builder)
+    private function generateBaseContextTest(BaseClassGenerator $class_generator)
     {
         // If context is from another package
-        if (strpos($class_builder->getNamespaceName(), 'Generated\\Tests\\' . $this->context_prefix) !== 0) {
+        if (strpos($class_generator->getNamespaceName(), 'Generated\\Tests\\' . $this->context_prefix) !== 0) {
             return;
         }
 
-        $output_name = str_replace('\\', '/', trim(str_replace('Generated\\Tests\\' . $this->context_prefix, '', $class_builder->getNamespaceName()), '\\'));
+        $output_name = str_replace('\\', '/', trim(str_replace('Generated\\Tests\\' . $this->context_prefix, '', $class_generator->getNamespaceName()), '\\'));
 
         if ($output_name) {
             $output_name .= '/';
         }
 
-        $output_name = $this->root_dir . '/' . $this->base_test_path . '/' . $output_name . $class_builder->getName() . '.php';
+        @mkdir($this->root_dir . '/' . $this->base_test_path . '/' . $output_name, 0777, true);
 
-        $code = '<?php' . PHP_EOL . PHP_EOL . $class_builder->generate();
+        $output_name = $this->root_dir . '/' . $this->base_test_path . '/' . $output_name . $class_generator->getName() . '.php';
+
+        $code = '<?php' . PHP_EOL . PHP_EOL . $class_generator->generate();
 
         file_put_contents($output_name, $code);
     }
 
     /**
-     * @param ClassBuilder $class_builder
+     * @param BaseClassGenerator $class_generator
      */
-    private function generateContextTest(ClassBuilder $class_builder)
+    private function generateContextTest(BaseClassGenerator $class_generator)
     {
         // If context is from another package
-        if (strpos($class_builder->getNamespaceName(), 'Generated\\Tests\\' . $this->context_prefix) !== 0) {
+        if (strpos($class_generator->getNamespaceName(), 'Generated\\Tests\\' . $this->context_prefix) !== 0) {
             return;
         }
 
-        $output_name = str_replace('\\', '/', trim(str_replace('Generated\\Tests\\' . $this->context_prefix, '', $class_builder->getNamespaceName()), '\\'));
+        $output_name = str_replace('\\', '/', trim(str_replace('Generated\\Tests\\' . $this->context_prefix, '', $class_generator->getNamespaceName()), '\\'));
 
         if ($output_name) {
             $output_name .= '/';
         }
 
-        $output_name = $this->root_dir . '/' . $this->test_path . '/' . $output_name . $class_builder->getName() . '.php';
+        @mkdir($this->root_dir . '/' . $this->test_path . '/' . $output_name, 0777, true);
+
+        $output_name = $this->root_dir . '/' . $this->test_path . '/' . $output_name . $class_generator->getName() . '.php';
 
         if (is_file($output_name)) {
             return;
         }
 
-        $class = new ClassGenerator();
-        $class->setNamespaceName(str_replace('Generated\\', '', $class_builder->getNamespaceName()));
-        $class->setName($class_builder->getName());
-        $class->setExtendedClass($class_builder->getNamespaceName() . '\\' . $class_builder->getName());
+        $class = new BaseClassGenerator();
+        $class->setNamespaceName(str_replace('Generated\\', '', $class_generator->getNamespaceName()));
+        $class->setName($class_generator->getName());
+        $class->setExtendedClass($class_generator->getNamespaceName() . '\\' . $class_generator->getName());
 
-        foreach ($class_builder->getMethods() as $method_builder) {
-            if ($method_builder->isAbstract()) {
-                $method = new MethodGenerator();
-                $method->setName($method_builder->getName());
-                $method->setParameters($method_builder->getParameters());
-                $method->setVisibility($method_builder->getVisibility());
-                $method->setReturnType($method_builder->getReturnType());
+        foreach ($class_generator->getMethods() as $method_generator) {
+            if ($method_generator->isAbstract()) {
+                $method = new BaseMethodGenerator();
+                $method->setName($method_generator->getName());
+                $method->setParameters($method_generator->getParameters());
+                $method->setVisibility($method_generator->getVisibility());
+                $method->setReturnType($method_generator->getReturnType());
                 $method->setBody('throw new \Exception(\'Method "' . $method->getName() . '" is not implemented yet.\');');
 
                 $class->addMethodFromGenerator($method);
