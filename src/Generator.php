@@ -260,6 +260,7 @@ class Generator
                                 continue;
                             }
 
+                            $annotation->setReflectionClass($reflection);
                             $annotation->setReflectionMethod($method);
 
                             if ($annotation instanceof MethodAnnotationDecorator) {
