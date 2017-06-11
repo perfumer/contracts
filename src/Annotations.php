@@ -164,7 +164,12 @@ class Call extends Step
 
                     foreach ($method_annotations as $method_annotation) {
                         if ($this->is_context_call && $method_annotation instanceof Inject && $parameter->getName() == $method_annotation->name) {
-                            $tmp_arguments[] = $method_annotation->variable;
+                            /** @var Annotation $variable */
+                            $variable = $method_annotation->variable;
+                            $variable->setReflectionClass($this->getReflectionClass());
+                            $variable->setReflectionMethod($this->getReflectionMethod());
+
+                            $tmp_arguments[] = $variable;
                             $found = true;
                         }
                     }
