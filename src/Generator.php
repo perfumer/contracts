@@ -132,117 +132,6 @@ class Generator
         return $this;
     }
 
-    private function generateContext(string $class)
-    {
-        try {
-            $reflection = new \ReflectionClass($class);
-            $tests = false;
-
-            $class_generator = new BaseClassGenerator();
-
-            $namespace = $reflection->getNamespaceName();
-
-            $class_generator->setNamespaceName('Generated\\Tests\\' . $namespace);
-            $class_generator->setAbstract(true);
-            $class_generator->setName($reflection->getShortName() . 'Test');
-            $class_generator->setExtendedClass('PHPUnit\\Framework\\TestCase');
-
-            $data_providers = [];
-            $test_methods = [];
-            $assertions = [];
-
-            foreach ($reflection->getMethods() as $method) {
-                $method_annotations = $this->reader->getMethodAnnotations($method);
-
-                foreach ($method_annotations as $annotation) {
-                    if ($annotation instanceof Test) {
-                        $tests = true;
-
-                        $data_provider = new BaseMethodGenerator();
-                        $data_provider->setAbstract(true);
-                        $data_provider->setVisibility('public');
-                        $data_provider->setName($method->name . 'DataProvider');
-
-                        $data_providers[] = $data_provider;
-
-                        $doc_block = DocBlockGenerator::fromArray([
-                            'tags' => [
-                                [
-                                    'name'        => 'dataProvider',
-                                    'description' => $method->name . 'DataProvider',
-                                ]
-                            ],
-                        ]);
-
-                        $test = new BaseMethodGenerator();
-                        $test->setDocBlock($doc_block);
-                        $test->setFinal(true);
-                        $test->setVisibility('public');
-                        $test->setName('test' . ucfirst($method->name));
-
-                        foreach ($method->getParameters() as $parameter) {
-                            $argument = new ParameterGenerator();
-                            $argument->setName($parameter->getName());
-                            $argument->setPosition($parameter->getPosition());
-
-                            if ($parameter->getType() !== null) {
-                                $argument->setType($parameter->getType());
-                            }
-
-                            if ($parameter->isDefaultValueAvailable()) {
-                                $argument->setDefaultValue($parameter->getDefaultValue());
-                            }
-
-                            $test->setParameter($argument);
-                        }
-
-                        $test->setParameter('expected');
-
-                        $arguments = array_map(function($value) {
-                            /** @var \ReflectionParameter $value */
-                            return '$' . $value->getName();
-                        }, $method->getParameters());
-
-                        $body = '$_class_instance = new ' . $class . '();' . PHP_EOL . PHP_EOL;
-                        $body .= '$this->assertTest' . ucfirst($method->name) . '($expected, $_class_instance->' . $method->name . '(' . implode(', ', $arguments) . '));';
-
-                        $test->setBody($body);
-
-                        $test_methods[] = $test;
-
-                        $assertion = new BaseMethodGenerator();
-                        $assertion->setVisibility('protected');
-                        $assertion->setName('assertTest' . ucfirst($method->name));
-                        $assertion->setParameter('expected');
-                        $assertion->setParameter('result');
-                        $assertion->setBody('$this->assertEquals($expected, $result);');
-
-                        $assertions[] = $assertion;
-                    }
-                }
-            }
-
-            foreach ($data_providers as $data_provider) {
-                $class_generator->addMethodFromGenerator($data_provider);
-            }
-
-            foreach ($test_methods as $test_method) {
-                $class_generator->addMethodFromGenerator($test_method);
-            }
-
-            foreach ($assertions as $assertion) {
-                $class_generator->addMethodFromGenerator($assertion);
-            }
-
-            if ($tests) {
-                $this->generateBaseContextTest($class_generator);
-                $this->generateContextTest($class_generator);
-            }
-        } catch (ContractsException $e) {
-            exit($e->getMessage() . PHP_EOL);
-        }
-    }
-
     public function generateClasses()
     {
         try {
@@ -456,6 +345,120 @@ class Generator
 
             shell_exec("vendor/bin/php-cs-fixer fix {$this->base_src_path} --rules=@Symfony");
             shell_exec("vendor/bin/php-cs-fixer fix {$this->base_test_path} --rules=@Symfony");
+        } catch (ContractsException $e) {
+            exit($e->getMessage() . PHP_EOL);
+        }
+    }
+
+    /**
+     * @param string $class
+     */
+    private function generateContext(string $class)
+    {
+        try {
+            $reflection = new \ReflectionClass($class);
+            $tests = false;
+
+            $class_generator = new BaseClassGenerator();
+
+            $namespace = $reflection->getNamespaceName();
+
+            $class_generator->setNamespaceName('Generated\\Tests\\' . $namespace);
+            $class_generator->setAbstract(true);
+            $class_generator->setName($reflection->getShortName() . 'Test');
+            $class_generator->setExtendedClass('PHPUnit\\Framework\\TestCase');
+
+            $data_providers = [];
+            $test_methods = [];
+            $assertions = [];
+
+            foreach ($reflection->getMethods() as $method) {
+                $method_annotations = $this->reader->getMethodAnnotations($method);
+
+                foreach ($method_annotations as $annotation) {
+                    if ($annotation instanceof Test) {
+                        $tests = true;
+
+                        $data_provider = new BaseMethodGenerator();
+                        $data_provider->setAbstract(true);
+                        $data_provider->setVisibility('public');
+                        $data_provider->setName($method->name . 'DataProvider');
+
+                        $data_providers[] = $data_provider;
+
+                        $doc_block = DocBlockGenerator::fromArray([
+                            'tags' => [
+                                [
+                                    'name'        => 'dataProvider',
+                                    'description' => $method->name . 'DataProvider',
+                                ]
+                            ],
+                        ]);
+
+                        $test = new BaseMethodGenerator();
+                        $test->setDocBlock($doc_block);
+                        $test->setFinal(true);
+                        $test->setVisibility('public');
+                        $test->setName('test' . ucfirst($method->name));
+
+                        foreach ($method->getParameters() as $parameter) {
+                            $argument = new ParameterGenerator();
+                            $argument->setName($parameter->getName());
+                            $argument->setPosition($parameter->getPosition());
+
+                            if ($parameter->getType() !== null) {
+                                $argument->setType($parameter->getType());
+                            }
+
+                            if ($parameter->isDefaultValueAvailable()) {
+                                $argument->setDefaultValue($parameter->getDefaultValue());
+                            }
+
+                            $test->setParameter($argument);
+                        }
+
+                        $test->setParameter('expected');
+
+                        $arguments = array_map(function($value) {
+                            /** @var \ReflectionParameter $value */
+                            return '$' . $value->getName();
+                        }, $method->getParameters());
+
+                        $body = '$_class_instance = new ' . $class . '();' . PHP_EOL . PHP_EOL;
+                        $body .= '$this->assertTest' . ucfirst($method->name) . '($expected, $_class_instance->' . $method->name . '(' . implode(', ', $arguments) . '));';
+
+                        $test->setBody($body);
+
+                        $test_methods[] = $test;
+
+                        $assertion = new BaseMethodGenerator();
+                        $assertion->setVisibility('protected');
+                        $assertion->setName('assertTest' . ucfirst($method->name));
+                        $assertion->setParameter('expected');
+                        $assertion->setParameter('result');
+                        $assertion->setBody('$this->assertEquals($expected, $result);');
+
+                        $assertions[] = $assertion;
+                    }
+                }
+            }
+
+            foreach ($data_providers as $data_provider) {
+                $class_generator->addMethodFromGenerator($data_provider);
+            }
+
+            foreach ($test_methods as $test_method) {
+                $class_generator->addMethodFromGenerator($test_method);
+            }
+
+            foreach ($assertions as $assertion) {
+                $class_generator->addMethodFromGenerator($assertion);
+            }
+
+            if ($tests) {
+                $this->generateBaseContextTest($class_generator);
+                $this->generateContextTest($class_generator);
+            }
         } catch (ContractsException $e) {
             exit($e->getMessage() . PHP_EOL);
         }
