@@ -425,7 +425,7 @@ class Inject extends Annotation implements ArgumentVariable, ClassGeneratorDecor
      */
     public function getArgumentVariableExpression(): string
     {
-        return '$this->_injected_' . $this->name;
+        return '$this->_injection_' . $this->name;
     }
 }
 
