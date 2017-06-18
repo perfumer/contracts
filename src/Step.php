@@ -203,6 +203,7 @@ abstract class Step extends Annotation implements ClassGeneratorDecorator, Metho
 
         if (!$generator->hasMethod($test_method)) {
             $method = new BaseMethodGenerator();
+            $method->setFinal(true);
             $method->setVisibility('public');
             $method->setName($test_method);
 
