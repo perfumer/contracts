@@ -9,7 +9,7 @@ abstract class FooControllerTest extends \PHPUnit\Framework\TestCase
         new \ReflectionClass(\Perfumer\Contracts\Example\Controller\FooController::class);
     }
 
-    public function testBarActionLocalVariables()
+    final public function testBarActionLocalVariables()
     {
         $param2 = true;
         $param3 = true;
@@ -25,7 +25,7 @@ abstract class FooControllerTest extends \PHPUnit\Framework\TestCase
         $this->assertNotEmpty($param2_valid);
     }
 
-    public function testBazActionLocalVariables()
+    final public function testBazActionLocalVariables()
     {
         $param1 = true;
         $param2 = true;

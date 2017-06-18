@@ -3,11 +3,11 @@
 namespace Perfumer\Contracts\Example\Contract\Controller;
 
 use Perfumer\Contracts\Annotations\Alias;
-use Perfumer\Contracts\Annotations\Call;
 use Perfumer\Contracts\Annotations\Context;
 use Perfumer\Contracts\Annotations\Custom;
 use Perfumer\Contracts\Annotations\Error;
 use Perfumer\Contracts\Annotations\Inject;
+use Perfumer\Contracts\Annotations\Injection;
 use Perfumer\Contracts\Annotations\Output;
 use Perfumer\Contracts\Annotations\Property;
 use Perfumer\Contracts\Annotations\ServiceObject;
@@ -18,18 +18,18 @@ use Perfumer\Contracts\Example\Collection;
 use Perfumer\Contracts\Example\ParentController;
 
 /**
- * @Inject(name="iterator", type="\Iterator")
- * @Inject(name="foo", type="\Perfumer\Contracts\Example\FooService")
- * @Inject(name="some_string", type="string")
+ * @Injection(name="iterator", type="\Iterator")
+ * @Injection(name="foo", type="\Perfumer\Contracts\Example\FooService")
+ * @Injection(name="some_string", type="string")
  */
 abstract class FooController extends ParentController
 {
     /**
-     * @Call (            method="intType", arguments={"a"}, return="a_valid")
-     * @Call (            method="intType", arguments={"a"}, return="param2_valid", if="a_valid")
-     * @Call (name="foo", method="bar",                                             if="a_valid")
+     * @Context   (            method="intType", arguments={"a"}, return="a_valid")
+     * @Context   (            method="intType", arguments={"a"}, return="param2_valid", if="a_valid")
+     * @Injection (name="foo", method="bar",                                             if="a_valid")
      * @Collection(steps={
-     *   @Call           (               method="sum",                                        return="a"),
+     *   @Context        (               method="sum",                                        return="a"),
      *   @Custom         (               method="sumDoubled",       arguments={"a"},          return="double_sum", if="a"),
      *   @ServiceParent  (               method="sandboxActionTwo", arguments={"a", "staff"}, return={"sand", "box"}),
      *   @ServiceProperty(name="foobar", method="baz",              arguments={"a", "box"},   return=@Output)
@@ -47,9 +47,9 @@ abstract class FooController extends ParentController
     abstract public function barAction(Output $param2, array $param3, $param4 = '12\'3', int $param5 = 140): string;
 
     /**
-     * @Call           (                method="intType",          arguments={"param1"},                  return="param1_valid")
-     * @Call           (                method="intType",          arguments={"param2"},                  return="param2_valid", if="param1_valid")
-     * @Call           (                method="sum",              arguments={"param1"},                  return="sum")
+     * @Context        (                method="intType",          arguments={"param1"},                  return="param1_valid")
+     * @Context        (                method="intType",          arguments={"param2"},                  return="param2_valid", if="param1_valid")
+     * @Context        (                method="sum",              arguments={"param1"},                  return="sum")
      * @ServiceParent  (                method="sandboxActionTwo", arguments={"sum", @Property("staff")}, return="sandbox")
      * @ServiceProperty(name="foobar",  method="baz",              arguments={@Context("default")})
      * @ServiceObject  (name="sandbox", method="execute")
