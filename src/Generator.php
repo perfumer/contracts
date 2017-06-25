@@ -354,7 +354,7 @@ class Generator
     /**
      * @param string $class
      */
-    private function generateContext(string $class)
+    public function generateContext(string $class)
     {
         try {
             $reflection = new \ReflectionClass($class);
