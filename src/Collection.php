@@ -21,13 +21,22 @@ abstract class Collection extends Step implements MethodAnnotationDecorator
     /**
      * @return string
      */
-    abstract public function getBeforeCode(): string;
+    public function getBeforeCode()
+    {
+        return '';
+    }
 
     /**
      * @return string
      */
-    abstract public function getAfterCode(): string;
+    public function getAfterCode()
+    {
+        return '';
+    }
 
+    /**
+     * @param \ReflectionClass $reflection_class
+     */
     public function setReflectionClass(\ReflectionClass $reflection_class): void
     {
         foreach ($this->steps as $step) {
@@ -39,6 +48,9 @@ abstract class Collection extends Step implements MethodAnnotationDecorator
         parent::setReflectionClass($reflection_class);
     }
 
+    /**
+     * @param \ReflectionMethod $reflection_method
+     */
     public function setReflectionMethod(\ReflectionMethod $reflection_method): void
     {
         foreach ($this->steps as $step) {

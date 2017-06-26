@@ -52,22 +52,6 @@ abstract class Step extends Annotation implements ClassGeneratorDecorator, Metho
     public $validate = false;
 
     /**
-     * @return string
-     */
-    public function getPrependedCode()
-    {
-        return '';
-    }
-
-    /**
-     * @return string
-     */
-    public function getAppendedCode()
-    {
-        return '';
-    }
-
-    /**
      * @return null|StepGenerator|StepGenerator[]
      * @throws DecoratorException
      */
@@ -75,8 +59,6 @@ abstract class Step extends Annotation implements ClassGeneratorDecorator, Metho
     {
         $step_generator = new StepGenerator();
         $step_generator->setMethod($this->method);
-        $step_generator->addPrependedCode('_step', $this->getPrependedCode());
-        $step_generator->addAppendedCode('_step', $this->getAppendedCode());
         $step_generator->setValidationCondition(true);
 
         if ($this->if || $this->unless) {
