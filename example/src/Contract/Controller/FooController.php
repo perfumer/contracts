@@ -2,18 +2,18 @@
 
 namespace Perfumer\Contracts\Example\Contract\Controller;
 
-use Perfumer\Contracts\Annotations\Alias;
-use Perfumer\Contracts\Annotations\Context;
-use Perfumer\Contracts\Annotations\Custom;
-use Perfumer\Contracts\Annotations\Error;
-use Perfumer\Contracts\Annotations\Inject;
-use Perfumer\Contracts\Annotations\Injection;
-use Perfumer\Contracts\Annotations\Output;
-use Perfumer\Contracts\Annotations\Property;
-use Perfumer\Contracts\Annotations\ServiceObject;
-use Perfumer\Contracts\Annotations\ServiceParent;
-use Perfumer\Contracts\Annotations\ServiceProperty;
-use Perfumer\Contracts\Annotations\Test;
+use Perfumer\Contracts\Annotation\Alias;
+use Perfumer\Contracts\Annotation\Context;
+use Perfumer\Contracts\Annotation\Custom;
+use Perfumer\Contracts\Annotation\Error;
+use Perfumer\Contracts\Annotation\Inject;
+use Perfumer\Contracts\Annotation\Injection;
+use Perfumer\Contracts\Annotation\Output;
+use Perfumer\Contracts\Annotation\Property;
+use Perfumer\Contracts\Annotation\ServiceObject;
+use Perfumer\Contracts\Annotation\ServiceParent;
+use Perfumer\Contracts\Annotation\ServiceProperty;
+use Perfumer\Contracts\Annotation\Test;
 use Perfumer\Contracts\Example\Collection;
 use Perfumer\Contracts\Example\ParentController;
 

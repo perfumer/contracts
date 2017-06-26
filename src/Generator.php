@@ -4,7 +4,7 @@ namespace Perfumer\Contracts;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
-use Perfumer\Contracts\Annotations\Test;
+use Perfumer\Contracts\Annotation\Test;
 use Perfumer\Contracts\Decorator\ClassAnnotationDecorator;
 use Perfumer\Contracts\Decorator\ClassGeneratorDecorator;
 use Perfumer\Contracts\Decorator\MethodAnnotationDecorator;
@@ -80,7 +80,21 @@ class Generator
     {
         $this->reader = new AnnotationReader();
 
-        $this->addAnnotations(__DIR__ . '/Annotations.php');
+        $this->addAnnotations(__DIR__ . '/Annotation/Alias.php');
+        $this->addAnnotations(__DIR__ . '/Annotation/Context.php');
+        $this->addAnnotations(__DIR__ . '/Annotation/Custom.php');
+        $this->addAnnotations(__DIR__ . '/Annotation/Error.php');
+        $this->addAnnotations(__DIR__ . '/Annotation/Inject.php');
+        $this->addAnnotations(__DIR__ . '/Annotation/Injection.php');
+        $this->addAnnotations(__DIR__ . '/Annotation/Output.php');
+        $this->addAnnotations(__DIR__ . '/Annotation/Property.php');
+        $this->addAnnotations(__DIR__ . '/Annotation/ServiceObject.php');
+        $this->addAnnotations(__DIR__ . '/Annotation/ServiceParent.php');
+        $this->addAnnotations(__DIR__ . '/Annotation/ServiceProperty.php');
+        $this->addAnnotations(__DIR__ . '/Annotation/ServiceSelf.php');
+        $this->addAnnotations(__DIR__ . '/Annotation/ServiceStatic.php');
+        $this->addAnnotations(__DIR__ . '/Annotation/ServiceThis.php');
+        $this->addAnnotations(__DIR__ . '/Annotation/Test.php');
 
         $this->root_dir = $root_dir;
 
