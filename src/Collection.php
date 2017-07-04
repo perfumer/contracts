@@ -2,10 +2,7 @@
 
 namespace Perfumer\Contracts;
 
-use Perfumer\Contracts\Decorator\ClassGeneratorDecorator;
 use Perfumer\Contracts\Decorator\MethodAnnotationDecorator;
-use Perfumer\Contracts\Decorator\MethodGeneratorDecorator;
-use Perfumer\Contracts\Decorator\TestCaseGeneratorDecorator;
 use Perfumer\Contracts\Generator\ClassGenerator;
 use Perfumer\Contracts\Generator\MethodGenerator;
 use Perfumer\Contracts\Generator\StepGenerator;
@@ -32,6 +29,15 @@ abstract class Collection extends Step implements MethodAnnotationDecorator
     public function getAfterCode()
     {
         return '';
+    }
+
+    public function decorateGenerators(): void
+    {
+        foreach ($this->steps as $step) {
+            if ($step instanceof Annotation) {
+                $step->decorateGenerators();
+            }
+        }
     }
 
     /**
@@ -63,6 +69,62 @@ abstract class Collection extends Step implements MethodAnnotationDecorator
     }
 
     /**
+     * @param ClassGenerator $class_generator
+     */
+    public function setClassGenerator(ClassGenerator $class_generator): void
+    {
+        foreach ($this->steps as $step) {
+            if ($step instanceof Annotation) {
+                $step->setClassGenerator($class_generator);
+            }
+        }
+
+        parent::setClassGenerator($class_generator);
+    }
+
+    /**
+     * @param MethodGenerator $method_generator
+     */
+    public function setMethodGenerator(MethodGenerator $method_generator): void
+    {
+        foreach ($this->steps as $step) {
+            if ($step instanceof Annotation) {
+                $step->setMethodGenerator($method_generator);
+            }
+        }
+
+        parent::setMethodGenerator($method_generator);
+    }
+
+    /**
+     * @param TestCaseGenerator $test_case_generator
+     */
+    public function setTestCaseGenerator(TestCaseGenerator $test_case_generator): void
+    {
+        foreach ($this->steps as $step) {
+            if ($step instanceof Annotation) {
+                $step->setTestCaseGenerator($test_case_generator);
+            }
+        }
+
+        parent::setTestCaseGenerator($test_case_generator);
+    }
+
+    /**
+     * @param bool $is_method_annotation
+     */
+    public function setIsMethodAnnotation(bool $is_method_annotation): void
+    {
+        foreach ($this->steps as $step) {
+            if ($step instanceof Annotation) {
+                $step->setIsMethodAnnotation($is_method_annotation);
+            }
+        }
+
+        parent::setIsMethodAnnotation($is_method_annotation);
+    }
+
+    /**
      * @return null|StepGenerator|StepGenerator[]
      */
     public function getGenerator()
@@ -91,42 +153,6 @@ abstract class Collection extends Step implements MethodAnnotationDecorator
         }
 
         return $generators;
-    }
-
-    /**
-     * @param ClassGenerator $generator
-     */
-    public function decorateClassGenerator(ClassGenerator $generator): void
-    {
-        foreach ($this->steps as $step) {
-            if ($step instanceof ClassGeneratorDecorator) {
-                $step->decorateClassGenerator($generator);
-            }
-        }
-    }
-
-    /**
-     * @param MethodGenerator $generator
-     */
-    public function decorateMethodGenerator(MethodGenerator $generator): void
-    {
-        foreach ($this->steps as $step) {
-            if ($step instanceof MethodGeneratorDecorator) {
-                $step->decorateMethodGenerator($generator);
-            }
-        }
-    }
-
-    /**
-     * @param TestCaseGenerator $generator
-     */
-    public function decorateTestCaseGenerator(TestCaseGenerator $generator): void
-    {
-        foreach ($this->steps as $step) {
-            if ($step instanceof TestCaseGeneratorDecorator) {
-                $step->decorateTestCaseGenerator($generator);
-            }
-        }
     }
 
     /**

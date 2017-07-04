@@ -2,9 +2,6 @@
 
 namespace Perfumer\Contracts;
 
-use Perfumer\Contracts\Decorator\ClassGeneratorDecorator;
-use Perfumer\Contracts\Decorator\MethodGeneratorDecorator;
-use Perfumer\Contracts\Decorator\TestCaseGeneratorDecorator;
 use Perfumer\Contracts\Exception\DecoratorException;
 use Perfumer\Contracts\Generator\ClassGenerator;
 use Perfumer\Contracts\Generator\MethodGenerator;
@@ -14,7 +11,7 @@ use Perfumer\Contracts\Variable\ArgumentVariable;
 use Perfumer\Contracts\Variable\ReturnedVariable;
 use Zend\Code\Generator\MethodGenerator as BaseMethodGenerator;
 
-abstract class Step extends Annotation implements ClassGeneratorDecorator, MethodGeneratorDecorator, TestCaseGeneratorDecorator
+abstract class Step extends Annotation
 {
     /**
      * @var string
@@ -50,6 +47,156 @@ abstract class Step extends Annotation implements ClassGeneratorDecorator, Metho
      * @var bool
      */
     public $validate = false;
+
+    /**
+     * @param \ReflectionClass $reflection_class
+     */
+    public function setReflectionClass(\ReflectionClass $reflection_class): void
+    {
+        foreach ($this->arguments as $argument) {
+            if ($argument instanceof Annotation) {
+                $argument->setReflectionClass($reflection_class);
+            }
+        }
+
+        $return = is_array($this->return) ? $this->return : [$this->return];
+
+        foreach ($return as $item) {
+            if ($item instanceof Annotation) {
+                $item->setReflectionClass($reflection_class);
+            }
+        }
+
+        if ($this->if instanceof Annotation) {
+            $this->if->setReflectionClass($reflection_class);
+        }
+
+        if ($this->unless instanceof Annotation) {
+            $this->unless->setReflectionClass($reflection_class);
+        }
+
+        parent::setReflectionClass($reflection_class);
+    }
+
+    /**
+     * @param \ReflectionMethod $reflection_method
+     */
+    public function setReflectionMethod(\ReflectionMethod $reflection_method): void
+    {
+        foreach ($this->arguments as $argument) {
+            if ($argument instanceof Annotation) {
+                $argument->setReflectionMethod($reflection_method);
+            }
+        }
+
+        $return = is_array($this->return) ? $this->return : [$this->return];
+
+        foreach ($return as $item) {
+            if ($item instanceof Annotation) {
+                $item->setReflectionMethod($reflection_method);
+            }
+        }
+
+        if ($this->if instanceof Annotation) {
+            $this->if->setReflectionMethod($reflection_method);
+        }
+
+        if ($this->unless instanceof Annotation) {
+            $this->unless->setReflectionMethod($reflection_method);
+        }
+
+        parent::setReflectionMethod($reflection_method);
+    }
+
+    /**
+     * @param ClassGenerator $class_generator
+     */
+    public function setClassGenerator(ClassGenerator $class_generator): void
+    {
+        foreach ($this->arguments as $argument) {
+            if ($argument instanceof Annotation) {
+                $argument->setClassGenerator($class_generator);
+            }
+        }
+
+        $return = is_array($this->return) ? $this->return : [$this->return];
+
+        foreach ($return as $item) {
+            if ($item instanceof Annotation) {
+                $item->setClassGenerator($class_generator);
+            }
+        }
+
+        if ($this->if instanceof Annotation) {
+            $this->if->setClassGenerator($class_generator);
+        }
+
+        if ($this->unless instanceof Annotation) {
+            $this->unless->setClassGenerator($class_generator);
+        }
+
+        parent::setClassGenerator($class_generator);
+    }
+
+    /**
+     * @param MethodGenerator $method_generator
+     */
+    public function setMethodGenerator(MethodGenerator $method_generator): void
+    {
+        foreach ($this->arguments as $argument) {
+            if ($argument instanceof Annotation) {
+                $argument->setMethodGenerator($method_generator);
+            }
+        }
+
+        $return = is_array($this->return) ? $this->return : [$this->return];
+
+        foreach ($return as $item) {
+            if ($item instanceof Annotation) {
+                $item->setMethodGenerator($method_generator);
+            }
+        }
+
+        if ($this->if instanceof Annotation) {
+            $this->if->setMethodGenerator($method_generator);
+        }
+
+        if ($this->unless instanceof Annotation) {
+            $this->unless->setMethodGenerator($method_generator);
+        }
+
+        parent::setMethodGenerator($method_generator);
+    }
+
+    /**
+     * @param TestCaseGenerator $test_case_generator
+     */
+    public function setTestCaseGenerator(TestCaseGenerator $test_case_generator): void
+    {
+        foreach ($this->arguments as $argument) {
+            if ($argument instanceof Annotation) {
+                $argument->setTestCaseGenerator($test_case_generator);
+            }
+        }
+
+        $return = is_array($this->return) ? $this->return : [$this->return];
+
+        foreach ($return as $item) {
+            if ($item instanceof Annotation) {
+                $item->setTestCaseGenerator($test_case_generator);
+            }
+        }
+
+        if ($this->if instanceof Annotation) {
+            $this->if->setTestCaseGenerator($test_case_generator);
+        }
+
+        if ($this->unless instanceof Annotation) {
+            $this->unless->setTestCaseGenerator($test_case_generator);
+        }
+
+        parent::setTestCaseGenerator($test_case_generator);
+    }
 
     /**
      * @return null|StepGenerator|StepGenerator[]
@@ -100,49 +247,15 @@ abstract class Step extends Annotation implements ClassGeneratorDecorator, Metho
         return $step_generator;
     }
 
-    /**
-     * @param ClassGenerator $generator
-     */
-    public function decorateClassGenerator(ClassGenerator $generator): void
-    {
-        foreach ($this->arguments as $argument) {
-            if ($argument instanceof ClassGeneratorDecorator) {
-                $argument->decorateClassGenerator($generator);
-            }
-        }
-
-        if (is_array($this->return)) {
-            foreach ($this->return as $return) {
-                if ($return instanceof ClassGeneratorDecorator) {
-                    $return->decorateClassGenerator($generator);
-                }
-            }
-        } elseif ($this->return instanceof ClassGeneratorDecorator) {
-            $this->return->decorateClassGenerator($generator);
-        }
-
-        if ($this->if instanceof ClassGeneratorDecorator) {
-            $this->if->decorateClassGenerator($generator);
-        }
-
-        if ($this->unless instanceof ClassGeneratorDecorator) {
-            $this->unless->decorateClassGenerator($generator);
-        }
-    }
-
-    /**
-     * @param MethodGenerator $generator
-     * @throws DecoratorException
-     */
-    public function decorateMethodGenerator(MethodGenerator $generator): void
+    public function decorateGenerators(): void
     {
         if ($this->validate) {
-            $generator->setValidation(true);
+            $this->getMethodGenerator()->setValidation(true);
         }
 
         foreach ($this->arguments as $argument) {
-            if ($argument instanceof MethodGeneratorDecorator) {
-                $argument->decorateMethodGenerator($generator);
+            if ($argument instanceof Annotation) {
+                $argument->decorateGenerators();
             }
         }
 
@@ -150,7 +263,7 @@ abstract class Step extends Annotation implements ClassGeneratorDecorator, Metho
 
         foreach ($return as $item) {
             if (is_string($item)) {
-                if (isset($generator->getInitialVariables()[$item])) {
+                if (isset($this->getMethodGenerator()->getInitialVariables()[$item])) {
                     throw new DecoratorException(sprintf('%s.%s returns "%s" which is already in use.',
                         $this->name,
                         $this->method,
@@ -159,31 +272,30 @@ abstract class Step extends Annotation implements ClassGeneratorDecorator, Metho
                 }
 
                 $value = $this->validate ? 'true' : 'null';
-                $generator->addInitialVariable($item, $value);
+                $this->getMethodGenerator()->addInitialVariable($item, $value);
             }
 
-            if ($item instanceof MethodGeneratorDecorator) {
-                $item->decorateMethodGenerator($generator);
+            if ($item instanceof Annotation) {
+                $item->decorateGenerators();
             }
         }
 
-        if ($this->if instanceof MethodGeneratorDecorator) {
-            $this->if->decorateMethodGenerator($generator);
+        if ($this->if instanceof Annotation) {
+            $this->if->decorateGenerators();
         }
 
-        if ($this->unless instanceof MethodGeneratorDecorator) {
-            $this->unless->decorateMethodGenerator($generator);
+        if ($this->unless instanceof Annotation) {
+            $this->unless->decorateGenerators();
         }
+
+        $this->decorateTestCaseGenerator();
     }
 
-    /**
-     * @param TestCaseGenerator $generator
-     */
-    public function decorateTestCaseGenerator(TestCaseGenerator $generator): void
+    private function decorateTestCaseGenerator(): void
     {
         $test_method = 'test' . ucfirst($this->getReflectionMethod()->getName()) . 'LocalVariables';
 
-        if (!$generator->hasMethod($test_method)) {
+        if (!$this->getTestCaseGenerator()->hasMethod($test_method)) {
             $method = new BaseMethodGenerator();
             $method->setFinal(true);
             $method->setVisibility('public');
@@ -197,9 +309,9 @@ abstract class Step extends Annotation implements ClassGeneratorDecorator, Metho
 
             $method->setBody($body);
 
-            $generator->addMethodFromGenerator($method);
+            $this->getTestCaseGenerator()->addMethodFromGenerator($method);
         } else {
-            $method = $generator->getMethod($test_method);
+            $method = $this->getTestCaseGenerator()->getMethod($test_method);
         }
 
         if ($this->if && is_string($this->if)) {
@@ -217,36 +329,15 @@ abstract class Step extends Annotation implements ClassGeneratorDecorator, Metho
                 $body = $method->getBody() . '$this->assertNotEmpty($' . $argument . ');';
                 $method->setBody($body);
             }
+        }
 
-            if ($argument instanceof TestCaseGeneratorDecorator) {
-                $argument->decorateTestCaseGenerator($generator);
+        $return = is_array($this->return) ? $this->return : [$this->return];
+
+        foreach ($return as $item) {
+            if (is_string($item)) {
+                $body = $method->getBody() . '$' . $item . ' = true;';
+                $method->setBody($body);
             }
-        }
-
-        if (is_array($this->return)) {
-            foreach ($this->return as $return) {
-                if (is_string($return)) {
-                    $body = $method->getBody() . '$' . $return . ' = true;';
-                    $method->setBody($body);
-                }
-
-                if ($return instanceof TestCaseGeneratorDecorator) {
-                    $return->decorateTestCaseGenerator($generator);
-                }
-            }
-        } elseif (is_string($this->return)) {
-            $body = $method->getBody() . '$' . $this->return . ' = true;';
-            $method->setBody($body);
-        } elseif ($this->return instanceof TestCaseGeneratorDecorator) {
-            $this->return->decorateTestCaseGenerator($generator);
-        }
-
-        if ($this->if instanceof TestCaseGeneratorDecorator) {
-            $this->if->decorateTestCaseGenerator($generator);
-        }
-
-        if ($this->unless instanceof TestCaseGeneratorDecorator) {
-            $this->unless->decorateTestCaseGenerator($generator);
         }
     }
 }

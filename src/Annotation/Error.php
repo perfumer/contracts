@@ -5,7 +5,6 @@ namespace Perfumer\Contracts\Annotation;
 use Doctrine\Common\Annotations\Annotation\Target;
 use Perfumer\Contracts\Annotation;
 use Perfumer\Contracts\Decorator\MethodAnnotationDecorator;
-use Perfumer\Contracts\Generator\MethodGenerator;
 use Perfumer\Contracts\Generator\StepGenerator;
 use Perfumer\Contracts\Step;
 
@@ -15,17 +14,14 @@ use Perfumer\Contracts\Step;
  */
 class Error extends Context implements MethodAnnotationDecorator
 {
-    /**
-     * @param MethodGenerator $generator
-     */
-    public function decorateMethodGenerator(MethodGenerator $generator): void
+    public function decorateGenerators(): void
     {
-        parent::decorateMethodGenerator($generator);
+        parent::decorateGenerators();
 
-        $generator->addInitialVariable('_return', 'null');
+        $this->getMethodGenerator()->addInitialVariable('_return', 'null');
 
-        if (!isset($generator->getAppendedCode()['_return'])) {
-            $generator->addAppendedCode('_return', 'return $_return;');
+        if (!isset($this->getMethodGenerator()->getAppendedCode()['_return'])) {
+            $this->getMethodGenerator()->addAppendedCode('_return', 'return $_return;');
         }
     }
 

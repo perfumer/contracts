@@ -4,7 +4,6 @@ namespace Perfumer\Contracts\Annotation;
 
 use Doctrine\Common\Annotations\Annotation\Target;
 use Perfumer\Contracts\Annotation;
-use Perfumer\Contracts\Generator\ClassGenerator;
 use Perfumer\Contracts\Generator\StepGenerator;
 use Perfumer\Contracts\Step;
 use Perfumer\Contracts\Variable\ArgumentVariable;
@@ -17,12 +16,9 @@ use Zend\Code\Generator\ParameterGenerator;
  */
 class Custom extends Step
 {
-    /**
-     * @param ClassGenerator $generator
-     */
-    public function decorateClassGenerator(ClassGenerator $generator): void
+    public function decorateGenerators(): void
     {
-        parent::decorateClassGenerator($generator);
+        parent::decorateGenerators();
 
         $method = new BaseMethodGenerator();
         $method->setName($this->method);
@@ -38,7 +34,7 @@ class Custom extends Step
             $method->setParameter($argument);
         }
 
-        $generator->addMethodFromGenerator($method);
+        $this->getClassGenerator()->addMethodFromGenerator($method);
     }
 
     /**

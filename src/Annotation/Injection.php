@@ -5,12 +5,8 @@ namespace Perfumer\Contracts\Annotation;
 use Doctrine\Common\Annotations\Annotation\Target;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Perfumer\Contracts\Annotation;
-use Perfumer\Contracts\Decorator\ClassGeneratorDecorator;
 use Perfumer\Contracts\Exception\DecoratorException;
-use Perfumer\Contracts\Generator\ClassGenerator;
-use Perfumer\Contracts\Generator\MethodGenerator;
 use Perfumer\Contracts\Generator\StepGenerator;
-use Perfumer\Contracts\Generator\TestCaseGenerator;
 use Perfumer\Contracts\Step;
 use Perfumer\Contracts\Variable\ArgumentVariable;
 
@@ -18,7 +14,7 @@ use Perfumer\Contracts\Variable\ArgumentVariable;
  * @Annotation
  * @Target({"CLASS", "METHOD", "ANNOTATION"})
  */
-class Injection extends Step implements ArgumentVariable, ClassGeneratorDecorator
+class Injection extends Step implements ArgumentVariable
 {
     /**
      * @var string
@@ -36,27 +32,26 @@ class Injection extends Step implements ArgumentVariable, ClassGeneratorDecorato
     public $aliases = [];
 
     /**
-     * @param ClassGenerator $generator
      * @throws DecoratorException
      */
-    public function decorateClassGenerator(ClassGenerator $generator): void
+    public function decorateGenerators(): void
     {
         if ($this->type !== null) {
-            if (isset($generator->getInjections()[$this->name])) {
+            if (isset($this->getClassGenerator()->getInjections()[$this->name])) {
                 throw new DecoratorException(sprintf('"%s" injection is already defined.',
                     $this->name
                 ));
             }
 
-            $generator->addInjection($this->name, $this->type);
+            $this->getClassGenerator()->addInjection($this->name, $this->type);
         }
 
         // Rest of code is executed when Injection is used as Step
-        if ($this->method === null) {
+        if ($this->isClassAnnotation()) {
             return;
         }
 
-        if (!isset($generator->getInjections()[$this->name])) {
+        if (!isset($this->getClassGenerator()->getInjections()[$this->name])) {
             throw new DecoratorException(sprintf('"%s" injection is not registered',
                 $this->name
             ));
@@ -64,7 +59,7 @@ class Injection extends Step implements ArgumentVariable, ClassGeneratorDecorato
 
         $annotation_arguments = $this->arguments;
 
-        $reflection_injection = new \ReflectionClass($generator->getInjections()[$this->name]);
+        $reflection_injection = new \ReflectionClass($this->getClassGenerator()->getInjections()[$this->name]);
 
         $method_found = false;
 
@@ -130,27 +125,7 @@ class Injection extends Step implements ArgumentVariable, ClassGeneratorDecorato
             }
         }
 
-        parent::decorateClassGenerator($generator);
-    }
-
-    /**
-     * @param MethodGenerator $generator
-     */
-    public function decorateMethodGenerator(MethodGenerator $generator): void
-    {
-        if ($this->method) {
-            parent::decorateMethodGenerator($generator);
-        }
-    }
-
-    /**
-     * @param TestCaseGenerator $generator
-     */
-    public function decorateTestCaseGenerator(TestCaseGenerator $generator): void
-    {
-        if ($this->method) {
-            parent::decorateTestCaseGenerator($generator);
-        }
+        parent::decorateGenerators();
     }
 
     /**

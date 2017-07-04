@@ -4,7 +4,6 @@ namespace Perfumer\Contracts\Annotation;
 
 use Doctrine\Common\Annotations\Annotation\Target;
 use Perfumer\Contracts\Annotation;
-use Perfumer\Contracts\Generator\ClassGenerator;
 use Perfumer\Contracts\Service;
 use Zend\Code\Generator\PropertyGenerator;
 
@@ -14,16 +13,13 @@ use Zend\Code\Generator\PropertyGenerator;
  */
 class ServiceProperty extends Service
 {
-    /**
-     * @param ClassGenerator $generator
-     */
-    public function decorateClassGenerator(ClassGenerator $generator): void
+    public function decorateGenerators(): void
     {
-        if (!$generator->hasProperty($this->name)) {
-            $generator->addProperty($this->name, null, PropertyGenerator::FLAG_PROTECTED);
+        if (!$this->getClassGenerator()->hasProperty($this->name)) {
+            $this->getClassGenerator()->addProperty($this->name, null, PropertyGenerator::FLAG_PROTECTED);
         }
 
-        parent::decorateClassGenerator($generator);
+        parent::decorateGenerators();
     }
 
     /**
