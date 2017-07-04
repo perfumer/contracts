@@ -37,12 +37,12 @@ abstract class Step extends Annotation implements ClassGeneratorDecorator, Metho
     public $return;
 
     /**
-     * @var string
+     * @var mixed
      */
     public $if;
 
     /**
-     * @var string
+     * @var mixed
      */
     public $unless;
 
