@@ -12,11 +12,6 @@ use Zend\Code\Generator\PropertyGenerator;
 final class ClassGenerator extends BaseGenerator
 {
     /**
-     * @var \ReflectionClass
-     */
-    private $contract;
-
-    /**
      * @var array
      */
     private $contexts = [];
@@ -27,20 +22,9 @@ final class ClassGenerator extends BaseGenerator
     private $injections = [];
 
     /**
-     * @return \ReflectionClass
+     * @var array
      */
-    public function getContract(): \ReflectionClass
-    {
-        return $this->contract;
-    }
-
-    /**
-     * @param \ReflectionClass $contract
-     */
-    public function setContract(\ReflectionClass $contract): void
-    {
-        $this->contract = $contract;
-    }
+    private $tags = [];
 
     /**
      * @return array
@@ -68,6 +52,15 @@ final class ClassGenerator extends BaseGenerator
     }
 
     /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasContext(string $name): bool
+    {
+        return isset($this->contexts[$name]);
+    }
+
+    /**
      * @return array
      */
     public function getInjections(): array
@@ -90,6 +83,50 @@ final class ClassGenerator extends BaseGenerator
     public function addInjection(string $name, string $type): void
     {
         $this->injections[$name] = $type;
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasInjection(string $name): bool
+    {
+        return isset($this->injections[$name]);
+    }
+
+    /**
+     * @return array
+     */
+    public function getTags(): array
+    {
+        return $this->tags;
+    }
+
+    /**
+     * @param array $tags
+     */
+    public function setTags(array $tags): void
+    {
+        $this->tags = $tags;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function addTag(string $name): void
+    {
+        if (!$this->hasTag($name)) {
+            $this->tags[] = $name;
+        }
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasTag(string $name): bool
+    {
+        return in_array($name, $this->tags);
     }
 
     /**
