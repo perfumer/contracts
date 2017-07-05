@@ -47,7 +47,7 @@ class Injection extends Step implements ArgumentVariable
         }
 
         // Rest of code is executed when Injection is used as Step
-        if ($this->isClassAnnotation()) {
+        if (!$this->isMethodAnnotation()) {
             return;
         }
 
