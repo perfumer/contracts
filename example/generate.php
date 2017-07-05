@@ -14,5 +14,5 @@ $generator = new \Perfumer\Contracts\Generator(__DIR__ . '/..', [
 
 $generator->addAnnotations(__DIR__ . '/src/Annotations.php');
 
-$generator->addClass(\Perfumer\Contracts\Example\Contract\Controller\FooController::class);
+$generator->addContract(\Perfumer\Contracts\Example\Contract\Controller\FooController::class);
 $generator->generateClasses();

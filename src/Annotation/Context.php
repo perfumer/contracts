@@ -62,7 +62,7 @@ class Context extends Step implements ArgumentVariable
         if ($this->name === null) {
             $this->name = 'default';
 
-            $reflection = $this->getClassGenerator()->getContract();
+            $reflection = $this->getReflectionClass();
 
             $context_class = '\\' . $reflection->getNamespaceName() . '\\' . $reflection->getShortName() . 'Context';
 
