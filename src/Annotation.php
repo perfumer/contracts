@@ -4,6 +4,7 @@ namespace Perfumer\Contracts;
 
 use Perfumer\Contracts\Generator\ClassGenerator;
 use Perfumer\Contracts\Generator\MethodGenerator;
+use Perfumer\Contracts\Generator\StepGenerator;
 use Perfumer\Contracts\Generator\TestCaseGenerator;
 
 class Annotation
@@ -32,6 +33,11 @@ class Annotation
      * @var TestCaseGenerator
      */
     private $test_case_generator;
+
+    /**
+     * @var StepGenerator
+     */
+    private $step_generator;
 
     /**
      * @var bool
@@ -125,6 +131,22 @@ class Annotation
     public function setTestCaseGenerator(TestCaseGenerator $test_case_generator): void
     {
         $this->test_case_generator = $test_case_generator;
+    }
+
+    /**
+     * @return StepGenerator
+     */
+    public function getStepGenerator(): ?StepGenerator
+    {
+        return $this->step_generator;
+    }
+
+    /**
+     * @param StepGenerator $step_generator
+     */
+    public function setStepGenerator(StepGenerator $step_generator): void
+    {
+        $this->step_generator = $step_generator;
     }
 
     /**

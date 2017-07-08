@@ -199,52 +199,33 @@ abstract class Step extends Annotation
     }
 
     /**
-     * @return null|StepGenerator|StepGenerator[]
-     * @throws DecoratorException
+     * @param StepGenerator $step_generator
      */
-    public function getGenerator()
+    public function setStepGenerator(StepGenerator $step_generator): void
     {
-        $step_generator = new StepGenerator();
-        $step_generator->setMethod($this->method);
-        $step_generator->setValidationCondition(true);
-
-        if ($this->if || $this->unless) {
-            $condition = $this->if ?: $this->unless;
-
-            $body_argument = $condition instanceof ArgumentVariable ? $condition->getArgumentVariableExpression() : '$' . $condition;
-
-            if ($this->unless) {
-                $body_argument = '!' . $body_argument;
-            }
-
-            $step_generator->setExtraCondition($body_argument);
-        }
-
         foreach ($this->arguments as $argument) {
-            $value = $argument instanceof ArgumentVariable ? $argument->getArgumentVariableExpression() : '$' . $argument;
-
-            $step_generator->addArgument($value);
-        }
-
-        if ($this->return) {
-            if (is_array($this->return)) {
-                $vars = array_map(function ($v) {
-                    return $v instanceof ReturnedVariable ? $v->getReturnedVariableExpression() : '$' . $v;
-                }, $this->return);
-
-                $expression = 'list(' . implode(', ', $vars) . ')';
-            } else {
-                $expression = $this->return instanceof ReturnedVariable ? $this->return->getReturnedVariableExpression() : '$' . $this->return;
+            if ($argument instanceof Annotation) {
+                $argument->setStepGenerator($step_generator);
             }
-
-            $step_generator->setReturnExpression($expression);
         }
 
-        if ($this->validate) {
-            $step_generator->setReturnExpression('$_valid = (bool) ' . $step_generator->getReturnExpression());
+        $return = is_array($this->return) ? $this->return : [$this->return];
+
+        foreach ($return as $item) {
+            if ($item instanceof Annotation) {
+                $item->setStepGenerator($step_generator);
+            }
         }
 
-        return $step_generator;
+        if ($this->if instanceof Annotation) {
+            $this->if->setStepGenerator($step_generator);
+        }
+
+        if ($this->unless instanceof Annotation) {
+            $this->unless->setStepGenerator($step_generator);
+        }
+
+        parent::setStepGenerator($step_generator);
     }
 
     public function decorateGenerators(): void
@@ -289,6 +270,46 @@ abstract class Step extends Annotation
         }
 
         $this->decorateTestCaseGenerator();
+
+        $step_generator = $this->getStepGenerator();
+        $step_generator->setMethod($this->method);
+        $step_generator->setValidationCondition(true);
+
+        if ($this->if || $this->unless) {
+            $condition = $this->if ?: $this->unless;
+
+            $body_argument = $condition instanceof ArgumentVariable ? $condition->getArgumentVariableExpression() : '$' . $condition;
+
+            if ($this->unless) {
+                $body_argument = '!' . $body_argument;
+            }
+
+            $step_generator->setExtraCondition($body_argument);
+        }
+
+        foreach ($this->arguments as $argument) {
+            $value = $argument instanceof ArgumentVariable ? $argument->getArgumentVariableExpression() : '$' . $argument;
+
+            $step_generator->addArgument($value);
+        }
+
+        if ($this->return) {
+            if (is_array($this->return)) {
+                $vars = array_map(function ($v) {
+                    return $v instanceof ReturnedVariable ? $v->getReturnedVariableExpression() : '$' . $v;
+                }, $this->return);
+
+                $expression = 'list(' . implode(', ', $vars) . ')';
+            } else {
+                $expression = $this->return instanceof ReturnedVariable ? $this->return->getReturnedVariableExpression() : '$' . $this->return;
+            }
+
+            $step_generator->setReturnExpression($expression);
+        }
+
+        if ($this->validate) {
+            $step_generator->setReturnExpression('$_valid = (bool) ' . $step_generator->getReturnExpression());
+        }
     }
 
     private function decorateTestCaseGenerator(): void

@@ -6,7 +6,6 @@ use Doctrine\Common\Annotations\Annotation\Target;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Perfumer\Contracts\Annotation;
 use Perfumer\Contracts\Exception\DecoratorException;
-use Perfumer\Contracts\Generator\StepGenerator;
 use Perfumer\Contracts\Step;
 use Perfumer\Contracts\Variable\ArgumentVariable;
 
@@ -149,20 +148,10 @@ class Context extends Step implements ArgumentVariable
         }
 
         parent::decorateGenerators();
-    }
-
-    /**
-     * @return null|StepGenerator|StepGenerator[]
-     */
-    public function getGenerator()
-    {
-        $generator = parent::getGenerator();
 
         $name = str_replace('_', '', ucwords($this->name, '_.'));
 
-        $generator->setCallExpression("\$this->get{$name}Context()->");
-
-        return $generator;
+        $this->getStepGenerator()->setCallExpression("\$this->get{$name}Context()->");
     }
 
     /**

@@ -4,7 +4,6 @@ namespace Perfumer\Contracts\Annotation;
 
 use Doctrine\Common\Annotations\Annotation\Target;
 use Perfumer\Contracts\Annotation;
-use Perfumer\Contracts\Generator\StepGenerator;
 use Perfumer\Contracts\Step;
 use Perfumer\Contracts\Variable\ArgumentVariable;
 use Zend\Code\Generator\MethodGenerator as BaseMethodGenerator;
@@ -35,17 +34,7 @@ class Custom extends Step
         }
 
         $this->getClassGenerator()->addMethodFromGenerator($method);
-    }
 
-    /**
-     * @return null|StepGenerator|StepGenerator[]
-     */
-    public function getGenerator()
-    {
-        $generator = parent::getGenerator();
-
-        $generator->setCallExpression("\$this->");
-
-        return $generator;
+        $this->getStepGenerator()->setCallExpression("\$this->");
     }
 }

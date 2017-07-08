@@ -8,10 +8,12 @@ use Perfumer\Contracts\Annotation\Test;
 use Perfumer\Contracts\Decorator\ClassAnnotationDecorator;
 use Perfumer\Contracts\Decorator\MethodAnnotationDecorator;
 use Perfumer\Contracts\Decorator\MethodGeneratorDecorator;
+use Perfumer\Contracts\Decorator\StepGeneratorDecorator;
 use Perfumer\Contracts\Exception\ContractsException;
 use Perfumer\Contracts\Exception\DecoratorException;
 use Perfumer\Contracts\Generator\ClassGenerator;
 use Perfumer\Contracts\Generator\MethodGenerator;
+use Perfumer\Contracts\Generator\StepGenerator;
 use Perfumer\Contracts\Generator\TestCaseGenerator;
 use Zend\Code\Generator\ClassGenerator as BaseClassGenerator;
 use Zend\Code\Generator\DocBlockGenerator;
@@ -204,7 +206,7 @@ class Generator
 
                         if ($annotation instanceof ClassAnnotationDecorator) {
                             foreach ($class_annotations as $another) {
-                                if ($annotation instanceof Annotation && $annotation !== $another) {
+                                if ($another instanceof Annotation && $annotation !== $another) {
                                     $annotation->decorateClassAnnotation($another);
                                 }
                             }
@@ -278,7 +280,7 @@ class Generator
 
                             if ($annotation instanceof MethodAnnotationDecorator) {
                                 foreach ($method_annotations as $another) {
-                                    if ($annotation instanceof Annotation) {
+                                    if ($another instanceof Annotation) {
                                         $annotation->decorateMethodAnnotation($another);
                                     }
                                 }
@@ -292,7 +294,7 @@ class Generator
 
                             if ($annotation instanceof MethodAnnotationDecorator) {
                                 foreach ($method_annotations as $another) {
-                                    if ($annotation instanceof Annotation && $annotation !== $another) {
+                                    if ($another instanceof Annotation && $annotation !== $another) {
                                         $annotation->decorateMethodAnnotation($another);
                                     }
                                 }
@@ -310,6 +312,24 @@ class Generator
                             $annotation->setTestCaseGenerator($test_case_generator);
                             $annotation->setMethodGenerator($method_generator);
                             $annotation->setIsMethodAnnotation(true);
+
+                            if ($annotation instanceof Step) {
+                                $annotation->setStepGenerator(new StepGenerator());
+                            }
+
+                            if ($annotation instanceof Collection) {
+                                foreach ($annotation->steps as $step) {
+                                    if ($step instanceof Step) {
+                                        $step->setReflectionClass($reflection);
+                                        $step->setReflectionMethod($method);
+                                        $step->setClassGenerator($class_generator);
+                                        $step->setTestCaseGenerator($test_case_generator);
+                                        $step->setMethodGenerator($method_generator);
+                                        $step->setIsMethodAnnotation(true);
+                                        $step->setStepGenerator(new StepGenerator());
+                                    }
+                                }
+                            }
                         }
 
                         foreach ($method_annotations as $annotation) {
@@ -318,6 +338,42 @@ class Generator
                             }
 
                             $annotation->decorateGenerators();
+
+                            if ($annotation instanceof Collection) {
+                                foreach ($annotation->steps as $step) {
+                                    if ($step instanceof Annotation) {
+                                        $step->decorateGenerators();
+                                    }
+                                }
+                            }
+                        }
+
+                        foreach ($method_annotations as $annotation) {
+                            if (!$annotation instanceof Annotation) {
+                                continue;
+                            }
+
+                            if ($annotation instanceof StepGeneratorDecorator) {
+                                foreach ($method_annotations as $another) {
+                                    if ($another instanceof Step && $annotation !== $another) {
+                                        $annotation->decorateStepGenerator($another->getStepGenerator());
+                                    }
+                                }
+                            }
+                        }
+
+                        foreach ($class_annotations as $annotation) {
+                            if (!$annotation instanceof Annotation) {
+                                continue;
+                            }
+
+                            if ($annotation instanceof StepGeneratorDecorator) {
+                                foreach ($method_annotations as $another) {
+                                    if ($another instanceof Step) {
+                                        $annotation->decorateStepGenerator($another->getStepGenerator());
+                                    }
+                                }
+                            }
                         }
 
                         foreach ($class_annotations as $annotation) {
@@ -328,17 +384,11 @@ class Generator
 
                         foreach ($method_annotations as $annotation) {
                             if ($annotation instanceof Step) {
-                                $step_generators = $annotation->getGenerator();
+                                $method_generator->addStep($annotation->getStepGenerator());
+                            }
 
-                                if ($step_generators === null) {
-                                    continue;
-                                }
-
-                                if (!is_array($step_generators)) {
-                                    $step_generators = [$step_generators];
-                                }
-
-                                foreach ($step_generators as $step_generator) {
+                            if ($annotation instanceof Collection) {
+                                foreach ($annotation->getStepGenerators() as $step_generator) {
                                     $method_generator->addStep($step_generator);
                                 }
                             }
