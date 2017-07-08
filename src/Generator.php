@@ -162,7 +162,7 @@ class Generator
         return $this;
     }
 
-    public function generateClasses()
+    public function generateAll()
     {
         try {
             $bundle = new Bundle();
@@ -431,7 +431,7 @@ class Generator
         }
     }
 
-    public function generateContexts()
+    private function generateContexts()
     {
         try {
             foreach ($this->contexts as $class) {
