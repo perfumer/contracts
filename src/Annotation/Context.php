@@ -105,6 +105,7 @@ class Context extends Step implements ArgumentVariable
                         $variable->setClassGenerator($this->getClassGenerator());
                         $variable->setMethodGenerator($this->getMethodGenerator());
                         $variable->setTestCaseGenerator($this->getTestCaseGenerator());
+                        $variable->setStepGenerator($this->getStepGenerator());
 
                         $tmp_arguments[] = $variable;
                         $found = true;

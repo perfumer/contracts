@@ -82,6 +82,10 @@ class Injection extends Step implements ArgumentVariable
                         $variable = $method_annotation->variable;
                         $variable->setReflectionClass($this->getReflectionClass());
                         $variable->setReflectionMethod($this->getReflectionMethod());
+                        $variable->setClassGenerator($this->getClassGenerator());
+                        $variable->setMethodGenerator($this->getMethodGenerator());
+                        $variable->setTestCaseGenerator($this->getTestCaseGenerator());
+                        $variable->setStepGenerator($this->getStepGenerator());
 
                         $tmp_arguments[] = $variable;
                         $found = true;
