@@ -144,7 +144,15 @@ class Context extends Step implements ArgumentVariable
 
         foreach ($this->arguments as $i => $argument) {
             if (is_string($argument) && isset($this->aliases[$argument])) {
-                $this->arguments[$i] = $this->aliases[$argument];
+                $variable = $this->aliases[$argument];
+                $variable->setReflectionClass($this->getReflectionClass());
+                $variable->setReflectionMethod($this->getReflectionMethod());
+                $variable->setClassGenerator($this->getClassGenerator());
+                $variable->setMethodGenerator($this->getMethodGenerator());
+                $variable->setTestCaseGenerator($this->getTestCaseGenerator());
+                $variable->setStepGenerator($this->getStepGenerator());
+
+                $this->arguments[$i] = $variable;
             }
         }
 
