@@ -204,6 +204,19 @@ class Generator
                             continue;
                         }
 
+                        $annotation->setReflectionClass($reflection);
+                        $annotation->setClassGenerator($class_generator);
+                        $annotation->setTestCaseGenerator($test_case_generator);
+                        $annotation->setIsClassAnnotation(true);
+
+                        $annotation->onCreate();
+                    }
+
+                    foreach ($class_annotations as $annotation) {
+                        if (!$annotation instanceof Annotation) {
+                            continue;
+                        }
+
                         if ($annotation instanceof ClassAnnotationDecorator) {
                             foreach ($class_annotations as $another) {
                                 if ($another instanceof Annotation && $annotation !== $another) {
@@ -218,18 +231,7 @@ class Generator
                             continue;
                         }
 
-                        $annotation->setReflectionClass($reflection);
-                        $annotation->setClassGenerator($class_generator);
-                        $annotation->setTestCaseGenerator($test_case_generator);
-                        $annotation->setIsClassAnnotation(true);
-                    }
-
-                    foreach ($class_annotations as $annotation) {
-                        if (!$annotation instanceof Annotation) {
-                            continue;
-                        }
-
-                        $annotation->decorateGenerators();
+                        $annotation->onDecorate();
                     }
                 } catch (DecoratorException $e) {
                     throw new ContractsException(sprintf('%s\\%s: ' . $e->getMessage(),
@@ -273,6 +275,41 @@ class Generator
                     $method_annotations = $this->reader->getMethodAnnotations($method);
 
                     try {
+                        foreach ($method_annotations as $annotation) {
+                            if (!$annotation instanceof Annotation) {
+                                continue;
+                            }
+
+                            $annotation->setReflectionClass($reflection);
+                            $annotation->setReflectionMethod($method);
+                            $annotation->setClassGenerator($class_generator);
+                            $annotation->setTestCaseGenerator($test_case_generator);
+                            $annotation->setMethodGenerator($method_generator);
+                            $annotation->setIsMethodAnnotation(true);
+
+                            if ($annotation instanceof Step) {
+                                $annotation->setStepGenerator(new StepGenerator());
+                            }
+
+                            $annotation->onCreate();
+
+                            if ($annotation instanceof Collection) {
+                                foreach ($annotation->steps as $step) {
+                                    if ($step instanceof Step) {
+                                        $step->setReflectionClass($reflection);
+                                        $step->setReflectionMethod($method);
+                                        $step->setClassGenerator($class_generator);
+                                        $step->setTestCaseGenerator($test_case_generator);
+                                        $step->setMethodGenerator($method_generator);
+                                        $step->setIsMethodAnnotation(true);
+                                        $step->setStepGenerator(new StepGenerator());
+
+                                        $step->onCreate();
+                                    }
+                                }
+                            }
+                        }
+
                         foreach ($class_annotations as $annotation) {
                             if (!$annotation instanceof Annotation) {
                                 continue;
@@ -306,43 +343,12 @@ class Generator
                                 continue;
                             }
 
-                            $annotation->setReflectionClass($reflection);
-                            $annotation->setReflectionMethod($method);
-                            $annotation->setClassGenerator($class_generator);
-                            $annotation->setTestCaseGenerator($test_case_generator);
-                            $annotation->setMethodGenerator($method_generator);
-                            $annotation->setIsMethodAnnotation(true);
-
-                            if ($annotation instanceof Step) {
-                                $annotation->setStepGenerator(new StepGenerator());
-                            }
-
-                            if ($annotation instanceof Collection) {
-                                foreach ($annotation->steps as $step) {
-                                    if ($step instanceof Step) {
-                                        $step->setReflectionClass($reflection);
-                                        $step->setReflectionMethod($method);
-                                        $step->setClassGenerator($class_generator);
-                                        $step->setTestCaseGenerator($test_case_generator);
-                                        $step->setMethodGenerator($method_generator);
-                                        $step->setIsMethodAnnotation(true);
-                                        $step->setStepGenerator(new StepGenerator());
-                                    }
-                                }
-                            }
-                        }
-
-                        foreach ($method_annotations as $annotation) {
-                            if (!$annotation instanceof Annotation) {
-                                continue;
-                            }
-
-                            $annotation->decorateGenerators();
+                            $annotation->onDecorate();
 
                             if ($annotation instanceof Collection) {
                                 foreach ($annotation->steps as $step) {
                                     if ($step instanceof Annotation) {
-                                        $step->decorateGenerators();
+                                        $step->onDecorate();
                                     }
                                 }
                             }

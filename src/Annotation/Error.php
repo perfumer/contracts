@@ -13,9 +13,9 @@ use Perfumer\Contracts\Step;
  */
 class Error extends Context implements MethodAnnotationDecorator
 {
-    public function decorateGenerators(): void
+    public function onDecorate(): void
     {
-        parent::decorateGenerators();
+        parent::onDecorate();
 
         $this->getMethodGenerator()->addInitialVariable('_return', 'null');
 

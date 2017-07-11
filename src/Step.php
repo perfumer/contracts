@@ -228,7 +228,7 @@ abstract class Step extends Annotation
         parent::setStepGenerator($step_generator);
     }
 
-    public function decorateGenerators(): void
+    public function onDecorate(): void
     {
         if ($this->validate) {
             $this->getMethodGenerator()->setValidation(true);
@@ -236,7 +236,7 @@ abstract class Step extends Annotation
 
         foreach ($this->arguments as $argument) {
             if ($argument instanceof Annotation) {
-                $argument->decorateGenerators();
+                $argument->onDecorate();
             }
         }
 
@@ -257,16 +257,16 @@ abstract class Step extends Annotation
             }
 
             if ($item instanceof Annotation) {
-                $item->decorateGenerators();
+                $item->onDecorate();
             }
         }
 
         if ($this->if instanceof Annotation) {
-            $this->if->decorateGenerators();
+            $this->if->onDecorate();
         }
 
         if ($this->unless instanceof Annotation) {
-            $this->unless->decorateGenerators();
+            $this->unless->onDecorate();
         }
 
         $this->decorateTestCaseGenerator();

@@ -49,7 +49,11 @@ class Annotation
      */
     private $is_method_annotation = false;
 
-    public function decorateGenerators(): void
+    public function onCreate(): void
+    {
+    }
+
+    public function onDecorate(): void
     {
     }
 

@@ -15,9 +15,9 @@ use Zend\Code\Generator\ParameterGenerator;
  */
 class Custom extends Step
 {
-    public function decorateGenerators(): void
+    public function onDecorate(): void
     {
-        parent::decorateGenerators();
+        parent::onDecorate();
 
         $method = new BaseMethodGenerator();
         $method->setName($this->method);

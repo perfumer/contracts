@@ -51,7 +51,7 @@ class Property extends Annotation implements ArgumentVariable, ReturnedVariable
         return '$this->' . $this->name;
     }
 
-    public function decorateGenerators(): void
+    public function onDecorate(): void
     {
         if (!$this->getClassGenerator()->hasProperty($this->name)) {
             $this->getClassGenerator()->addProperty($this->name, null, PropertyGenerator::FLAG_PROTECTED);

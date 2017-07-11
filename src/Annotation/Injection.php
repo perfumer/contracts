@@ -33,7 +33,7 @@ class Injection extends Step implements ArgumentVariable
     /**
      * @throws DecoratorException
      */
-    public function decorateGenerators(): void
+    public function onDecorate(): void
     {
         if ($this->type !== null) {
             if (isset($this->getClassGenerator()->getInjections()[$this->name])) {
@@ -136,7 +136,7 @@ class Injection extends Step implements ArgumentVariable
             }
         }
 
-        parent::decorateGenerators();
+        parent::onDecorate();
 
         $name = str_replace('_', '', ucwords($this->name, '_.'));
 

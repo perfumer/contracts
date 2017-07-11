@@ -13,13 +13,13 @@ use Zend\Code\Generator\PropertyGenerator;
  */
 class ServiceProperty extends Service
 {
-    public function decorateGenerators(): void
+    public function onDecorate(): void
     {
         if (!$this->getClassGenerator()->hasProperty($this->name)) {
             $this->getClassGenerator()->addProperty($this->name, null, PropertyGenerator::FLAG_PROTECTED);
         }
 
-        parent::decorateGenerators();
+        parent::onDecorate();
     }
 
     /**

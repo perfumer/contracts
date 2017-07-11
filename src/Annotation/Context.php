@@ -33,7 +33,7 @@ class Context extends Step implements ArgumentVariable
     /**
      * @throws DecoratorException
      */
-    public function decorateGenerators(): void
+    public function onDecorate(): void
     {
         if ($this->class !== null) {
             if (!class_exists($this->class) && $this->name !== 'default') {
@@ -156,7 +156,7 @@ class Context extends Step implements ArgumentVariable
             }
         }
 
-        parent::decorateGenerators();
+        parent::onDecorate();
 
         $name = str_replace('_', '', ucwords($this->name, '_.'));
 
