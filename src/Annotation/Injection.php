@@ -26,17 +26,16 @@ class Injection extends Step implements ArgumentVariable
     public $type;
 
     /**
-     * @var array
-     */
-    public $aliases = [];
-
-    /**
      * @throws DecoratorException
      */
-    public function onDecorate(): void
+    public function onCreate(): void
     {
-        if ($this->type !== null) {
-            if (isset($this->getClassGenerator()->getInjections()[$this->name])) {
+        if ($this->isClassAnnotation()) {
+            if (!is_string($this->name)) {
+                throw new DecoratorException('Define name of injection.');
+            }
+
+            if ($this->getClassGenerator()->hasInjection($this->name)) {
                 throw new DecoratorException(sprintf('"%s" injection is already defined.',
                     $this->name
                 ));
@@ -121,26 +120,17 @@ class Injection extends Step implements ArgumentVariable
                 $this->name
             ));
         }
+    }
 
-        foreach ($this->arguments as $i => $argument) {
-            if (is_string($argument) && isset($this->aliases[$argument])) {
-                $variable = $this->aliases[$argument];
-                $variable->setReflectionClass($this->getReflectionClass());
-                $variable->setReflectionMethod($this->getReflectionMethod());
-                $variable->setClassGenerator($this->getClassGenerator());
-                $variable->setMethodGenerator($this->getMethodGenerator());
-                $variable->setTestCaseGenerator($this->getTestCaseGenerator());
-                $variable->setStepGenerator($this->getStepGenerator());
+    public function onDecorate(): void
+    {
+        if ($this->isMethodAnnotation()) {
+            parent::onDecorate();
 
-                $this->arguments[$i] = $variable;
-            }
+            $name = str_replace('_', '', ucwords($this->name, '_.'));
+
+            $this->getStepGenerator()->setCallExpression("\$this->get{$name}()->");
         }
-
-        parent::onDecorate();
-
-        $name = str_replace('_', '', ucwords($this->name, '_.'));
-
-        $this->getStepGenerator()->setCallExpression("\$this->get{$name}()->");
     }
 
     /**

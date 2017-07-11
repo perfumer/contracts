@@ -55,10 +55,6 @@ class Alias extends Annotation implements MethodAnnotationDecorator
         $tmp = clone $this->variable;
         $tmp->setStepGenerator($step->getStepGenerator());
 
-        if ($step instanceof Context || $step instanceof Injection) {
-            $step->aliases[$this->name] = clone $tmp;
-        }
-
         foreach ($step->arguments as $i => $argument) {
             if (is_string($argument) && $argument === $this->name) {
                 $step->arguments[$i] = clone $tmp;

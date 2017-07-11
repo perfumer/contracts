@@ -26,31 +26,32 @@ class Context extends Step implements ArgumentVariable
     public $class;
 
     /**
-     * @var array
-     */
-    public $aliases = [];
-
-    /**
      * @throws DecoratorException
      */
-    public function onDecorate(): void
+    public function onCreate(): void
     {
-        if ($this->class !== null) {
-            if (!class_exists($this->class) && $this->name !== 'default') {
-                throw new DecoratorException(sprintf('"%s" context class not found.',
-                    $this->name
-                ));
+        if ($this->isClassAnnotation()) {
+            if (!is_string($this->name)) {
+                throw new DecoratorException('Define name of context.');
             }
 
-            if (isset($this->getClassGenerator()->getContexts()[$this->name])) {
+            if ($this->name === 'default') {
+                throw new DecoratorException('"Default" name of context is reserved.');
+            }
+
+            if ($this->getClassGenerator()->hasContext($this->name)) {
                 throw new DecoratorException(sprintf('"%s" context is already defined.',
                     $this->name
                 ));
             }
 
-            if ($this->name !== 'default') {
-                $this->getClassGenerator()->addContext($this->name, $this->class);
+            if (!class_exists($this->class)) {
+                throw new DecoratorException(sprintf('"%s" context class not found.',
+                    $this->name
+                ));
             }
+
+            $this->getClassGenerator()->addContext($this->name, $this->class);
         }
 
         // Rest of code is executed when Context is used as Step
@@ -141,26 +142,17 @@ class Context extends Step implements ArgumentVariable
                 $this->name
             ));
         }
+    }
 
-        foreach ($this->arguments as $i => $argument) {
-            if (is_string($argument) && isset($this->aliases[$argument])) {
-                $variable = $this->aliases[$argument];
-                $variable->setReflectionClass($this->getReflectionClass());
-                $variable->setReflectionMethod($this->getReflectionMethod());
-                $variable->setClassGenerator($this->getClassGenerator());
-                $variable->setMethodGenerator($this->getMethodGenerator());
-                $variable->setTestCaseGenerator($this->getTestCaseGenerator());
-                $variable->setStepGenerator($this->getStepGenerator());
+    public function onDecorate(): void
+    {
+        if ($this->isMethodAnnotation()) {
+            parent::onDecorate();
 
-                $this->arguments[$i] = $variable;
-            }
+            $name = str_replace('_', '', ucwords($this->name, '_.'));
+
+            $this->getStepGenerator()->setCallExpression("\$this->get{$name}Context()->");
         }
-
-        parent::onDecorate();
-
-        $name = str_replace('_', '', ucwords($this->name, '_.'));
-
-        $this->getStepGenerator()->setCallExpression("\$this->get{$name}Context()->");
     }
 
     /**
