@@ -8,7 +8,7 @@ use Perfumer\Contracts\Variable\ReturnedVariable;
 
 /**
  * @Annotation
- * @Target("ANNOTATION")
+ * @Target({"METHOD", "ANNOTATION"})
  */
 class Output extends Annotation implements ReturnedVariable
 {
