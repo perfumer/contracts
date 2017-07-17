@@ -1,3 +1,7 @@
+Contracts is a tool for generating php classes. It uses [zend-code](https://github.com/zendframework/zend-code) to generate class and [Doctrine Annotations](https://github.com/doctrine/annotations) to add annotations which mutate class and method generators in needed way.
+
+Contracts provides DSL (based on annotations) to describe method execution order and generate unit tests.
+
 Built-in annotations
 ====================
 
