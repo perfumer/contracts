@@ -53,7 +53,7 @@ class Annotation
     {
     }
 
-    public function onDecorate(): void
+    public function onMutate(): void
     {
     }
 

@@ -20,7 +20,7 @@ class Output extends Annotation implements ReturnedVariable
         return '$_return';
     }
 
-    public function onDecorate(): void
+    public function onMutate(): void
     {
         $this->getMethodGenerator()->addInitialVariable('_return', 'null');
 

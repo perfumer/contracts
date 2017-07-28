@@ -5,7 +5,7 @@ namespace Barman\Annotation;
 use Doctrine\Common\Annotations\Annotation\Target;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Barman\Annotation;
-use Barman\Exception\DecoratorException;
+use Barman\Exception\MutatorException;
 use Barman\Step;
 use Barman\Variable\ArgumentVariable;
 
@@ -26,27 +26,27 @@ class Context extends Step implements ArgumentVariable
     public $class;
 
     /**
-     * @throws DecoratorException
+     * @throws MutatorException
      */
     public function onCreate(): void
     {
         if ($this->isClassAnnotation()) {
             if (!is_string($this->name)) {
-                throw new DecoratorException('Define name of context.');
+                throw new MutatorException('Define name of context.');
             }
 
             if ($this->name === 'default') {
-                throw new DecoratorException('"Default" name of context is reserved.');
+                throw new MutatorException('"Default" name of context is reserved.');
             }
 
             if ($this->getClassGenerator()->hasContext($this->name)) {
-                throw new DecoratorException(sprintf('"%s" context is already defined.',
+                throw new MutatorException(sprintf('"%s" context is already defined.',
                     $this->name
                 ));
             }
 
             if (!class_exists($this->class)) {
-                throw new DecoratorException(sprintf('"%s" context class not found.',
+                throw new MutatorException(sprintf('"%s" context class not found.',
                     $this->name
                 ));
             }
@@ -72,7 +72,7 @@ class Context extends Step implements ArgumentVariable
         }
 
         if (!isset($this->getClassGenerator()->getContexts()[$this->name])) {
-            throw new DecoratorException(sprintf('"%s" context is not registered',
+            throw new MutatorException(sprintf('"%s" context is not registered',
                 $this->name
             ));
         }
@@ -125,7 +125,7 @@ class Context extends Step implements ArgumentVariable
             }
 
             if (count($annotation_arguments) > 0) {
-                throw new DecoratorException(sprintf('%s.%s has excessive arguments.',
+                throw new MutatorException(sprintf('%s.%s has excessive arguments.',
                     $this->name,
                     $this->method
                 ));
@@ -137,17 +137,17 @@ class Context extends Step implements ArgumentVariable
         }
 
         if ($method_found === false) {
-            throw new DecoratorException(sprintf('method "%s" is not found in "%s".',
+            throw new MutatorException(sprintf('method "%s" is not found in "%s".',
                 $this->method,
                 $this->name
             ));
         }
     }
 
-    public function onDecorate(): void
+    public function onMutate(): void
     {
         if ($this->isMethodAnnotation()) {
-            parent::onDecorate();
+            parent::onMutate();
 
             $name = str_replace('_', '', ucwords($this->name, '_.'));
 

@@ -5,14 +5,14 @@ namespace Barman\Annotation;
 use Doctrine\Common\Annotations\Annotation\Target;
 use Barman\Annotation;
 use Barman\Collection;
-use Barman\Decorator\MethodAnnotationDecorator;
+use Barman\Mutator\MethodAnnotationMutator;
 use Barman\Step;
 
 /**
  * @Annotation
  * @Target("METHOD")
  */
-class Alias extends Annotation implements MethodAnnotationDecorator
+class Alias extends Annotation implements MethodAnnotationMutator
 {
     /**
      * @var string
@@ -36,21 +36,21 @@ class Alias extends Annotation implements MethodAnnotationDecorator
     /**
      * @param Annotation $annotation
      */
-    public function decorateMethodAnnotation(Annotation $annotation): void
+    public function mutateMethodAnnotation(Annotation $annotation): void
     {
         if ($annotation instanceof Collection) {
             foreach ($annotation->steps as $step) {
-                $this->decorateStep($step);
+                $this->mutateStep($step);
             }
         } elseif ($annotation instanceof Step) {
-            $this->decorateStep($annotation);
+            $this->mutateStep($annotation);
         }
     }
 
     /**
      * @param Step $step
      */
-    private function decorateStep(Step $step)
+    private function mutateStep(Step $step)
     {
         $tmp = clone $this->variable;
         $tmp->setStepGenerator($step->getStepGenerator());

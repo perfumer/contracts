@@ -2,7 +2,7 @@
 
 namespace Barman;
 
-use Barman\Exception\DecoratorException;
+use Barman\Exception\MutatorException;
 use Barman\Generator\ClassGenerator;
 use Barman\Generator\MethodGenerator;
 use Barman\Generator\StepGenerator;
@@ -228,7 +228,7 @@ abstract class Step extends Annotation
         parent::setStepGenerator($step_generator);
     }
 
-    public function onDecorate(): void
+    public function onMutate(): void
     {
         if ($this->validate) {
             $this->getMethodGenerator()->setValidation(true);
@@ -236,7 +236,7 @@ abstract class Step extends Annotation
 
         foreach ($this->arguments as $argument) {
             if ($argument instanceof Annotation) {
-                $argument->onDecorate();
+                $argument->onMutate();
             }
         }
 
@@ -245,7 +245,7 @@ abstract class Step extends Annotation
         foreach ($return as $item) {
             if (is_string($item)) {
                 if (isset($this->getMethodGenerator()->getInitialVariables()[$item])) {
-                    throw new DecoratorException(sprintf('%s.%s returns "%s" which is already in use.',
+                    throw new MutatorException(sprintf('%s.%s returns "%s" which is already in use.',
                         $this->name,
                         $this->method,
                         $item
@@ -257,19 +257,19 @@ abstract class Step extends Annotation
             }
 
             if ($item instanceof Annotation) {
-                $item->onDecorate();
+                $item->onMutate();
             }
         }
 
         if ($this->if instanceof Annotation) {
-            $this->if->onDecorate();
+            $this->if->onMutate();
         }
 
         if ($this->unless instanceof Annotation) {
-            $this->unless->onDecorate();
+            $this->unless->onMutate();
         }
 
-        $this->decorateTestCaseGenerator();
+        $this->mutateTestCaseGenerator();
 
         $step_generator = $this->getStepGenerator();
         $step_generator->setMethod($this->method);
@@ -312,7 +312,7 @@ abstract class Step extends Annotation
         }
     }
 
-    private function decorateTestCaseGenerator(): void
+    private function mutateTestCaseGenerator(): void
     {
         $test_method = 'test' . ucfirst($this->getReflectionMethod()->getName()) . 'LocalVariables';
 

@@ -4,18 +4,18 @@ namespace Barman\Annotation;
 
 use Doctrine\Common\Annotations\Annotation\Target;
 use Barman\Annotation;
-use Barman\Decorator\MethodAnnotationDecorator;
+use Barman\Mutator\MethodAnnotationMutator;
 use Barman\Step;
 
 /**
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Error extends Context implements MethodAnnotationDecorator
+class Error extends Context implements MethodAnnotationMutator
 {
-    public function onDecorate(): void
+    public function onMutate(): void
     {
-        parent::onDecorate();
+        parent::onMutate();
 
         $this->getMethodGenerator()->addInitialVariable('_return', 'null');
 
@@ -30,7 +30,7 @@ class Error extends Context implements MethodAnnotationDecorator
     /**
      * @param Annotation $annotation
      */
-    public function decorateMethodAnnotation(Annotation $annotation): void
+    public function mutateMethodAnnotation(Annotation $annotation): void
     {
         if ($annotation instanceof Step && $annotation->return === $this->unless) {
             $annotation->validate = true;

@@ -1,6 +1,6 @@
-Contracts is a tool for generating php classes. It uses [zend-code](https://github.com/zendframework/zend-code) to generate class and [Doctrine Annotations](https://github.com/doctrine/annotations) to add annotations which mutate class and method generators in needed way.
+Barman is a tool for generating php classes. It uses [zend-code](https://github.com/zendframework/zend-code) to generate class and [Doctrine Annotations](https://github.com/doctrine/annotations) to add annotations which mutate class and method generators in needed way.
 
-Contracts provides DSL (based on annotations) to describe method execution order and generate unit tests.
+Barman provides DSL (based on annotations) to describe method execution order and generate unit tests.
 
 Built-in annotations
 ====================
@@ -63,13 +63,13 @@ Lifecycle (creating own annotations)
 
 - Generators are set to class annotations.
 - onCreate() is called on class annotations.
-- Class annotations implemented ClassAnnotationDecorator decorate class annotations.
-- onDecorate() is called on class annotations.
+- Class annotations implemented ClassAnnotationMutator mutate class annotations.
+- onMutate() is called on class annotations.
 - Generators are set to method annotations.
 - onCreate() is called on method annotations.
-- Class annotations implemented MethodAnnotationDecorator decorate method annotations.
-- Method annotations implemented MethodAnnotationDecorator decorate method annotations.
-- onDecorate() is called on method annotations.
-- Method annotations implemented StepGeneratorDecorator decorate step generators.
-- Class annotations implemented StepGeneratorDecorator decorate step generators.
-- Class annotations implemented MethodGeneratorDecorator decorate method generators.
+- Class annotations implemented MethodAnnotationMutator mutate method annotations.
+- Method annotations implemented MethodAnnotationMutator mutate method annotations.
+- onMutate() is called on method annotations.
+- Method annotations implemented StepGeneratorMutator mutate step generators.
+- Class annotations implemented StepGeneratorMutator mutate step generators.
+- Class annotations implemented MethodGeneratorMutator mutate method generators.

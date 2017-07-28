@@ -5,7 +5,7 @@ namespace Barman\Annotation;
 use Doctrine\Common\Annotations\Annotation\Target;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Barman\Annotation;
-use Barman\Exception\DecoratorException;
+use Barman\Exception\MutatorException;
 use Barman\Step;
 use Barman\Variable\ArgumentVariable;
 
@@ -26,17 +26,17 @@ class Injection extends Step implements ArgumentVariable
     public $type;
 
     /**
-     * @throws DecoratorException
+     * @throws MutatorException
      */
     public function onCreate(): void
     {
         if ($this->isClassAnnotation()) {
             if (!is_string($this->name)) {
-                throw new DecoratorException('Define name of injection.');
+                throw new MutatorException('Define name of injection.');
             }
 
             if ($this->getClassGenerator()->hasInjection($this->name)) {
-                throw new DecoratorException(sprintf('"%s" injection is already defined.',
+                throw new MutatorException(sprintf('"%s" injection is already defined.',
                     $this->name
                 ));
             }
@@ -50,7 +50,7 @@ class Injection extends Step implements ArgumentVariable
         }
 
         if (!isset($this->getClassGenerator()->getInjections()[$this->name])) {
-            throw new DecoratorException(sprintf('"%s" injection is not registered',
+            throw new MutatorException(sprintf('"%s" injection is not registered',
                 $this->name
             ));
         }
@@ -103,7 +103,7 @@ class Injection extends Step implements ArgumentVariable
             }
 
             if (count($annotation_arguments) > 0) {
-                throw new DecoratorException(sprintf('%s.%s has excessive arguments.',
+                throw new MutatorException(sprintf('%s.%s has excessive arguments.',
                     $this->name,
                     $this->method
                 ));
@@ -115,17 +115,17 @@ class Injection extends Step implements ArgumentVariable
         }
 
         if ($method_found === false) {
-            throw new DecoratorException(sprintf('method "%s" is not found in "%s".',
+            throw new MutatorException(sprintf('method "%s" is not found in "%s".',
                 $this->method,
                 $this->name
             ));
         }
     }
 
-    public function onDecorate(): void
+    public function onMutate(): void
     {
         if ($this->isMethodAnnotation()) {
-            parent::onDecorate();
+            parent::onMutate();
 
             $name = str_replace('_', '', ucwords($this->name, '_.'));
 

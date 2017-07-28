@@ -9,9 +9,9 @@ abstract class Service extends Step
      */
     abstract public function getCallExpression(): string;
 
-    public function onDecorate(): void
+    public function onMutate(): void
     {
-        parent::onDecorate();
+        parent::onMutate();
 
         $this->getStepGenerator()->setCallExpression($this->getCallExpression());
     }

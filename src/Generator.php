@@ -5,12 +5,12 @@ namespace Barman;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Barman\Annotation\Test;
-use Barman\Decorator\ClassAnnotationDecorator;
-use Barman\Decorator\MethodAnnotationDecorator;
-use Barman\Decorator\MethodGeneratorDecorator;
-use Barman\Decorator\StepGeneratorDecorator;
+use Barman\Mutator\ClassAnnotationMutator;
+use Barman\Mutator\MethodAnnotationMutator;
+use Barman\Mutator\MethodGeneratorMutator;
+use Barman\Mutator\StepGeneratorMutator;
 use Barman\Exception\ContractsException;
-use Barman\Exception\DecoratorException;
+use Barman\Exception\MutatorException;
 use Barman\Generator\ClassGenerator;
 use Barman\Generator\MethodGenerator;
 use Barman\Generator\StepGenerator;
@@ -217,10 +217,10 @@ class Generator
                             continue;
                         }
 
-                        if ($annotation instanceof ClassAnnotationDecorator) {
+                        if ($annotation instanceof ClassAnnotationMutator) {
                             foreach ($class_annotations as $another) {
                                 if ($another instanceof Annotation && $annotation !== $another) {
-                                    $annotation->decorateClassAnnotation($another);
+                                    $annotation->mutateClassAnnotation($another);
                                 }
                             }
                         }
@@ -231,9 +231,9 @@ class Generator
                             continue;
                         }
 
-                        $annotation->onDecorate();
+                        $annotation->onMutate();
                     }
-                } catch (DecoratorException $e) {
+                } catch (MutatorException $e) {
                     throw new ContractsException(sprintf('%s\\%s: ' . $e->getMessage(),
                         $class_generator->getNamespaceName(),
                         $class_generator->getName()
@@ -315,10 +315,10 @@ class Generator
                                 continue;
                             }
 
-                            if ($annotation instanceof MethodAnnotationDecorator) {
+                            if ($annotation instanceof MethodAnnotationMutator) {
                                 foreach ($method_annotations as $another) {
                                     if ($another instanceof Annotation) {
-                                        $annotation->decorateMethodAnnotation($another);
+                                        $annotation->mutateMethodAnnotation($another);
                                     }
                                 }
                             }
@@ -329,10 +329,10 @@ class Generator
                                 continue;
                             }
 
-                            if ($annotation instanceof MethodAnnotationDecorator) {
+                            if ($annotation instanceof MethodAnnotationMutator) {
                                 foreach ($method_annotations as $another) {
                                     if ($another instanceof Annotation && $annotation !== $another) {
-                                        $annotation->decorateMethodAnnotation($another);
+                                        $annotation->mutateMethodAnnotation($another);
                                     }
                                 }
                             }
@@ -343,12 +343,12 @@ class Generator
                                 continue;
                             }
 
-                            $annotation->onDecorate();
+                            $annotation->onMutate();
 
                             if ($annotation instanceof Collection) {
                                 foreach ($annotation->steps as $step) {
                                     if ($step instanceof Annotation) {
-                                        $step->onDecorate();
+                                        $step->onMutate();
                                     }
                                 }
                             }
@@ -359,10 +359,10 @@ class Generator
                                 continue;
                             }
 
-                            if ($annotation instanceof StepGeneratorDecorator) {
+                            if ($annotation instanceof StepGeneratorMutator) {
                                 foreach ($method_annotations as $another) {
                                     if ($another instanceof Step && $annotation !== $another) {
-                                        $annotation->decorateStepGenerator($another->getStepGenerator());
+                                        $annotation->mutateStepGenerator($another->getStepGenerator());
                                     }
                                 }
                             }
@@ -373,18 +373,18 @@ class Generator
                                 continue;
                             }
 
-                            if ($annotation instanceof StepGeneratorDecorator) {
+                            if ($annotation instanceof StepGeneratorMutator) {
                                 foreach ($method_annotations as $another) {
                                     if ($another instanceof Step) {
-                                        $annotation->decorateStepGenerator($another->getStepGenerator());
+                                        $annotation->mutateStepGenerator($another->getStepGenerator());
                                     }
                                 }
                             }
                         }
 
                         foreach ($class_annotations as $annotation) {
-                            if ($annotation instanceof MethodGeneratorDecorator) {
-                                $annotation->decorateMethodGenerator($method_generator);
+                            if ($annotation instanceof MethodGeneratorMutator) {
+                                $annotation->mutateMethodGenerator($method_generator);
                             }
                         }
 
@@ -399,7 +399,7 @@ class Generator
                                 }
                             }
                         }
-                    } catch (DecoratorException $e) {
+                    } catch (MutatorException $e) {
                         throw new ContractsException(sprintf('%s\\%s -> %s: ' . $e->getMessage(),
                             $class_generator->getNamespaceName(),
                             $class_generator->getName(),

@@ -2,11 +2,11 @@
 
 namespace Barman;
 
-use Barman\Decorator\MethodAnnotationDecorator;
-use Barman\Decorator\StepGeneratorDecorator;
+use Barman\Mutator\MethodAnnotationMutator;
+use Barman\Mutator\StepGeneratorMutator;
 use Barman\Generator\StepGenerator;
 
-abstract class Collection extends Annotation implements MethodAnnotationDecorator, StepGeneratorDecorator
+abstract class Collection extends Annotation implements MethodAnnotationMutator, StepGeneratorMutator
 {
     /**
      * @var array
@@ -57,11 +57,11 @@ abstract class Collection extends Annotation implements MethodAnnotationDecorato
     /**
      * @param Annotation $annotation
      */
-    public function decorateMethodAnnotation(Annotation $annotation): void
+    public function mutateMethodAnnotation(Annotation $annotation): void
     {
         foreach ($this->steps as $step) {
-            if ($step instanceof MethodAnnotationDecorator) {
-                $step->decorateMethodAnnotation($annotation);
+            if ($step instanceof MethodAnnotationMutator) {
+                $step->mutateMethodAnnotation($annotation);
             }
         }
     }
@@ -69,11 +69,11 @@ abstract class Collection extends Annotation implements MethodAnnotationDecorato
     /**
      * @param StepGenerator $generator
      */
-    public function decorateStepGenerator(StepGenerator $generator): void
+    public function mutateStepGenerator(StepGenerator $generator): void
     {
         foreach ($this->steps as $step) {
-            if ($step instanceof StepGeneratorDecorator) {
-                $step->decorateStepGenerator($generator);
+            if ($step instanceof StepGeneratorMutator) {
+                $step->mutateStepGenerator($generator);
             }
         }
     }
