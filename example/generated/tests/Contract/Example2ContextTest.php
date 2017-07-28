@@ -1,6 +1,6 @@
 <?php
 
-namespace Generated\Tests\Perfumer\Contracts\Example\Contract;
+namespace Generated\Tests\Barman\Example\Contract;
 
 abstract class Example2ContextTest extends \PHPUnit\Framework\TestCase
 {
@@ -13,7 +13,7 @@ abstract class Example2ContextTest extends \PHPUnit\Framework\TestCase
      */
     final public function testSum(int $a, int $b, $expected)
     {
-        $_class_instance = new \Perfumer\Contracts\Example\Contract\Example2Context();
+        $_class_instance = new \Barman\Example\Contract\Example2Context();
 
         $this->assertTestSum($expected, $_class_instance->sum($a, $b));
     }
@@ -23,7 +23,7 @@ abstract class Example2ContextTest extends \PHPUnit\Framework\TestCase
      */
     final public function testProduct(int $a, int $b, $expected)
     {
-        $_class_instance = new \Perfumer\Contracts\Example\Contract\Example2Context();
+        $_class_instance = new \Barman\Example\Contract\Example2Context();
 
         $this->assertTestProduct($expected, $_class_instance->product($a, $b));
     }

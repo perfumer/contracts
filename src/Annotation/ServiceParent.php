@@ -1,10 +1,10 @@
 <?php
 
-namespace Perfumer\Contracts\Annotation;
+namespace Barman\Annotation;
 
 use Doctrine\Common\Annotations\Annotation\Target;
-use Perfumer\Contracts\Annotation;
-use Perfumer\Contracts\Service;
+use Barman\Annotation;
+use Barman\Service;
 
 /**
  * @Annotation

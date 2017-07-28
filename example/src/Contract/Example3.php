@@ -1,12 +1,12 @@
 <?php
 
-namespace Perfumer\Contracts\Example\Contract;
+namespace Barman\Example\Contract;
 
-use Perfumer\Contracts\Annotation\Injection;
-use Perfumer\Contracts\Annotation\Output;
+use Barman\Annotation\Injection;
+use Barman\Annotation\Output;
 
 /**
- * @Injection(name="math", type="\Perfumer\Contracts\Example\Service\Math")
+ * @Injection(name="math", type="\Barman\Example\Service\Math")
  */
 interface Example3
 {

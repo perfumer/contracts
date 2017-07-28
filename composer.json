@@ -1,9 +1,9 @@
 {
-  "name": "perfumer/contracts",
+  "name": "barmanlabs/php",
   "type": "library",
   "description": "Code generating tool",
   "keywords": ["generator"],
-  "homepage": "https://github.com/perfumer/contracts",
+  "homepage": "https://github.com/barmanlabs/php",
   "license": "MIT",
   "authors": [
     {
@@ -21,15 +21,15 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Perfumer\\Contracts\\Example\\": "example/src/",
-      "Tests\\Perfumer\\Contracts\\Example\\": "example/tests/",
-      "Generated\\Perfumer\\Contracts\\Example\\": "example/generated/src/",
-      "Generated\\Tests\\Perfumer\\Contracts\\Example\\": "example/generated/tests/"
+      "Barman\\Example\\": "example/src/",
+      "Tests\\Barman\\Example\\": "example/tests/",
+      "Generated\\Barman\\Example\\": "example/generated/src/",
+      "Generated\\Tests\\Barman\\Example\\": "example/generated/tests/"
     }
   },
   "autoload": {
     "psr-4": {
-      "Perfumer\\Contracts\\": "src/"
+      "Barman\\": "src/"
     }
   },
   "config": {

@@ -1,11 +1,11 @@
 <?php
 
-namespace Perfumer\Contracts\Annotation;
+namespace Barman\Annotation;
 
 use Doctrine\Common\Annotations\Annotation\Target;
-use Perfumer\Contracts\Annotation;
-use Perfumer\Contracts\Step;
-use Perfumer\Contracts\Variable\ArgumentVariable;
+use Barman\Annotation;
+use Barman\Step;
+use Barman\Variable\ArgumentVariable;
 use Zend\Code\Generator\MethodGenerator as BaseMethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
 

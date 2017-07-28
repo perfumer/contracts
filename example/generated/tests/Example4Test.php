@@ -1,12 +1,12 @@
 <?php
 
-namespace Generated\Tests\Perfumer\Contracts\Example;
+namespace Generated\Tests\Barman\Example;
 
 abstract class Example4Test extends \PHPUnit\Framework\TestCase
 {
     final public function testSyntax()
     {
-        new \ReflectionClass(\Perfumer\Contracts\Example\Example4::class);
+        new \ReflectionClass(\Barman\Example\Example4::class);
     }
 
     final public function testSumThenProductLocalVariables()

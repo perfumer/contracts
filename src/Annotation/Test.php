@@ -1,9 +1,9 @@
 <?php
 
-namespace Perfumer\Contracts\Annotation;
+namespace Barman\Annotation;
 
 use Doctrine\Common\Annotations\Annotation\Target;
-use Perfumer\Contracts\Annotation;
+use Barman\Annotation;
 
 /**
  * @Annotation

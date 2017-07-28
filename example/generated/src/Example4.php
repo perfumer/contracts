@@ -1,8 +1,8 @@
 <?php
 
-namespace Generated\Perfumer\Contracts\Example;
+namespace Generated\Barman\Example;
 
-abstract class Example4 implements \Perfumer\Contracts\Example\Contract\Example4
+abstract class Example4 implements \Barman\Example\Contract\Example4
 {
     abstract protected function sum($a, $b);
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Contracts;
+namespace Barman;
 
 abstract class Service extends Step
 {

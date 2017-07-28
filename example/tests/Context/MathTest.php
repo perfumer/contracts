@@ -1,8 +1,8 @@
 <?php
 
-namespace Tests\Perfumer\Contracts\Example\Context;
+namespace Tests\Barman\Example\Context;
 
-class MathTest extends \Generated\Tests\Perfumer\Contracts\Example\Context\MathTest
+class MathTest extends \Generated\Tests\Barman\Example\Context\MathTest
 {
     public function sumDataProvider()
     {

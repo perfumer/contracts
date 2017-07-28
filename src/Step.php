@@ -1,14 +1,14 @@
 <?php
 
-namespace Perfumer\Contracts;
+namespace Barman;
 
-use Perfumer\Contracts\Exception\DecoratorException;
-use Perfumer\Contracts\Generator\ClassGenerator;
-use Perfumer\Contracts\Generator\MethodGenerator;
-use Perfumer\Contracts\Generator\StepGenerator;
-use Perfumer\Contracts\Generator\TestCaseGenerator;
-use Perfumer\Contracts\Variable\ArgumentVariable;
-use Perfumer\Contracts\Variable\ReturnedVariable;
+use Barman\Exception\DecoratorException;
+use Barman\Generator\ClassGenerator;
+use Barman\Generator\MethodGenerator;
+use Barman\Generator\StepGenerator;
+use Barman\Generator\TestCaseGenerator;
+use Barman\Variable\ArgumentVariable;
+use Barman\Variable\ReturnedVariable;
 use Zend\Code\Generator\MethodGenerator as BaseMethodGenerator;
 
 abstract class Step extends Annotation

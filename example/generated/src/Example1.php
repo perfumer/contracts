@@ -1,11 +1,11 @@
 <?php
 
-namespace Generated\Perfumer\Contracts\Example;
+namespace Generated\Barman\Example;
 
-abstract class Example1 implements \Perfumer\Contracts\Example\Contract\Example1
+abstract class Example1 implements \Barman\Example\Contract\Example1
 {
     /**
-     * @var \Perfumer\Contracts\Example\Context\Math
+     * @var \Barman\Example\Context\Math
      */
     private $_context_math = null;
 
@@ -22,12 +22,12 @@ abstract class Example1 implements \Perfumer\Contracts\Example\Contract\Example1
     }
 
     /**
-     * @return \Perfumer\Contracts\Example\Context\Math
+     * @return \Barman\Example\Context\Math
      */
-    final private function getMathContext(): \Perfumer\Contracts\Example\Context\Math
+    final private function getMathContext(): \Barman\Example\Context\Math
     {
         if ($this->_context_math === null) {
-            $this->_context_math = new \Perfumer\Contracts\Example\Context\Math();
+            $this->_context_math = new \Barman\Example\Context\Math();
         }
 
         return $this->_context_math;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Contracts\Generator;
+namespace Barman\Generator;
 
 use Zend\Code\Generator\ClassGenerator as BaseGenerator;
 use Zend\Code\Generator\DocBlock\Tag\ReturnTag;

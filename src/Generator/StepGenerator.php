@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Contracts\Generator;
+namespace Barman\Generator;
 
 final class StepGenerator
 {

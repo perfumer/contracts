@@ -1,9 +1,9 @@
 <?php
 
-namespace Perfumer\Contracts;
+namespace Barman;
 
-use Perfumer\Contracts\Generator\ClassGenerator;
-use Perfumer\Contracts\Generator\TestCaseGenerator;
+use Barman\Generator\ClassGenerator;
+use Barman\Generator\TestCaseGenerator;
 
 final class Bundle
 {

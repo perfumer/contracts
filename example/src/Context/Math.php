@@ -1,9 +1,14 @@
 <?php
 
-namespace Perfumer\Contracts\Example\Context;
+namespace Barman\Example\Context;
 
-use Perfumer\Contracts\Annotation\Test;
+use Barman\Annotation\Test;
 
+/**
+ * Context is a class with no constructor and consists of small methods.
+ * Context is not such "big" class to call it some kind of service class.
+ * Context is more like library of functions.
+ */
 class Math
 {
     /**

@@ -1,8 +1,8 @@
 <?php
 
-namespace Perfumer\Contracts\Decorator;
+namespace Barman\Decorator;
 
-use Perfumer\Contracts\Generator\MethodGenerator;
+use Barman\Generator\MethodGenerator;
 
 interface MethodGeneratorDecorator
 {

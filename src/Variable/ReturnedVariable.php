@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Contracts\Variable;
+namespace Barman\Variable;
 
 interface ReturnedVariable
 {

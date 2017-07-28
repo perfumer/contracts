@@ -1,8 +1,8 @@
 <?php
 
-namespace Perfumer\Contracts\Decorator;
+namespace Barman\Decorator;
 
-use Perfumer\Contracts\Annotation;
+use Barman\Annotation;
 
 interface MethodAnnotationDecorator
 {

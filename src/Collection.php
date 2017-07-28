@@ -1,10 +1,10 @@
 <?php
 
-namespace Perfumer\Contracts;
+namespace Barman;
 
-use Perfumer\Contracts\Decorator\MethodAnnotationDecorator;
-use Perfumer\Contracts\Decorator\StepGeneratorDecorator;
-use Perfumer\Contracts\Generator\StepGenerator;
+use Barman\Decorator\MethodAnnotationDecorator;
+use Barman\Decorator\StepGeneratorDecorator;
+use Barman\Generator\StepGenerator;
 
 abstract class Collection extends Annotation implements MethodAnnotationDecorator, StepGeneratorDecorator
 {

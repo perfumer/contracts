@@ -1,9 +1,9 @@
 <?php
 
-namespace Perfumer\Contracts\Example\Contract;
+namespace Barman\Example\Contract;
 
-use Perfumer\Contracts\Annotation\Custom;
-use Perfumer\Contracts\Annotation\Output;
+use Barman\Annotation\Custom;
+use Barman\Annotation\Output;
 
 interface Example4
 {

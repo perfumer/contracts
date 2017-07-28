@@ -1,10 +1,10 @@
 <?php
 
-namespace Perfumer\Contracts\Example\Contract;
+namespace Barman\Example\Contract;
 
-use Perfumer\Contracts\Annotation\Context;
-use Perfumer\Contracts\Annotation\Output;
-use Perfumer\Contracts\Annotation\Test;
+use Barman\Annotation\Context;
+use Barman\Annotation\Output;
+use Barman\Annotation\Test;
 
 interface Example2
 {

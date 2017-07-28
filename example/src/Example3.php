@@ -1,8 +1,8 @@
 <?php
 
-namespace Perfumer\Contracts\Example;
+namespace Barman\Example;
 
-class Example3 extends \Generated\Perfumer\Contracts\Example\Example3
+class Example3 extends \Generated\Barman\Example\Example3
 {
 
 

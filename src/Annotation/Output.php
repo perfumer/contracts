@@ -1,10 +1,10 @@
 <?php
 
-namespace Perfumer\Contracts\Annotation;
+namespace Barman\Annotation;
 
 use Doctrine\Common\Annotations\Annotation\Target;
-use Perfumer\Contracts\Annotation;
-use Perfumer\Contracts\Variable\ReturnedVariable;
+use Barman\Annotation;
+use Barman\Variable\ReturnedVariable;
 
 /**
  * @Annotation

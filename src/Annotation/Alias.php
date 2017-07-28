@@ -1,12 +1,12 @@
 <?php
 
-namespace Perfumer\Contracts\Annotation;
+namespace Barman\Annotation;
 
 use Doctrine\Common\Annotations\Annotation\Target;
-use Perfumer\Contracts\Annotation;
-use Perfumer\Contracts\Collection;
-use Perfumer\Contracts\Decorator\MethodAnnotationDecorator;
-use Perfumer\Contracts\Step;
+use Barman\Annotation;
+use Barman\Collection;
+use Barman\Decorator\MethodAnnotationDecorator;
+use Barman\Step;
 
 /**
  * @Annotation

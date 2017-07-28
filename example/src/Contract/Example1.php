@@ -1,12 +1,12 @@
 <?php
 
-namespace Perfumer\Contracts\Example\Contract;
+namespace Barman\Example\Contract;
 
-use Perfumer\Contracts\Annotation\Context;
-use Perfumer\Contracts\Annotation\Output;
+use Barman\Annotation\Context;
+use Barman\Annotation\Output;
 
 /**
- * @Context(name="math", class="\Perfumer\Contracts\Example\Context\Math")
+ * @Context(name="math", class="\Barman\Example\Context\Math")
  */
 interface Example1
 {

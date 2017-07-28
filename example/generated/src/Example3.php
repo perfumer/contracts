@@ -1,11 +1,11 @@
 <?php
 
-namespace Generated\Perfumer\Contracts\Example;
+namespace Generated\Barman\Example;
 
-abstract class Example3 implements \Perfumer\Contracts\Example\Contract\Example3
+abstract class Example3 implements \Barman\Example\Contract\Example3
 {
     /**
-     * @var \Perfumer\Contracts\Example\Service\Math
+     * @var \Barman\Example\Service\Math
      */
     private $_injection_math = null;
 
@@ -21,15 +21,15 @@ abstract class Example3 implements \Perfumer\Contracts\Example\Contract\Example3
         return $_return;
     }
 
-    public function __construct(\Perfumer\Contracts\Example\Service\Math $math)
+    public function __construct(\Barman\Example\Service\Math $math)
     {
         $this->_injection_math = $math;
     }
 
     /**
-     * @return \Perfumer\Contracts\Example\Service\Math
+     * @return \Barman\Example\Service\Math
      */
-    final protected function getMath(): \Perfumer\Contracts\Example\Service\Math
+    final protected function getMath(): \Barman\Example\Service\Math
     {
         return $this->_injection_math;
     }

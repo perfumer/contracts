@@ -1,11 +1,11 @@
 <?php
 
-namespace Generated\Perfumer\Contracts\Example;
+namespace Generated\Barman\Example;
 
-abstract class Example2 implements \Perfumer\Contracts\Example\Contract\Example2
+abstract class Example2 implements \Barman\Example\Contract\Example2
 {
     /**
-     * @var \Perfumer\Contracts\Example\Contract\Example2Context
+     * @var \Barman\Example\Contract\Example2Context
      */
     private $_context_default = null;
 
@@ -22,12 +22,12 @@ abstract class Example2 implements \Perfumer\Contracts\Example\Contract\Example2
     }
 
     /**
-     * @return \Perfumer\Contracts\Example\Contract\Example2Context
+     * @return \Barman\Example\Contract\Example2Context
      */
-    final private function getDefaultContext(): \Perfumer\Contracts\Example\Contract\Example2Context
+    final private function getDefaultContext(): \Barman\Example\Contract\Example2Context
     {
         if ($this->_context_default === null) {
-            $this->_context_default = new \Perfumer\Contracts\Example\Contract\Example2Context();
+            $this->_context_default = new \Barman\Example\Contract\Example2Context();
         }
 
         return $this->_context_default;

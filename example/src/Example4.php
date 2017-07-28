@@ -1,8 +1,8 @@
 <?php
 
-namespace Perfumer\Contracts\Example;
+namespace Barman\Example;
 
-class Example4 extends \Generated\Perfumer\Contracts\Example\Example4
+class Example4 extends \Generated\Barman\Example\Example4
 {
     protected function sum($a, $b)
     {

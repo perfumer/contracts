@@ -1,13 +1,13 @@
 <?php
 
-namespace Perfumer\Contracts\Annotation;
+namespace Barman\Annotation;
 
 use Doctrine\Common\Annotations\Annotation\Target;
 use Doctrine\Common\Annotations\AnnotationReader;
-use Perfumer\Contracts\Annotation;
-use Perfumer\Contracts\Exception\DecoratorException;
-use Perfumer\Contracts\Step;
-use Perfumer\Contracts\Variable\ArgumentVariable;
+use Barman\Annotation;
+use Barman\Exception\DecoratorException;
+use Barman\Step;
+use Barman\Variable\ArgumentVariable;
 
 /**
  * @Annotation

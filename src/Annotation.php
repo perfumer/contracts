@@ -1,11 +1,11 @@
 <?php
 
-namespace Perfumer\Contracts;
+namespace Barman;
 
-use Perfumer\Contracts\Generator\ClassGenerator;
-use Perfumer\Contracts\Generator\MethodGenerator;
-use Perfumer\Contracts\Generator\StepGenerator;
-use Perfumer\Contracts\Generator\TestCaseGenerator;
+use Barman\Generator\ClassGenerator;
+use Barman\Generator\MethodGenerator;
+use Barman\Generator\StepGenerator;
+use Barman\Generator\TestCaseGenerator;
 
 class Annotation
 {

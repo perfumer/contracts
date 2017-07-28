@@ -1,20 +1,20 @@
 <?php
 
-namespace Perfumer\Contracts;
+namespace Barman;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
-use Perfumer\Contracts\Annotation\Test;
-use Perfumer\Contracts\Decorator\ClassAnnotationDecorator;
-use Perfumer\Contracts\Decorator\MethodAnnotationDecorator;
-use Perfumer\Contracts\Decorator\MethodGeneratorDecorator;
-use Perfumer\Contracts\Decorator\StepGeneratorDecorator;
-use Perfumer\Contracts\Exception\ContractsException;
-use Perfumer\Contracts\Exception\DecoratorException;
-use Perfumer\Contracts\Generator\ClassGenerator;
-use Perfumer\Contracts\Generator\MethodGenerator;
-use Perfumer\Contracts\Generator\StepGenerator;
-use Perfumer\Contracts\Generator\TestCaseGenerator;
+use Barman\Annotation\Test;
+use Barman\Decorator\ClassAnnotationDecorator;
+use Barman\Decorator\MethodAnnotationDecorator;
+use Barman\Decorator\MethodGeneratorDecorator;
+use Barman\Decorator\StepGeneratorDecorator;
+use Barman\Exception\ContractsException;
+use Barman\Exception\DecoratorException;
+use Barman\Generator\ClassGenerator;
+use Barman\Generator\MethodGenerator;
+use Barman\Generator\StepGenerator;
+use Barman\Generator\TestCaseGenerator;
 use Zend\Code\Generator\ClassGenerator as BaseClassGenerator;
 use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\MethodGenerator as BaseMethodGenerator;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Perfumer\Contracts\Example\Service;
+namespace Barman\Example\Service;
 
 class Math
 {
