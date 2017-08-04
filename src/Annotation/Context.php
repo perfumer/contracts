@@ -39,7 +39,7 @@ class Context extends Step implements ArgumentVariable
                 throw new MutatorException('"Default" name of context is reserved.');
             }
 
-            if ($this->getClassGenerator()->hasContext($this->name)) {
+            if ($this->getClassKeeper()->hasContext($this->name)) {
                 throw new MutatorException(sprintf('"%s" context is already defined.',
                     $this->name
                 ));
@@ -51,7 +51,7 @@ class Context extends Step implements ArgumentVariable
                 ));
             }
 
-            $this->getClassGenerator()->addContext($this->name, $this->class);
+            $this->getClassKeeper()->addContext($this->name, $this->class);
         }
 
         // Rest of code is executed when Context is used as Step
@@ -66,12 +66,12 @@ class Context extends Step implements ArgumentVariable
 
             $context_class = '\\' . $reflection->getNamespaceName() . '\\' . $reflection->getShortName() . 'Context';
 
-            if (!isset($this->getClassGenerator()->getContexts()[$this->name]) && class_exists($context_class, false)) {
-                $this->getClassGenerator()->addContext($this->name, $context_class);
+            if (!isset($this->getClassKeeper()->getContexts()[$this->name]) && class_exists($context_class, false)) {
+                $this->getClassKeeper()->addContext($this->name, $context_class);
             }
         }
 
-        if (!isset($this->getClassGenerator()->getContexts()[$this->name])) {
+        if (!isset($this->getClassKeeper()->getContexts()[$this->name])) {
             throw new MutatorException(sprintf('"%s" context is not registered',
                 $this->name
             ));
@@ -79,7 +79,7 @@ class Context extends Step implements ArgumentVariable
 
         $annotation_arguments = $this->arguments;
 
-        $reflection_context = new \ReflectionClass($this->getClassGenerator()->getContexts()[$this->name]);
+        $reflection_context = new \ReflectionClass($this->getClassKeeper()->getContexts()[$this->name]);
 
         $method_found = false;
 
@@ -103,10 +103,10 @@ class Context extends Step implements ArgumentVariable
                         $variable = $method_annotation->variable;
                         $variable->setReflectionClass($this->getReflectionClass());
                         $variable->setReflectionMethod($this->getReflectionMethod());
-                        $variable->setClassGenerator($this->getClassGenerator());
-                        $variable->setMethodGenerator($this->getMethodGenerator());
-                        $variable->setTestCaseGenerator($this->getTestCaseGenerator());
-                        $variable->setStepGenerator($this->getStepGenerator());
+                        $variable->setClassKeeper($this->getClassKeeper());
+                        $variable->setMethodKeeper($this->getMethodKeeper());
+                        $variable->setTestCaseKeeper($this->getTestCaseKeeper());
+                        $variable->setStepKeeper($this->getStepKeeper());
 
                         $tmp_arguments[] = $variable;
                         $found = true;
@@ -151,7 +151,7 @@ class Context extends Step implements ArgumentVariable
 
             $name = str_replace('_', '', ucwords($this->name, '_.'));
 
-            $this->getStepGenerator()->setCallExpression("\$this->get{$name}Context()->");
+            $this->getStepKeeper()->setCallExpression("\$this->get{$name}Context()->");
         }
     }
 

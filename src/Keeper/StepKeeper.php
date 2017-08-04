@@ -1,8 +1,8 @@
 <?php
 
-namespace Barman\Generator;
+namespace Barman\Keeper;
 
-final class StepGenerator
+final class StepKeeper
 {
     /**
      * @var array

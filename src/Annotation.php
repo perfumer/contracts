@@ -2,10 +2,10 @@
 
 namespace Barman;
 
-use Barman\Generator\ClassGenerator;
-use Barman\Generator\MethodGenerator;
-use Barman\Generator\StepGenerator;
-use Barman\Generator\TestCaseGenerator;
+use Barman\Keeper\ClassKeeper;
+use Barman\Keeper\MethodKeeper;
+use Barman\Keeper\StepKeeper;
+use Barman\Keeper\TestCaseKeeper;
 
 class Annotation
 {
@@ -20,24 +20,24 @@ class Annotation
     private $reflection_method;
 
     /**
-     * @var ClassGenerator
+     * @var ClassKeeper
      */
-    private $class_generator;
+    private $class_keeper;
 
     /**
-     * @var MethodGenerator
+     * @var MethodKeeper
      */
-    private $method_generator;
+    private $method_keeper;
 
     /**
-     * @var TestCaseGenerator
+     * @var TestCaseKeeper
      */
-    private $test_case_generator;
+    private $test_case_keeper;
 
     /**
-     * @var StepGenerator
+     * @var StepKeeper
      */
-    private $step_generator;
+    private $step_keeper;
 
     /**
      * @var bool
@@ -90,67 +90,67 @@ class Annotation
     }
 
     /**
-     * @return ClassGenerator
+     * @return ClassKeeper
      */
-    public function getClassGenerator(): ?ClassGenerator
+    public function getClassKeeper(): ?ClassKeeper
     {
-        return $this->class_generator;
+        return $this->class_keeper;
     }
 
     /**
-     * @param ClassGenerator $class_generator
+     * @param ClassKeeper $class_keeper
      */
-    public function setClassGenerator(ClassGenerator $class_generator): void
+    public function setClassKeeper(ClassKeeper $class_keeper): void
     {
-        $this->class_generator = $class_generator;
+        $this->class_keeper = $class_keeper;
     }
 
     /**
-     * @return MethodGenerator
+     * @return MethodKeeper
      */
-    public function getMethodGenerator(): ?MethodGenerator
+    public function getMethodKeeper(): ?MethodKeeper
     {
-        return $this->method_generator;
+        return $this->method_keeper;
     }
 
     /**
-     * @param MethodGenerator $method_generator
+     * @param MethodKeeper $method_keeper
      */
-    public function setMethodGenerator(MethodGenerator $method_generator): void
+    public function setMethodKeeper(MethodKeeper $method_keeper): void
     {
-        $this->method_generator = $method_generator;
+        $this->method_keeper = $method_keeper;
     }
 
     /**
-     * @return TestCaseGenerator
+     * @return TestCaseKeeper
      */
-    public function getTestCaseGenerator(): ?TestCaseGenerator
+    public function getTestCaseKeeper(): ?TestCaseKeeper
     {
-        return $this->test_case_generator;
+        return $this->test_case_keeper;
     }
 
     /**
-     * @param TestCaseGenerator $test_case_generator
+     * @param TestCaseKeeper $test_case_keeper
      */
-    public function setTestCaseGenerator(TestCaseGenerator $test_case_generator): void
+    public function setTestCaseKeeper(TestCaseKeeper $test_case_keeper): void
     {
-        $this->test_case_generator = $test_case_generator;
+        $this->test_case_keeper = $test_case_keeper;
     }
 
     /**
-     * @return StepGenerator
+     * @return StepKeeper
      */
-    public function getStepGenerator(): ?StepGenerator
+    public function getStepKeeper(): ?StepKeeper
     {
-        return $this->step_generator;
+        return $this->step_keeper;
     }
 
     /**
-     * @param StepGenerator $step_generator
+     * @param StepKeeper $step_keeper
      */
-    public function setStepGenerator(StepGenerator $step_generator): void
+    public function setStepKeeper(StepKeeper $step_keeper): void
     {
-        $this->step_generator = $step_generator;
+        $this->step_keeper = $step_keeper;
     }
 
     /**

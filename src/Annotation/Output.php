@@ -22,10 +22,10 @@ class Output extends Annotation implements ReturnedVariable
 
     public function onMutate(): void
     {
-        $this->getMethodGenerator()->addInitialVariable('_return', 'null');
+        $this->getMethodKeeper()->addInitialVariable('_return', 'null');
 
-        if (!isset($this->getMethodGenerator()->getAppendedCode()['_return'])) {
-            $this->getMethodGenerator()->addAppendedCode('_return', 'return $_return;');
+        if (!isset($this->getMethodKeeper()->getAppendedCode()['_return'])) {
+            $this->getMethodKeeper()->addAppendedCode('_return', 'return $_return;');
         }
     }
 }

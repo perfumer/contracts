@@ -28,9 +28,9 @@ class Alias extends Annotation implements MethodAnnotationMutator
     {
         $this->variable->setReflectionClass($this->getReflectionClass());
         $this->variable->setReflectionMethod($this->getReflectionMethod());
-        $this->variable->setClassGenerator($this->getClassGenerator());
-        $this->variable->setTestCaseGenerator($this->getTestCaseGenerator());
-        $this->variable->setMethodGenerator($this->getMethodGenerator());
+        $this->variable->setClassKeeper($this->getClassKeeper());
+        $this->variable->setTestCaseKeeper($this->getTestCaseKeeper());
+        $this->variable->setMethodKeeper($this->getMethodKeeper());
     }
 
     /**
@@ -53,7 +53,7 @@ class Alias extends Annotation implements MethodAnnotationMutator
     private function mutateStep(Step $step)
     {
         $tmp = clone $this->variable;
-        $tmp->setStepGenerator($step->getStepGenerator());
+        $tmp->setStepKeeper($step->getStepKeeper());
 
         foreach ($step->arguments as $i => $argument) {
             if (is_string($argument) && $argument === $this->name) {

@@ -6,7 +6,7 @@ use Doctrine\Common\Annotations\Annotation\Target;
 use Barman\Annotation;
 use Barman\Step;
 use Barman\Variable\ArgumentVariable;
-use Zend\Code\Generator\MethodGenerator as BaseMethodGenerator;
+use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
 
 /**
@@ -19,7 +19,7 @@ class Custom extends Step
     {
         parent::onMutate();
 
-        $method = new BaseMethodGenerator();
+        $method = new MethodGenerator();
         $method->setName($this->method);
         $method->setAbstract(true);
         $method->setVisibility('protected');
@@ -33,8 +33,8 @@ class Custom extends Step
             $method->setParameter($argument);
         }
 
-        $this->getClassGenerator()->addMethodFromGenerator($method);
+        $this->getClassKeeper()->getGenerator()->addMethodFromGenerator($method);
 
-        $this->getStepGenerator()->setCallExpression("\$this->");
+        $this->getStepKeeper()->setCallExpression("\$this->");
     }
 }

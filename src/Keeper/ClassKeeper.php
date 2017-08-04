@@ -1,15 +1,15 @@
 <?php
 
-namespace Barman\Generator;
+namespace Barman\Keeper;
 
-use Zend\Code\Generator\ClassGenerator as BaseGenerator;
+use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\DocBlock\Tag\ReturnTag;
 use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
 use Zend\Code\Generator\PropertyGenerator;
 
-final class ClassGenerator extends BaseGenerator
+final class ClassKeeper
 {
     /**
      * @var array
@@ -25,6 +25,19 @@ final class ClassGenerator extends BaseGenerator
      * @var array
      */
     private $tags = [];
+
+    /**
+     * @var ClassGenerator
+     */
+    private $generator;
+
+    /**
+     * ClassKeeper constructor.
+     */
+    public function __construct()
+    {
+        $this->generator = new ClassGenerator();
+    }
 
     /**
      * @return array
@@ -130,17 +143,33 @@ final class ClassGenerator extends BaseGenerator
     }
 
     /**
+     * @return ClassGenerator
+     */
+    public function getGenerator(): ClassGenerator
+    {
+        return $this->generator;
+    }
+
+    /**
+     * @param ClassGenerator $generator
+     */
+    public function setGenerator(ClassGenerator $generator): void
+    {
+        $this->generator = $generator;
+    }
+
+    /**
      * @return string
      */
-    public function generate()
+    public function generate(): string
     {
         $this->generateContexts();
         $this->generateInjections();
 
-        return parent::generate();
+        return $this->generator->generate();
     }
 
-    private function generateContexts()
+    private function generateContexts(): void
     {
         foreach ($this->contexts as $name => $class) {
             $doc_block = DocBlockGenerator::fromArray([
@@ -157,7 +186,7 @@ final class ClassGenerator extends BaseGenerator
             $property->setVisibility('private');
             $property->setName('_context_' . $name);
 
-            $this->addPropertyFromGenerator($property);
+            $this->generator->addPropertyFromGenerator($property);
 
             $doc_block = DocBlockGenerator::fromArray([
                 'tags' => [
@@ -182,11 +211,11 @@ final class ClassGenerator extends BaseGenerator
                 return $this->_context_' . $name . ';'
             );
 
-            $this->addMethodFromGenerator($getter);
+            $this->generator->addMethodFromGenerator($getter);
         }
     }
 
-    private function generateInjections()
+    private function generateInjections(): void
     {
         foreach ($this->injections as $name => $type) {
             $doc_block = DocBlockGenerator::fromArray([
@@ -203,16 +232,16 @@ final class ClassGenerator extends BaseGenerator
             $property->setVisibility('private');
             $property->setName('_injection_' . $name);
 
-            $this->addPropertyFromGenerator($property);
+            $this->generator->addPropertyFromGenerator($property);
 
-            $constructor = $this->getMethod('__construct');
+            $constructor = $this->generator->getMethod('__construct');
 
             if (!$constructor) {
                 $constructor = new MethodGenerator();
                 $constructor->setVisibility('public');
                 $constructor->setName('__construct');
 
-                $this->addMethodFromGenerator($constructor);
+                $this->generator->addMethodFromGenerator($constructor);
             }
 
             $body = $constructor->getBody() . PHP_EOL . '$this->_injection_' . $name . ' = $' . $name . ';';
@@ -236,7 +265,7 @@ final class ClassGenerator extends BaseGenerator
             $getter->setReturnType($type);
             $getter->setBody('return $this->_injection_' . $name . ';');
 
-            $this->addMethodFromGenerator($getter);
+            $this->generator->addMethodFromGenerator($getter);
         }
     }
 }

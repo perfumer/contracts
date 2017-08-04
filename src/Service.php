@@ -13,6 +13,6 @@ abstract class Service extends Step
     {
         parent::onMutate();
 
-        $this->getStepGenerator()->setCallExpression($this->getCallExpression());
+        $this->getStepKeeper()->setCallExpression($this->getCallExpression());
     }
 }

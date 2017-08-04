@@ -1,10 +1,10 @@
 <?php
 
-namespace Barman\Generator;
+namespace Barman\Keeper;
 
-use Zend\Code\Generator\MethodGenerator as BaseGenerator;
+use Zend\Code\Generator\MethodGenerator;
 
-final class MethodGenerator extends BaseGenerator
+final class MethodKeeper
 {
     /**
      * @var array
@@ -30,6 +30,19 @@ final class MethodGenerator extends BaseGenerator
      * @var bool
      */
     private $validation = false;
+
+    /**
+     * @var MethodGenerator
+     */
+    private $generator;
+
+    /**
+     * MethodKeeper constructor.
+     */
+    public function __construct()
+    {
+        $this->generator = new MethodGenerator();
+    }
 
     /**
      * @return array
@@ -123,9 +136,9 @@ final class MethodGenerator extends BaseGenerator
     }
 
     /**
-     * @param StepGenerator $step
+     * @param StepKeeper $step
      */
-    public function addStep(StepGenerator $step): void
+    public function addStep(StepKeeper $step): void
     {
         $this->steps[] = $step;
     }
@@ -146,14 +159,33 @@ final class MethodGenerator extends BaseGenerator
         $this->validation = $validation;
     }
 
-    public function generate()
+    /**
+     * @return MethodGenerator
+     */
+    public function getGenerator(): MethodGenerator
+    {
+        return $this->generator;
+    }
+
+    /**
+     * @param MethodGenerator $generator
+     */
+    public function setGenerator(MethodGenerator $generator): void
+    {
+        $this->generator = $generator;
+    }
+
+    /**
+     * @return string
+     */
+    public function generate(): string
     {
         $this->generateBody();
 
-        return parent::generate();
+        return $this->generator->generate();
     }
 
-    private function generateBody()
+    private function generateBody(): void
     {
         $body = '';
 
@@ -171,7 +203,7 @@ final class MethodGenerator extends BaseGenerator
             $body .= $code . PHP_EOL . PHP_EOL;
         }
 
-        /** @var StepGenerator $step */
+        /** @var StepKeeper $step */
         foreach ($this->steps as $step) {
             foreach ($step->getBeforeCode() as $code) {
                 $body .= $code . PHP_EOL . PHP_EOL;
@@ -212,6 +244,6 @@ final class MethodGenerator extends BaseGenerator
             $body .= $code . PHP_EOL . PHP_EOL;
         }
 
-        $this->setBody($body);
+        $this->generator->setBody($body);
     }
 }

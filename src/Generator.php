@@ -5,19 +5,19 @@ namespace Barman;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Barman\Annotation\Test;
-use Barman\Mutator\ClassAnnotationMutator;
-use Barman\Mutator\MethodAnnotationMutator;
-use Barman\Mutator\MethodGeneratorMutator;
-use Barman\Mutator\StepGeneratorMutator;
 use Barman\Exception\ContractsException;
 use Barman\Exception\MutatorException;
-use Barman\Generator\ClassGenerator;
-use Barman\Generator\MethodGenerator;
-use Barman\Generator\StepGenerator;
-use Barman\Generator\TestCaseGenerator;
-use Zend\Code\Generator\ClassGenerator as BaseClassGenerator;
+use Barman\Keeper\ClassKeeper;
+use Barman\Keeper\MethodKeeper;
+use Barman\Keeper\StepKeeper;
+use Barman\Keeper\TestCaseKeeper;
+use Barman\Mutator\ClassAnnotationMutator;
+use Barman\Mutator\MethodAnnotationMutator;
+use Barman\Mutator\MethodKeeperMutator;
+use Barman\Mutator\StepKeeperMutator;
+use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\DocBlockGenerator;
-use Zend\Code\Generator\MethodGenerator as BaseMethodGenerator;
+use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
 
 class Generator
@@ -172,20 +172,24 @@ class Generator
 
                 $namespace = str_replace($this->contract_prefix, $this->class_prefix, $reflection->getNamespaceName());
 
-                $test_case_generator = new TestCaseGenerator();
+                $test_case_keeper = new TestCaseKeeper();
+
+                $test_case_generator = $test_case_keeper->getGenerator();
                 $test_case_generator->setNamespaceName('Generated\\Tests\\' . $namespace);
                 $test_case_generator->setAbstract(true);
                 $test_case_generator->setName($reflection->getShortName() . 'Test');
                 $test_case_generator->setExtendedClass('PHPUnit\\Framework\\TestCase');
 
-                $reflection_test = new BaseMethodGenerator();
+                $reflection_test = new MethodGenerator();
                 $reflection_test->setFinal(true);
                 $reflection_test->setName('testSyntax');
                 $reflection_test->setBody('new \\ReflectionClass(\\' . $namespace . '\\' . $reflection->getShortName() . '::class);');
 
                 $test_case_generator->addMethodFromGenerator($reflection_test);
 
-                $class_generator = new ClassGenerator();
+                $class_keeper = new ClassKeeper();
+
+                $class_generator = $class_keeper->getGenerator();
                 $class_generator->setAbstract(true);
                 $class_generator->setNamespaceName($namespace);
                 $class_generator->setName($reflection->getShortName());
@@ -205,8 +209,8 @@ class Generator
                         }
 
                         $annotation->setReflectionClass($reflection);
-                        $annotation->setClassGenerator($class_generator);
-                        $annotation->setTestCaseGenerator($test_case_generator);
+                        $annotation->setClassKeeper($class_keeper);
+                        $annotation->setTestCaseKeeper($test_case_keeper);
                         $annotation->setIsClassAnnotation(true);
 
                         $annotation->onCreate();
@@ -241,7 +245,9 @@ class Generator
                 }
 
                 foreach ($reflection->getMethods() as $method) {
-                    $method_generator = new MethodGenerator();
+                    $method_keeper = new MethodKeeper();
+
+                    $method_generator = $method_keeper->getGenerator();
                     $method_generator->setFinal(true);
                     $method_generator->setName($method->name);
                     $method_generator->setVisibility('public');
@@ -282,13 +288,13 @@ class Generator
 
                             $annotation->setReflectionClass($reflection);
                             $annotation->setReflectionMethod($method);
-                            $annotation->setClassGenerator($class_generator);
-                            $annotation->setTestCaseGenerator($test_case_generator);
-                            $annotation->setMethodGenerator($method_generator);
+                            $annotation->setClassKeeper($class_keeper);
+                            $annotation->setTestCaseKeeper($test_case_keeper);
+                            $annotation->setMethodKeeper($method_keeper);
                             $annotation->setIsMethodAnnotation(true);
 
                             if ($annotation instanceof Step) {
-                                $annotation->setStepGenerator(new StepGenerator());
+                                $annotation->setStepKeeper(new StepKeeper());
                             }
 
                             $annotation->onCreate();
@@ -298,11 +304,11 @@ class Generator
                                     if ($step instanceof Step) {
                                         $step->setReflectionClass($reflection);
                                         $step->setReflectionMethod($method);
-                                        $step->setClassGenerator($class_generator);
-                                        $step->setTestCaseGenerator($test_case_generator);
-                                        $step->setMethodGenerator($method_generator);
+                                        $step->setClassKeeper($class_keeper);
+                                        $step->setTestCaseKeeper($test_case_keeper);
+                                        $step->setMethodKeeper($method_keeper);
                                         $step->setIsMethodAnnotation(true);
-                                        $step->setStepGenerator(new StepGenerator());
+                                        $step->setStepKeeper(new StepKeeper());
 
                                         $step->onCreate();
                                     }
@@ -359,10 +365,10 @@ class Generator
                                 continue;
                             }
 
-                            if ($annotation instanceof StepGeneratorMutator) {
+                            if ($annotation instanceof StepKeeperMutator) {
                                 foreach ($method_annotations as $another) {
                                     if ($another instanceof Step && $annotation !== $another) {
-                                        $annotation->mutateStepGenerator($another->getStepGenerator());
+                                        $annotation->mutateStepKeeper($another->getStepKeeper());
                                     }
                                 }
                             }
@@ -373,29 +379,29 @@ class Generator
                                 continue;
                             }
 
-                            if ($annotation instanceof StepGeneratorMutator) {
+                            if ($annotation instanceof StepKeeperMutator) {
                                 foreach ($method_annotations as $another) {
                                     if ($another instanceof Step) {
-                                        $annotation->mutateStepGenerator($another->getStepGenerator());
+                                        $annotation->mutateStepKeeper($another->getStepKeeper());
                                     }
                                 }
                             }
                         }
 
                         foreach ($class_annotations as $annotation) {
-                            if ($annotation instanceof MethodGeneratorMutator) {
-                                $annotation->mutateMethodGenerator($method_generator);
+                            if ($annotation instanceof MethodKeeperMutator) {
+                                $annotation->mutateMethodKeeper($method_keeper);
                             }
                         }
 
                         foreach ($method_annotations as $annotation) {
                             if ($annotation instanceof Step) {
-                                $method_generator->addStep($annotation->getStepGenerator());
+                                $method_keeper->addStep($annotation->getStepKeeper());
                             }
 
                             if ($annotation instanceof Collection) {
-                                foreach ($annotation->getStepGenerators() as $step_generator) {
-                                    $method_generator->addStep($step_generator);
+                                foreach ($annotation->getStepKeepers() as $step_keeper) {
+                                    $method_keeper->addStep($step_keeper);
                                 }
                             }
                         }
@@ -407,27 +413,27 @@ class Generator
                         ));
                     }
 
-                    if (count($method_generator->getSteps()) > 0) {
+                    if (count($method_keeper->getSteps()) > 0) {
                         $class_generator->addMethodFromGenerator($method_generator);
                     }
                 }
 
-                $bundle->addClassGenerator($class_generator);
-                $bundle->addTestCaseGenerator($test_case_generator);
+                $bundle->addClassKeeper($class_keeper);
+                $bundle->addTestCaseKeeper($test_case_keeper);
             }
 
-            foreach ($bundle->getClassGenerators() as $class_generator) {
-                $this->generateBaseClass($class_generator);
-                $this->generateClass($class_generator);
+            foreach ($bundle->getClassKeepers() as $keeper) {
+                $this->generateBaseClass($keeper->getGenerator());
+                $this->generateClass($keeper->getGenerator());
 
-                $this->contexts = array_merge($this->contexts, array_values($class_generator->getContexts()));
+                $this->contexts = array_merge($this->contexts, array_values($keeper->getContexts()));
             }
 
             $this->generateContexts();
 
-            foreach ($bundle->getTestCaseGenerators() as $generator) {
-                $this->generateBaseClassTest($generator);
-                $this->generateClassTest($generator);
+            foreach ($bundle->getTestCaseKeepers() as $keeper) {
+                $this->generateBaseClassTest($keeper->getGenerator());
+                $this->generateClassTest($keeper->getGenerator());
             }
 
             shell_exec("vendor/bin/php-cs-fixer fix {$this->base_src_path} --rules=@Symfony");
@@ -444,7 +450,7 @@ class Generator
                 $reflection = new \ReflectionClass($class);
                 $tests = false;
 
-                $class_generator = new BaseClassGenerator();
+                $class_generator = new ClassGenerator();
 
                 $namespace = $reflection->getNamespaceName();
 
@@ -464,7 +470,7 @@ class Generator
                         if ($annotation instanceof Test) {
                             $tests = true;
 
-                            $data_provider = new BaseMethodGenerator();
+                            $data_provider = new MethodGenerator();
                             $data_provider->setAbstract(true);
                             $data_provider->setVisibility('public');
                             $data_provider->setName($method->name . 'DataProvider');
@@ -480,7 +486,7 @@ class Generator
                                 ],
                             ]);
 
-                            $test = new BaseMethodGenerator();
+                            $test = new MethodGenerator();
                             $test->setDocBlock($doc_block);
                             $test->setFinal(true);
                             $test->setVisibility('public');
@@ -516,7 +522,7 @@ class Generator
 
                             $test_methods[] = $test;
 
-                            $assertion = new BaseMethodGenerator();
+                            $assertion = new MethodGenerator();
                             $assertion->setVisibility('protected');
                             $assertion->setName('assertTest' . ucfirst($method->name));
                             $assertion->setParameter('expected');
@@ -595,14 +601,14 @@ class Generator
             return;
         }
 
-        $class = new BaseClassGenerator();
+        $class = new ClassGenerator();
         $class->setNamespaceName($class_generator->getNamespaceName());
         $class->setName($class_generator->getName());
         $class->setExtendedClass('\\Generated\\' . $class_generator->getNamespaceName() . '\\' . $class_generator->getName());
 
         foreach ($class_generator->getMethods() as $method_generator) {
             if ($method_generator->isAbstract()) {
-                $method = new BaseMethodGenerator();
+                $method = new MethodGenerator();
                 $method->setName($method_generator->getName());
                 $method->setParameters($method_generator->getParameters());
                 $method->setVisibility($method_generator->getVisibility());
@@ -619,9 +625,9 @@ class Generator
     }
 
     /**
-     * @param TestCaseGenerator $generator
+     * @param ClassGenerator $generator
      */
-    private function generateBaseClassTest(TestCaseGenerator $generator)
+    private function generateBaseClassTest(ClassGenerator $generator)
     {
         $output_name = str_replace('\\', '/', trim(str_replace('Generated\\Tests\\' . $this->class_prefix, '', $generator->getNamespaceName()), '\\'));
 
@@ -639,9 +645,9 @@ class Generator
     }
 
     /**
-     * @param TestCaseGenerator $generator
+     * @param ClassGenerator $generator
      */
-    private function generateClassTest(TestCaseGenerator $generator)
+    private function generateClassTest(ClassGenerator $generator)
     {
         $output_name = str_replace('\\', '/', trim(str_replace('Generated\\Tests\\' . $this->class_prefix, '', $generator->getNamespaceName()), '\\'));
 
@@ -657,7 +663,7 @@ class Generator
             return;
         }
 
-        $class = new BaseClassGenerator();
+        $class = new ClassGenerator();
         $class->setNamespaceName(str_replace('Generated\\', '', $generator->getNamespaceName()));
         $class->setName($generator->getName());
         $class->setExtendedClass($generator->getNamespaceName() . '\\' . $generator->getName());
@@ -668,9 +674,9 @@ class Generator
     }
 
     /**
-     * @param BaseClassGenerator $class_generator
+     * @param ClassGenerator $class_generator
      */
-    private function generateBaseContextTest(BaseClassGenerator $class_generator)
+    private function generateBaseContextTest(ClassGenerator $class_generator)
     {
         // If context is from another package
         if (strpos($class_generator->getNamespaceName(), 'Generated\\Tests\\' . $this->context_prefix) !== 0) {
@@ -693,9 +699,9 @@ class Generator
     }
 
     /**
-     * @param BaseClassGenerator $class_generator
+     * @param ClassGenerator $class_generator
      */
-    private function generateContextTest(BaseClassGenerator $class_generator)
+    private function generateContextTest(ClassGenerator $class_generator)
     {
         // If context is from another package
         if (strpos($class_generator->getNamespaceName(), 'Generated\\Tests\\' . $this->context_prefix) !== 0) {
@@ -716,14 +722,14 @@ class Generator
             return;
         }
 
-        $class = new BaseClassGenerator();
+        $class = new ClassGenerator();
         $class->setNamespaceName(str_replace('Generated\\', '', $class_generator->getNamespaceName()));
         $class->setName($class_generator->getName());
         $class->setExtendedClass($class_generator->getNamespaceName() . '\\' . $class_generator->getName());
 
         foreach ($class_generator->getMethods() as $method_generator) {
             if ($method_generator->isAbstract()) {
-                $method = new BaseMethodGenerator();
+                $method = new MethodGenerator();
                 $method->setName($method_generator->getName());
                 $method->setParameters($method_generator->getParameters());
                 $method->setVisibility($method_generator->getVisibility());

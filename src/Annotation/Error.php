@@ -17,14 +17,14 @@ class Error extends Context implements MethodAnnotationMutator
     {
         parent::onMutate();
 
-        $this->getMethodGenerator()->addInitialVariable('_return', 'null');
+        $this->getMethodKeeper()->addInitialVariable('_return', 'null');
 
-        if (!isset($this->getMethodGenerator()->getAppendedCode()['_return'])) {
-            $this->getMethodGenerator()->addAppendedCode('_return', 'return $_return;');
+        if (!isset($this->getMethodKeeper()->getAppendedCode()['_return'])) {
+            $this->getMethodKeeper()->addAppendedCode('_return', 'return $_return;');
         }
 
-        $this->getStepGenerator()->setValidationCondition(false);
-        $this->getStepGenerator()->setReturnExpression('$_return');
+        $this->getStepKeeper()->setValidationCondition(false);
+        $this->getStepKeeper()->setReturnExpression('$_return');
     }
 
     /**

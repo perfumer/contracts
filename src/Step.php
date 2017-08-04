@@ -3,13 +3,13 @@
 namespace Barman;
 
 use Barman\Exception\MutatorException;
-use Barman\Generator\ClassGenerator;
-use Barman\Generator\MethodGenerator;
-use Barman\Generator\StepGenerator;
-use Barman\Generator\TestCaseGenerator;
+use Barman\Keeper\ClassKeeper;
+use Barman\Keeper\MethodKeeper;
+use Barman\Keeper\StepKeeper;
+use Barman\Keeper\TestCaseKeeper;
 use Barman\Variable\ArgumentVariable;
 use Barman\Variable\ReturnedVariable;
-use Zend\Code\Generator\MethodGenerator as BaseMethodGenerator;
+use Zend\Code\Generator\MethodGenerator;
 
 abstract class Step extends Annotation
 {
@@ -109,13 +109,13 @@ abstract class Step extends Annotation
     }
 
     /**
-     * @param ClassGenerator $class_generator
+     * @param ClassKeeper $class_keeper
      */
-    public function setClassGenerator(ClassGenerator $class_generator): void
+    public function setClassKeeper(ClassKeeper $class_keeper): void
     {
         foreach ($this->arguments as $argument) {
             if ($argument instanceof Annotation) {
-                $argument->setClassGenerator($class_generator);
+                $argument->setClassKeeper($class_keeper);
             }
         }
 
@@ -123,29 +123,29 @@ abstract class Step extends Annotation
 
         foreach ($return as $item) {
             if ($item instanceof Annotation) {
-                $item->setClassGenerator($class_generator);
+                $item->setClassKeeper($class_keeper);
             }
         }
 
         if ($this->if instanceof Annotation) {
-            $this->if->setClassGenerator($class_generator);
+            $this->if->setClassKeeper($class_keeper);
         }
 
         if ($this->unless instanceof Annotation) {
-            $this->unless->setClassGenerator($class_generator);
+            $this->unless->setClassKeeper($class_keeper);
         }
 
-        parent::setClassGenerator($class_generator);
+        parent::setClassKeeper($class_keeper);
     }
 
     /**
-     * @param MethodGenerator $method_generator
+     * @param MethodKeeper $method_keeper
      */
-    public function setMethodGenerator(MethodGenerator $method_generator): void
+    public function setMethodKeeper(MethodKeeper $method_keeper): void
     {
         foreach ($this->arguments as $argument) {
             if ($argument instanceof Annotation) {
-                $argument->setMethodGenerator($method_generator);
+                $argument->setMethodKeeper($method_keeper);
             }
         }
 
@@ -153,29 +153,29 @@ abstract class Step extends Annotation
 
         foreach ($return as $item) {
             if ($item instanceof Annotation) {
-                $item->setMethodGenerator($method_generator);
+                $item->setMethodKeeper($method_keeper);
             }
         }
 
         if ($this->if instanceof Annotation) {
-            $this->if->setMethodGenerator($method_generator);
+            $this->if->setMethodKeeper($method_keeper);
         }
 
         if ($this->unless instanceof Annotation) {
-            $this->unless->setMethodGenerator($method_generator);
+            $this->unless->setMethodKeeper($method_keeper);
         }
 
-        parent::setMethodGenerator($method_generator);
+        parent::setMethodKeeper($method_keeper);
     }
 
     /**
-     * @param TestCaseGenerator $test_case_generator
+     * @param TestCaseKeeper $test_case_keeper
      */
-    public function setTestCaseGenerator(TestCaseGenerator $test_case_generator): void
+    public function setTestCaseKeeper(TestCaseKeeper $test_case_keeper): void
     {
         foreach ($this->arguments as $argument) {
             if ($argument instanceof Annotation) {
-                $argument->setTestCaseGenerator($test_case_generator);
+                $argument->setTestCaseKeeper($test_case_keeper);
             }
         }
 
@@ -183,29 +183,29 @@ abstract class Step extends Annotation
 
         foreach ($return as $item) {
             if ($item instanceof Annotation) {
-                $item->setTestCaseGenerator($test_case_generator);
+                $item->setTestCaseKeeper($test_case_keeper);
             }
         }
 
         if ($this->if instanceof Annotation) {
-            $this->if->setTestCaseGenerator($test_case_generator);
+            $this->if->setTestCaseKeeper($test_case_keeper);
         }
 
         if ($this->unless instanceof Annotation) {
-            $this->unless->setTestCaseGenerator($test_case_generator);
+            $this->unless->setTestCaseKeeper($test_case_keeper);
         }
 
-        parent::setTestCaseGenerator($test_case_generator);
+        parent::setTestCaseKeeper($test_case_keeper);
     }
 
     /**
-     * @param StepGenerator $step_generator
+     * @param StepKeeper $step_keeper
      */
-    public function setStepGenerator(StepGenerator $step_generator): void
+    public function setStepKeeper(StepKeeper $step_keeper): void
     {
         foreach ($this->arguments as $argument) {
             if ($argument instanceof Annotation) {
-                $argument->setStepGenerator($step_generator);
+                $argument->setStepKeeper($step_keeper);
             }
         }
 
@@ -213,25 +213,25 @@ abstract class Step extends Annotation
 
         foreach ($return as $item) {
             if ($item instanceof Annotation) {
-                $item->setStepGenerator($step_generator);
+                $item->setStepKeeper($step_keeper);
             }
         }
 
         if ($this->if instanceof Annotation) {
-            $this->if->setStepGenerator($step_generator);
+            $this->if->setStepKeeper($step_keeper);
         }
 
         if ($this->unless instanceof Annotation) {
-            $this->unless->setStepGenerator($step_generator);
+            $this->unless->setStepKeeper($step_keeper);
         }
 
-        parent::setStepGenerator($step_generator);
+        parent::setStepKeeper($step_keeper);
     }
 
     public function onMutate(): void
     {
         if ($this->validate) {
-            $this->getMethodGenerator()->setValidation(true);
+            $this->getMethodKeeper()->setValidation(true);
         }
 
         foreach ($this->arguments as $argument) {
@@ -244,7 +244,7 @@ abstract class Step extends Annotation
 
         foreach ($return as $item) {
             if (is_string($item)) {
-                if (isset($this->getMethodGenerator()->getInitialVariables()[$item])) {
+                if (isset($this->getMethodKeeper()->getInitialVariables()[$item])) {
                     throw new MutatorException(sprintf('%s.%s returns "%s" which is already in use.',
                         $this->name,
                         $this->method,
@@ -253,7 +253,7 @@ abstract class Step extends Annotation
                 }
 
                 $value = $this->validate ? 'true' : 'null';
-                $this->getMethodGenerator()->addInitialVariable($item, $value);
+                $this->getMethodKeeper()->addInitialVariable($item, $value);
             }
 
             if ($item instanceof Annotation) {
@@ -269,9 +269,9 @@ abstract class Step extends Annotation
             $this->unless->onMutate();
         }
 
-        $this->mutateTestCaseGenerator();
+        $this->mutateTestCaseKeeper();
 
-        $step_generator = $this->getStepGenerator();
+        $step_generator = $this->getStepKeeper();
         $step_generator->setMethod($this->method);
         $step_generator->setValidationCondition(true);
 
@@ -312,12 +312,12 @@ abstract class Step extends Annotation
         }
     }
 
-    private function mutateTestCaseGenerator(): void
+    private function mutateTestCaseKeeper(): void
     {
         $test_method = 'test' . ucfirst($this->getReflectionMethod()->getName()) . 'LocalVariables';
 
-        if (!$this->getTestCaseGenerator()->hasMethod($test_method)) {
-            $method = new BaseMethodGenerator();
+        if (!$this->getTestCaseKeeper()->getGenerator()->hasMethod($test_method)) {
+            $method = new MethodGenerator();
             $method->setFinal(true);
             $method->setVisibility('public');
             $method->setName($test_method);
@@ -330,9 +330,9 @@ abstract class Step extends Annotation
 
             $method->setBody($body);
 
-            $this->getTestCaseGenerator()->addMethodFromGenerator($method);
+            $this->getTestCaseKeeper()->getGenerator()->addMethodFromGenerator($method);
         } else {
-            $method = $this->getTestCaseGenerator()->getMethod($test_method);
+            $method = $this->getTestCaseKeeper()->getGenerator()->getMethod($test_method);
         }
 
         if ($this->if && is_string($this->if)) {

@@ -15,8 +15,8 @@ class ServiceProperty extends Service
 {
     public function onMutate(): void
     {
-        if (!$this->getClassGenerator()->hasProperty($this->name)) {
-            $this->getClassGenerator()->addProperty($this->name, null, PropertyGenerator::FLAG_PROTECTED);
+        if (!$this->getClassKeeper()->getGenerator()->hasProperty($this->name)) {
+            $this->getClassKeeper()->getGenerator()->addProperty($this->name, null, PropertyGenerator::FLAG_PROTECTED);
         }
 
         parent::onMutate();

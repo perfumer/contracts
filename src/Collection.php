@@ -2,11 +2,11 @@
 
 namespace Barman;
 
+use Barman\Keeper\StepKeeper;
 use Barman\Mutator\MethodAnnotationMutator;
-use Barman\Mutator\StepGeneratorMutator;
-use Barman\Generator\StepGenerator;
+use Barman\Mutator\StepKeeperMutator;
 
-abstract class Collection extends Annotation implements MethodAnnotationMutator, StepGeneratorMutator
+abstract class Collection extends Annotation implements MethodAnnotationMutator, StepKeeperMutator
 {
     /**
      * @var array
@@ -30,28 +30,28 @@ abstract class Collection extends Annotation implements MethodAnnotationMutator,
     }
 
     /**
-     * @return StepGenerator[]
+     * @return StepKeeper[]
      */
-    public function getStepGenerators(): array
+    public function getStepKeepers(): array
     {
-        $generators = [];
+        $keepers = [];
 
         foreach ($this->steps as $step) {
             if ($step instanceof Step) {
-                $generators[] = $step->getStepGenerator();
+                $keepers[] = $step->getStepKeeper();
             }
 
             if ($step instanceof Collection) {
-                $generators = array_merge($generators, $step->getStepGenerators());
+                $keepers = array_merge($keepers, $step->getStepKeepers());
             }
         }
 
-        if (count($generators) > 0) {
-            $generators[0]->addBeforeCode('_collection', $this->getBeforeCode());
-            $generators[count($generators) - 1]->addAfterCode('_collection', $this->getAfterCode());
+        if (count($keepers) > 0) {
+            $keepers[0]->addBeforeCode('_collection', $this->getBeforeCode());
+            $keepers[count($keepers) - 1]->addAfterCode('_collection', $this->getAfterCode());
         }
 
-        return $generators;
+        return $keepers;
     }
 
     /**
@@ -67,13 +67,13 @@ abstract class Collection extends Annotation implements MethodAnnotationMutator,
     }
 
     /**
-     * @param StepGenerator $generator
+     * @param StepKeeper $keeper
      */
-    public function mutateStepGenerator(StepGenerator $generator): void
+    public function mutateStepKeeper(StepKeeper $keeper): void
     {
         foreach ($this->steps as $step) {
-            if ($step instanceof StepGeneratorMutator) {
-                $step->mutateStepGenerator($generator);
+            if ($step instanceof StepKeeperMutator) {
+                $step->mutateStepKeeper($keeper);
             }
         }
     }

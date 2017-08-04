@@ -35,13 +35,13 @@ class Injection extends Step implements ArgumentVariable
                 throw new MutatorException('Define name of injection.');
             }
 
-            if ($this->getClassGenerator()->hasInjection($this->name)) {
+            if ($this->getClassKeeper()->hasInjection($this->name)) {
                 throw new MutatorException(sprintf('"%s" injection is already defined.',
                     $this->name
                 ));
             }
 
-            $this->getClassGenerator()->addInjection($this->name, $this->type);
+            $this->getClassKeeper()->addInjection($this->name, $this->type);
         }
 
         // Rest of code is executed when Injection is used as Step
@@ -49,7 +49,7 @@ class Injection extends Step implements ArgumentVariable
             return;
         }
 
-        if (!isset($this->getClassGenerator()->getInjections()[$this->name])) {
+        if (!isset($this->getClassKeeper()->getInjections()[$this->name])) {
             throw new MutatorException(sprintf('"%s" injection is not registered',
                 $this->name
             ));
@@ -57,7 +57,7 @@ class Injection extends Step implements ArgumentVariable
 
         $annotation_arguments = $this->arguments;
 
-        $reflection_injection = new \ReflectionClass($this->getClassGenerator()->getInjections()[$this->name]);
+        $reflection_injection = new \ReflectionClass($this->getClassKeeper()->getInjections()[$this->name]);
 
         $method_found = false;
 
@@ -81,10 +81,10 @@ class Injection extends Step implements ArgumentVariable
                         $variable = $method_annotation->variable;
                         $variable->setReflectionClass($this->getReflectionClass());
                         $variable->setReflectionMethod($this->getReflectionMethod());
-                        $variable->setClassGenerator($this->getClassGenerator());
-                        $variable->setMethodGenerator($this->getMethodGenerator());
-                        $variable->setTestCaseGenerator($this->getTestCaseGenerator());
-                        $variable->setStepGenerator($this->getStepGenerator());
+                        $variable->setClassKeeper($this->getClassKeeper());
+                        $variable->setMethodKeeper($this->getMethodKeeper());
+                        $variable->setTestCaseKeeper($this->getTestCaseKeeper());
+                        $variable->setStepKeeper($this->getStepKeeper());
 
                         $tmp_arguments[] = $variable;
                         $found = true;
@@ -129,7 +129,7 @@ class Injection extends Step implements ArgumentVariable
 
             $name = str_replace('_', '', ucwords($this->name, '_.'));
 
-            $this->getStepGenerator()->setCallExpression("\$this->get{$name}()->");
+            $this->getStepKeeper()->setCallExpression("\$this->get{$name}()->");
         }
     }
 
