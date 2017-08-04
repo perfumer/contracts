@@ -414,6 +414,8 @@ class Generator
                     }
 
                     if (count($method_keeper->getSteps()) > 0) {
+                        $method_keeper->generate();
+                        
                         $class_generator->addMethodFromGenerator($method_generator);
                     }
                 }
@@ -423,8 +425,8 @@ class Generator
             }
 
             foreach ($bundle->getClassKeepers() as $keeper) {
-                $this->generateBaseClass($keeper->getGenerator());
-                $this->generateClass($keeper->getGenerator());
+                $this->generateBaseClass($keeper);
+                $this->generateClass($keeper);
 
                 $this->contexts = array_merge($this->contexts, array_values($keeper->getContexts()));
             }
@@ -432,8 +434,8 @@ class Generator
             $this->generateContexts();
 
             foreach ($bundle->getTestCaseKeepers() as $keeper) {
-                $this->generateBaseClassTest($keeper->getGenerator());
-                $this->generateClassTest($keeper->getGenerator());
+                $this->generateBaseClassTest($keeper);
+                $this->generateClassTest($keeper);
             }
 
             shell_exec("vendor/bin/php-cs-fixer fix {$this->base_src_path} --rules=@Symfony");
@@ -557,10 +559,12 @@ class Generator
     }
 
     /**
-     * @param ClassGenerator $class_generator
+     * @param ClassKeeper $keeper
      */
-    private function generateBaseClass(ClassGenerator $class_generator)
+    private function generateBaseClass(ClassKeeper $keeper)
     {
+        $class_generator = $keeper->getGenerator();
+
         $output_name = str_replace('\\', '/', trim(str_replace($this->class_prefix, '', $class_generator->getNamespaceName()), '\\'));
 
         if ($output_name) {
@@ -575,7 +579,7 @@ class Generator
 
         $class_generator->setNamespaceName('Generated\\' . $namespace);
 
-        $code = '<?php' . PHP_EOL . PHP_EOL . $class_generator->generate();
+        $code = '<?php' . PHP_EOL . PHP_EOL . $keeper->generate();
 
         file_put_contents($output_name, $code);
 
@@ -583,10 +587,12 @@ class Generator
     }
 
     /**
-     * @param ClassGenerator $class_generator
+     * @param ClassKeeper $keeper
      */
-    private function generateClass(ClassGenerator $class_generator)
+    private function generateClass(ClassKeeper $keeper)
     {
+        $class_generator = $keeper->getGenerator();
+
         $output_name = str_replace('\\', '/', trim(str_replace($this->class_prefix, '', $class_generator->getNamespaceName()), '\\'));
 
         if ($output_name) {
@@ -625,10 +631,12 @@ class Generator
     }
 
     /**
-     * @param ClassGenerator $generator
+     * @param TestCaseKeeper $keeper
      */
-    private function generateBaseClassTest(ClassGenerator $generator)
+    private function generateBaseClassTest(TestCaseKeeper $keeper)
     {
+        $generator = $keeper->getGenerator();
+
         $output_name = str_replace('\\', '/', trim(str_replace('Generated\\Tests\\' . $this->class_prefix, '', $generator->getNamespaceName()), '\\'));
 
         if ($output_name) {
@@ -645,10 +653,12 @@ class Generator
     }
 
     /**
-     * @param ClassGenerator $generator
+     * @param TestCaseKeeper $keeper
      */
-    private function generateClassTest(ClassGenerator $generator)
+    private function generateClassTest(TestCaseKeeper $keeper)
     {
+        $generator = $keeper->getGenerator();
+
         $output_name = str_replace('\\', '/', trim(str_replace('Generated\\Tests\\' . $this->class_prefix, '', $generator->getNamespaceName()), '\\'));
 
         if ($output_name) {
