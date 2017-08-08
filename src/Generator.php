@@ -85,21 +85,7 @@ class Generator
     {
         $this->reader = new AnnotationReader();
 
-        $this->addAnnotations(__DIR__ . '/Annotation/Alias.php');
-        $this->addAnnotations(__DIR__ . '/Annotation/Context.php');
-        $this->addAnnotations(__DIR__ . '/Annotation/Custom.php');
-        $this->addAnnotations(__DIR__ . '/Annotation/Error.php');
-        $this->addAnnotations(__DIR__ . '/Annotation/Inject.php');
-        $this->addAnnotations(__DIR__ . '/Annotation/Injection.php');
-        $this->addAnnotations(__DIR__ . '/Annotation/Output.php');
-        $this->addAnnotations(__DIR__ . '/Annotation/Property.php');
-        $this->addAnnotations(__DIR__ . '/Annotation/ServiceObject.php');
-        $this->addAnnotations(__DIR__ . '/Annotation/ServiceParent.php');
-        $this->addAnnotations(__DIR__ . '/Annotation/ServiceProperty.php');
-        $this->addAnnotations(__DIR__ . '/Annotation/ServiceSelf.php');
-        $this->addAnnotations(__DIR__ . '/Annotation/ServiceStatic.php');
-        $this->addAnnotations(__DIR__ . '/Annotation/ServiceThis.php');
-        $this->addAnnotations(__DIR__ . '/Annotation/Test.php');
+        AnnotationRegistry::registerLoader('class_exists');
 
         $this->root_dir = $root_dir;
 
@@ -130,14 +116,6 @@ class Generator
         if (isset($options['test_path'])) {
             $this->test_path = (string) $options['test_path'];
         }
-    }
-
-    /**
-     * @param string $filename
-     */
-    public function addAnnotations(string $filename)
-    {
-        AnnotationRegistry::registerFile($filename);
     }
 
     /**
@@ -415,7 +393,7 @@ class Generator
 
                     if (count($method_keeper->getSteps()) > 0) {
                         $method_keeper->generate();
-                        
+
                         $class_generator->addMethodFromGenerator($method_generator);
                     }
                 }
