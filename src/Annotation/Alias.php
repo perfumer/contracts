@@ -26,11 +26,13 @@ class Alias extends Annotation implements MethodAnnotationMutator
 
     public function onCreate(): void
     {
-        $this->variable->setReflectionClass($this->getReflectionClass());
-        $this->variable->setReflectionMethod($this->getReflectionMethod());
-        $this->variable->setClassKeeper($this->getClassKeeper());
-        $this->variable->setTestCaseKeeper($this->getTestCaseKeeper());
-        $this->variable->setMethodKeeper($this->getMethodKeeper());
+        if ($this->variable instanceof Annotation) {
+            $this->variable->setReflectionClass($this->getReflectionClass());
+            $this->variable->setReflectionMethod($this->getReflectionMethod());
+            $this->variable->setClassKeeper($this->getClassKeeper());
+            $this->variable->setTestCaseKeeper($this->getTestCaseKeeper());
+            $this->variable->setMethodKeeper($this->getMethodKeeper());
+        }
     }
 
     /**
@@ -52,31 +54,44 @@ class Alias extends Annotation implements MethodAnnotationMutator
      */
     private function mutateStep(Step $step)
     {
-        $tmp = clone $this->variable;
-        $tmp->setStepKeeper($step->getStepKeeper());
+        if ($this->variable instanceof Annotation) {
+            $tmp = clone $this->variable;
+            $tmp->setStepKeeper($step->getStepKeeper());
+        } else {
+            $tmp = $this->variable;
+        }
 
         foreach ($step->arguments as $i => $argument) {
             if (is_string($argument) && $argument === $this->name) {
-                $step->arguments[$i] = clone $tmp;
+                $step->arguments[$i] = $this->getVariableCopy($tmp);
             }
         }
 
         if (is_array($step->return)) {
             foreach ($step->return as $i => $return) {
                 if (is_string($return) && $return === $this->name) {
-                    $step->return[$i] = clone $tmp;
+                    $step->return[$i] = $this->getVariableCopy($tmp);
                 }
             }
         } elseif (is_string($step->return) && $step->return === $this->name) {
-            $step->return = clone $tmp;
+            $step->return = $this->getVariableCopy($tmp);
         }
 
         if (is_string($step->if) && $step->if === $this->name) {
-            $step->if = clone $tmp;
+            $step->if = $this->getVariableCopy($tmp);
         }
 
         if (is_string($step->unless) && $step->unless === $this->name) {
-            $step->unless = clone $tmp;
+            $step->unless = $this->getVariableCopy($tmp);
         }
+    }
+
+    /**
+     * @param $variable
+     * @return mixed
+     */
+    private function getVariableCopy($variable)
+    {
+        return $variable instanceof Annotation ? clone $variable : $variable;
     }
 }
