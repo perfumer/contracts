@@ -8,9 +8,9 @@ use Barman\Annotation\Test;
 
 /**
  * Sometimes Context has very specific logic, which unlikely
- * to be used in other Contracts. In this case it is convinient
+ * to be used in other Contracts. In this case it is convenient
  * to have Context in the same file as Contract (in order not to switch
- * often between files in IDE).
+ * often between files in IDE while coding).
  */
 interface Example2
 {
