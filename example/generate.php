@@ -17,4 +17,5 @@ $generator->addContract(\Barman\Example\Contract\Example2::class);
 $generator->addContract(\Barman\Example\Contract\Example3::class);
 $generator->addContract(\Barman\Example\Contract\Example4::class);
 $generator->addContract(\Barman\Example\Contract\Example5::class);
+$generator->addContract(\Barman\Example\Contract\Example6::class);
 $generator->generateAll();
