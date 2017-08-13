@@ -34,4 +34,14 @@ class Math
     {
         return $a * $b;
     }
+
+    /**
+     * @param $a
+     * @param $b
+     * @return float
+     */
+    public function quotient($a, $b): float
+    {
+        return $a / $b;
+    }
 }

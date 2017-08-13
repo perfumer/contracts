@@ -33,9 +33,9 @@ class Example5Parent
     /**
      * @param $a
      * @param $b
-     * @return int
+     * @return float
      */
-    public function quotient($a, $b): int
+    public function quotient($a, $b): float
     {
         return $a / $b;
     }
