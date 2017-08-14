@@ -495,7 +495,7 @@ class Generator
                                 return '$' . $value->getName();
                             }, $method->getParameters());
 
-                            $body = '$_class_instance = new ' . $class . '();' . PHP_EOL . PHP_EOL;
+                            $body = '$_class_instance = new \\' . ltrim($class, '\\') . '();' . PHP_EOL . PHP_EOL;
                             $body .= '$this->assertTest' . ucfirst($method->name) . '($expected, $_class_instance->' . $method->name . '(' . implode(', ', $arguments) . '));';
 
                             $test->setBody($body);
