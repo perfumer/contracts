@@ -259,41 +259,12 @@ class Generator
                     $method_annotations = $this->reader->getMethodAnnotations($method);
 
                     try {
+                        // Set reflection classes, keepers and call onCreate()
                         foreach ($method_annotations as $annotation) {
-                            if (!$annotation instanceof Annotation) {
-                                continue;
-                            }
-
-                            $annotation->setReflectionClass($reflection);
-                            $annotation->setReflectionMethod($method);
-                            $annotation->setClassKeeper($class_keeper);
-                            $annotation->setTestCaseKeeper($test_case_keeper);
-                            $annotation->setMethodKeeper($method_keeper);
-                            $annotation->setIsMethodAnnotation(true);
-
-                            if ($annotation instanceof Step) {
-                                $annotation->setStepKeeper(new StepKeeper());
-                            }
-
-                            $annotation->onCreate();
-
-                            if ($annotation instanceof Collection) {
-                                foreach ($annotation->steps as $step) {
-                                    if ($step instanceof Step) {
-                                        $step->setReflectionClass($reflection);
-                                        $step->setReflectionMethod($method);
-                                        $step->setClassKeeper($class_keeper);
-                                        $step->setTestCaseKeeper($test_case_keeper);
-                                        $step->setMethodKeeper($method_keeper);
-                                        $step->setIsMethodAnnotation(true);
-                                        $step->setStepKeeper(new StepKeeper());
-
-                                        $step->onCreate();
-                                    }
-                                }
-                            }
+                            $this->onCreateMethodAnnotation($annotation, $reflection, $method, $class_keeper, $test_case_keeper, $method_keeper);
                         }
 
+                        // Mutate method annotations by class annotations
                         foreach ($class_annotations as $annotation) {
                             if (!$annotation instanceof Annotation) {
                                 continue;
@@ -301,13 +272,12 @@ class Generator
 
                             if ($annotation instanceof MethodAnnotationMutator) {
                                 foreach ($method_annotations as $another) {
-                                    if ($another instanceof Annotation) {
-                                        $annotation->mutateMethodAnnotation($another);
-                                    }
+                                    $this->mutateMethodAnnotationByMethodAnnotationMutator($annotation, $another);
                                 }
                             }
                         }
 
+                        // Mutate method annotations by method annotations
                         foreach ($method_annotations as $annotation) {
                             if (!$annotation instanceof Annotation) {
                                 continue;
@@ -315,29 +285,17 @@ class Generator
 
                             if ($annotation instanceof MethodAnnotationMutator) {
                                 foreach ($method_annotations as $another) {
-                                    if ($another instanceof Annotation && $annotation !== $another) {
-                                        $annotation->mutateMethodAnnotation($another);
-                                    }
+                                    $this->mutateMethodAnnotationByMethodAnnotationMutator($annotation, $another);
                                 }
                             }
                         }
 
+                        // Call onMutate()
                         foreach ($method_annotations as $annotation) {
-                            if (!$annotation instanceof Annotation) {
-                                continue;
-                            }
-
-                            $annotation->onMutate();
-
-                            if ($annotation instanceof Collection) {
-                                foreach ($annotation->steps as $step) {
-                                    if ($step instanceof Annotation) {
-                                        $step->onMutate();
-                                    }
-                                }
-                            }
+                            $this->onMutateMethodAnnotation($annotation);
                         }
 
+                        // Mutate step keepers by method annotations
                         foreach ($method_annotations as $annotation) {
                             if (!$annotation instanceof Annotation) {
                                 continue;
@@ -345,13 +303,12 @@ class Generator
 
                             if ($annotation instanceof StepKeeperMutator) {
                                 foreach ($method_annotations as $another) {
-                                    if ($another instanceof Step && $annotation !== $another) {
-                                        $annotation->mutateStepKeeper($another->getStepKeeper());
-                                    }
+                                    $this->mutateStepKeeperByStepKeeperMutator($annotation, $another);
                                 }
                             }
                         }
 
+                        // Mutate step keepers by class annotations
                         foreach ($class_annotations as $annotation) {
                             if (!$annotation instanceof Annotation) {
                                 continue;
@@ -359,13 +316,12 @@ class Generator
 
                             if ($annotation instanceof StepKeeperMutator) {
                                 foreach ($method_annotations as $another) {
-                                    if ($another instanceof Step) {
-                                        $annotation->mutateStepKeeper($another->getStepKeeper());
-                                    }
+                                    $this->mutateStepKeeperByStepKeeperMutator($annotation, $another);
                                 }
                             }
                         }
 
+                        // Mutate method keeper by class annotations
                         foreach ($class_annotations as $annotation) {
                             if ($annotation instanceof MethodKeeperMutator) {
                                 $annotation->mutateMethodKeeper($method_keeper);
@@ -731,5 +687,102 @@ class Generator
         $code = '<?php' . PHP_EOL . PHP_EOL . $class->generate();
 
         file_put_contents($output_name, $code);
+    }
+
+    /**
+     * @param Annotation $annotation
+     * @param \ReflectionClass $reflection
+     * @param \ReflectionMethod $method
+     * @param ClassKeeper $class_keeper
+     * @param TestCaseKeeper $test_case_keeper
+     * @param MethodKeeper $method_keeper
+     */
+    private function onCreateMethodAnnotation(
+        $annotation,
+        \ReflectionClass $reflection,
+        \ReflectionMethod $method,
+        ClassKeeper $class_keeper,
+        TestCaseKeeper $test_case_keeper,
+        MethodKeeper $method_keeper
+    )
+    {
+        if (!$annotation instanceof Annotation) {
+            return;
+        }
+
+        $annotation->setReflectionClass($reflection);
+        $annotation->setReflectionMethod($method);
+        $annotation->setClassKeeper($class_keeper);
+        $annotation->setTestCaseKeeper($test_case_keeper);
+        $annotation->setMethodKeeper($method_keeper);
+        $annotation->setIsMethodAnnotation(true);
+
+        if ($annotation instanceof Step) {
+            $annotation->setStepKeeper(new StepKeeper());
+        }
+
+        $annotation->onCreate();
+
+        if ($annotation instanceof Collection) {
+            foreach ($annotation->steps as $step) {
+                $this->onCreateMethodAnnotation($step, $reflection, $method, $class_keeper, $test_case_keeper, $method_keeper);
+            }
+        }
+    }
+
+    /**
+     * @param MethodAnnotationMutator $mutator
+     * @param Annotation $annotation
+     */
+    private function mutateMethodAnnotationByMethodAnnotationMutator(MethodAnnotationMutator $mutator, $annotation)
+    {
+        if (!$annotation instanceof Annotation || $mutator === $annotation) {
+            return;
+        }
+
+        if ($annotation instanceof Collection) {
+            foreach ($annotation->steps as $step) {
+                $this->mutateMethodAnnotationByMethodAnnotationMutator($mutator, $step);
+            }
+        } else {
+            $mutator->mutateMethodAnnotation($annotation);
+        }
+    }
+
+    /**
+     * @param Annotation $annotation
+     */
+    private function onMutateMethodAnnotation($annotation)
+    {
+        if (!$annotation instanceof Annotation) {
+            return;
+        }
+
+        $annotation->onMutate();
+
+        if ($annotation instanceof Collection) {
+            foreach ($annotation->steps as $step) {
+                $this->onMutateMethodAnnotation($step);
+            }
+        }
+    }
+
+    /**
+     * @param StepKeeperMutator $mutator
+     * @param Annotation $annotation
+     */
+    private function mutateStepKeeperByStepKeeperMutator(StepKeeperMutator $mutator, $annotation)
+    {
+        if (!$annotation instanceof Step || $mutator === $annotation) {
+            return;
+        }
+
+        if ($annotation instanceof Collection) {
+            foreach ($annotation->steps as $step) {
+                $this->mutateStepKeeperByStepKeeperMutator($mutator, $step);
+            }
+        } else {
+            $mutator->mutateStepKeeper($annotation->getStepKeeper());
+        }
     }
 }
