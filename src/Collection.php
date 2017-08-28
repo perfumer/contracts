@@ -16,6 +16,14 @@ abstract class Collection extends Annotation implements MethodAnnotationMutator,
     /**
      * @return string
      */
+    public function getCodeKey()
+    {
+        return '_collection';
+    }
+
+    /**
+     * @return string
+     */
     public function getBeforeCode()
     {
         return '';
@@ -47,8 +55,8 @@ abstract class Collection extends Annotation implements MethodAnnotationMutator,
         }
 
         if (count($keepers) > 0) {
-            $keepers[0]->addBeforeCode('_collection', $this->getBeforeCode());
-            $keepers[count($keepers) - 1]->addAfterCode('_collection', $this->getAfterCode());
+            $keepers[0]->addBeforeCode($this->getCodeKey(), $this->getBeforeCode());
+            $keepers[count($keepers) - 1]->addAfterCode($this->getCodeKey(), $this->getAfterCode());
         }
 
         return $keepers;

@@ -736,15 +736,11 @@ class Generator
      */
     private function mutateMethodAnnotationByMethodAnnotationMutator(MethodAnnotationMutator $mutator, $annotation)
     {
-        if (!$annotation instanceof Annotation || $mutator === $annotation) {
-            return;
-        }
-
         if ($annotation instanceof Collection) {
             foreach ($annotation->steps as $step) {
                 $this->mutateMethodAnnotationByMethodAnnotationMutator($mutator, $step);
             }
-        } else {
+        } elseif ($annotation instanceof Annotation && $mutator !== $annotation) {
             $mutator->mutateMethodAnnotation($annotation);
         }
     }
@@ -773,15 +769,11 @@ class Generator
      */
     private function mutateStepKeeperByStepKeeperMutator(StepKeeperMutator $mutator, $annotation)
     {
-        if (!$annotation instanceof Step || $mutator === $annotation) {
-            return;
-        }
-
         if ($annotation instanceof Collection) {
             foreach ($annotation->steps as $step) {
                 $this->mutateStepKeeperByStepKeeperMutator($mutator, $step);
             }
-        } else {
+        } elseif ($annotation instanceof Step && $mutator !== $annotation) {
             $mutator->mutateStepKeeper($annotation->getStepKeeper());
         }
     }
