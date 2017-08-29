@@ -293,7 +293,7 @@ abstract class Step extends Annotation
             $step_generator->addArgument($value);
         }
 
-        if ($this->return) {
+        if ($this->return && !$step_generator->getReturnExpression()) {
             if (is_array($this->return)) {
                 $vars = array_map(function ($v) {
                     return $v instanceof ReturnedVariable ? $v->getReturnedVariableExpression() : '$' . $v;

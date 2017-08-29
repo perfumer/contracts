@@ -4,7 +4,6 @@ namespace Barman\Annotation;
 
 use Doctrine\Common\Annotations\Annotation\Target;
 use Barman\Annotation;
-use Barman\Collection;
 use Barman\Mutator\MethodAnnotationMutator;
 use Barman\Step;
 
@@ -40,49 +39,39 @@ class Alias extends Annotation implements MethodAnnotationMutator
      */
     public function mutateMethodAnnotation(Annotation $annotation): void
     {
-        if ($annotation instanceof Collection) {
-            foreach ($annotation->steps as $step) {
-                $this->mutateStep($step);
-            }
-        } elseif ($annotation instanceof Step) {
-            $this->mutateStep($annotation);
+        if (!$annotation instanceof Step) {
+            return;
         }
-    }
 
-    /**
-     * @param Step $step
-     */
-    private function mutateStep(Step $step)
-    {
         if ($this->variable instanceof Annotation) {
             $tmp = clone $this->variable;
-            $tmp->setStepKeeper($step->getStepKeeper());
+            $tmp->setStepKeeper($annotation->getStepKeeper());
         } else {
             $tmp = $this->variable;
         }
 
-        foreach ($step->arguments as $i => $argument) {
+        foreach ($annotation->arguments as $i => $argument) {
             if (is_string($argument) && $argument === $this->name) {
-                $step->arguments[$i] = $this->getVariableCopy($tmp);
+                $annotation->arguments[$i] = $this->getVariableCopy($tmp);
             }
         }
 
-        if (is_array($step->return)) {
-            foreach ($step->return as $i => $return) {
+        if (is_array($annotation->return)) {
+            foreach ($annotation->return as $i => $return) {
                 if (is_string($return) && $return === $this->name) {
-                    $step->return[$i] = $this->getVariableCopy($tmp);
+                    $annotation->return[$i] = $this->getVariableCopy($tmp);
                 }
             }
-        } elseif (is_string($step->return) && $step->return === $this->name) {
-            $step->return = $this->getVariableCopy($tmp);
+        } elseif (is_string($annotation->return) && $annotation->return === $this->name) {
+            $annotation->return = $this->getVariableCopy($tmp);
         }
 
-        if (is_string($step->if) && $step->if === $this->name) {
-            $step->if = $this->getVariableCopy($tmp);
+        if (is_string($annotation->if) && $annotation->if === $this->name) {
+            $annotation->if = $this->getVariableCopy($tmp);
         }
 
-        if (is_string($step->unless) && $step->unless === $this->name) {
-            $step->unless = $this->getVariableCopy($tmp);
+        if (is_string($annotation->unless) && $annotation->unless === $this->name) {
+            $annotation->unless = $this->getVariableCopy($tmp);
         }
     }
 
