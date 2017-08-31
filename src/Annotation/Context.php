@@ -3,8 +3,8 @@
 namespace Barman\Annotation;
 
 use Doctrine\Common\Annotations\Annotation\Target;
-use Doctrine\Common\Annotations\AnnotationReader;
 use Barman\Annotation;
+use Barman\AutoArguments;
 use Barman\Exception\MutatorException;
 use Barman\Step;
 use Barman\Variable\ArgumentVariable;
@@ -13,7 +13,7 @@ use Barman\Variable\ArgumentVariable;
  * @Annotation
  * @Target({"CLASS", "METHOD", "ANNOTATION"})
  */
-class Context extends Step implements ArgumentVariable
+class Context extends Step implements ArgumentVariable, AutoArguments
 {
     /**
      * @var string
@@ -76,72 +76,6 @@ class Context extends Step implements ArgumentVariable
                 $this->name
             ));
         }
-
-        $annotation_arguments = $this->arguments;
-
-        $reflection_context = new \ReflectionClass($this->getClassKeeper()->getContexts()[$this->name]);
-
-        $method_found = false;
-
-        foreach ($reflection_context->getMethods() as $method) {
-            if ($method->getName() !== $this->method) {
-                continue;
-            }
-
-            $method_found = true;
-
-            $reader = new AnnotationReader();
-            $method_annotations = $reader->getMethodAnnotations($method);
-            $tmp_arguments = [];
-
-            foreach ($method->getParameters() as $parameter) {
-                $found = false;
-
-                foreach ($method_annotations as $method_annotation) {
-                    if ($method_annotation instanceof Inject && $parameter->getName() == $method_annotation->name) {
-                        /** @var Annotation $variable */
-                        $variable = $method_annotation->variable;
-                        $variable->setReflectionClass($this->getReflectionClass());
-                        $variable->setReflectionMethod($this->getReflectionMethod());
-                        $variable->setClassKeeper($this->getClassKeeper());
-                        $variable->setMethodKeeper($this->getMethodKeeper());
-                        $variable->setTestCaseKeeper($this->getTestCaseKeeper());
-                        $variable->setStepKeeper($this->getStepKeeper());
-
-                        $tmp_arguments[] = $variable;
-                        $found = true;
-                    }
-                }
-
-                if (!$found) {
-                    if ($this->arguments) {
-                        if ($annotation_arguments) {
-                            $tmp_arguments[] = array_shift($annotation_arguments);
-                        }
-                    } elseif (!$parameter->isOptional()) {
-                        $tmp_arguments[] = $parameter->getName();
-                    }
-                }
-            }
-
-            if (count($annotation_arguments) > 0) {
-                throw new MutatorException(sprintf('%s.%s has excessive arguments.',
-                    $this->name,
-                    $this->method
-                ));
-            }
-
-            if ($tmp_arguments) {
-                $this->arguments = $tmp_arguments;
-            }
-        }
-
-        if ($method_found === false) {
-            throw new MutatorException(sprintf('method "%s" is not found in "%s".',
-                $this->method,
-                $this->name
-            ));
-        }
     }
 
     public function onMutate(): void
@@ -169,5 +103,21 @@ class Context extends Step implements ArgumentVariable
     public function getArgumentVariableExpression(): string
     {
         return '$this->get' . str_replace('_', '', ucwords($this->name, '_')) . 'Context()';
+    }
+
+    /**
+     * @return string
+     */
+    public function getAutoArgumentsClass(): string
+    {
+        return $this->getClassKeeper()->getContexts()[$this->name];
+    }
+
+    /**
+     * @return string
+     */
+    public function getAutoArgumentsMethod(): string
+    {
+        return $this->method;
     }
 }

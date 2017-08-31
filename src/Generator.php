@@ -2,6 +2,7 @@
 
 namespace Barman;
 
+use Barman\Annotation\Inject;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Barman\Annotation\Test;
@@ -723,6 +724,10 @@ class Generator
 
         $annotation->onCreate();
 
+        if ($annotation instanceof Step && $annotation instanceof AutoArguments) {
+            $this->setAutoArguments($annotation, $reflection, $method, $class_keeper, $test_case_keeper, $method_keeper);
+        }
+
         if ($annotation instanceof Collection) {
             foreach ($annotation->steps as $step) {
                 $this->onCreateMethodAnnotation($step, $reflection, $method, $class_keeper, $test_case_keeper, $method_keeper);
@@ -775,6 +780,90 @@ class Generator
             }
         } elseif ($annotation instanceof Step && $mutator !== $annotation) {
             $mutator->mutateStepKeeper($annotation->getStepKeeper());
+        }
+    }
+
+    /**
+     * @param Step|AutoArguments $step
+     * @param \ReflectionClass $reflection_class
+     * @param \ReflectionMethod $reflection_method
+     * @param ClassKeeper $class_keeper
+     * @param TestCaseKeeper $test_case_keeper
+     * @param MethodKeeper $method_keeper
+     * @throws MutatorException
+     */
+    private function setAutoArguments(
+        Step $step,
+        \ReflectionClass $reflection_class,
+        \ReflectionMethod $reflection_method,
+        ClassKeeper $class_keeper,
+        TestCaseKeeper $test_case_keeper,
+        MethodKeeper $method_keeper
+    )
+    {
+        $current_arguments = $step->arguments;
+
+        $remote_class_reflection = new \ReflectionClass($step->getAutoArgumentsClass());
+        $remote_method_found = false;
+
+        foreach ($remote_class_reflection->getMethods() as $remote_method) {
+            if ($remote_method->getName() !== $step->getAutoArgumentsMethod()) {
+                continue;
+            }
+
+            $remote_method_found = true;
+
+            $reader = new AnnotationReader();
+            $remote_method_annotations = $reader->getMethodAnnotations($remote_method);
+            $new_arguments = [];
+
+            foreach ($remote_method->getParameters() as $parameter) {
+                $found = false;
+
+                foreach ($remote_method_annotations as $remote_method_annotation) {
+                    if ($remote_method_annotation instanceof Inject && $parameter->getName() == $remote_method_annotation->name) {
+                        /** @var Annotation $variable */
+                        $variable = $remote_method_annotation->variable;
+                        $variable->setReflectionClass($reflection_class);
+                        $variable->setReflectionMethod($reflection_method);
+                        $variable->setClassKeeper($class_keeper);
+                        $variable->setMethodKeeper($method_keeper);
+                        $variable->setTestCaseKeeper($test_case_keeper);
+                        $variable->setStepKeeper($step->getStepKeeper());
+
+                        $new_arguments[] = $variable;
+                        $found = true;
+                    }
+                }
+
+                if (!$found) {
+                    if ($step->arguments) {
+                        if ($current_arguments) {
+                            $new_arguments[] = array_shift($current_arguments);
+                        }
+                    } elseif (!$parameter->isOptional()) {
+                        $new_arguments[] = $parameter->getName();
+                    }
+                }
+            }
+
+            if (count($current_arguments) > 0) {
+                throw new MutatorException(sprintf('%s.%s has excessive arguments.',
+                    $step->name,
+                    $step->method
+                ));
+            }
+
+            if ($new_arguments) {
+                $step->arguments = $new_arguments;
+            }
+        }
+
+        if ($remote_method_found === false) {
+            throw new MutatorException(sprintf('method "%s" is not found in "%s".',
+                $step->method,
+                $step->name
+            ));
         }
     }
 }
