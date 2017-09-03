@@ -741,12 +741,18 @@ class Generator
      */
     private function mutateMethodAnnotationByMethodAnnotationMutator(MethodAnnotationMutator $mutator, $annotation)
     {
+        if (!$annotation instanceof Annotation) {
+            return;
+        }
+
+        if ($mutator !== $annotation) {
+            $mutator->mutateMethodAnnotation($annotation);
+        }
+
         if ($annotation instanceof Collection) {
             foreach ($annotation->steps as $step) {
                 $this->mutateMethodAnnotationByMethodAnnotationMutator($mutator, $step);
             }
-        } elseif ($annotation instanceof Annotation && $mutator !== $annotation) {
-            $mutator->mutateMethodAnnotation($annotation);
         }
     }
 

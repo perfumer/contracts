@@ -5,13 +5,28 @@ namespace Barman;
 use Barman\Keeper\StepKeeper;
 use Barman\Mutator\MethodAnnotationMutator;
 use Barman\Mutator\StepKeeperMutator;
+use Barman\Variable\ArgumentVariable;
 
-abstract class Collection extends Annotation implements MethodAnnotationMutator, StepKeeperMutator
+/**
+ * @Annotation
+ * @Target({"METHOD", "ANNOTATION"})
+ */
+class Collection extends Annotation implements MethodAnnotationMutator, StepKeeperMutator
 {
     /**
      * @var array
      */
     public $steps = [];
+
+    /**
+     * @var mixed
+     */
+    public $if;
+
+    /**
+     * @var mixed
+     */
+    public $unless;
 
     /**
      * @return string
@@ -55,8 +70,26 @@ abstract class Collection extends Annotation implements MethodAnnotationMutator,
         }
 
         if (count($keepers) > 0) {
+            if ($this->if || $this->unless) {
+                $condition = $this->if ?: $this->unless;
+
+                $body_argument = $condition instanceof ArgumentVariable ? $condition->getArgumentVariableExpression() : '$' . $condition;
+
+                if ($this->unless) {
+                    $body_argument = '!' . $body_argument;
+                }
+
+                $keepers[0]->addBeforeCode($this->getCodeKey() . '_condition', '
+                    if (' . $body_argument . ') {
+                ');
+            }
+
             $keepers[0]->addBeforeCode($this->getCodeKey(), $this->getBeforeCode());
             $keepers[count($keepers) - 1]->addAfterCode($this->getCodeKey(), $this->getAfterCode());
+
+            if ($this->if || $this->unless) {
+                $keepers[count($keepers) - 1]->addAfterCode($this->getCodeKey() . '_condition', '}');
+            }
         }
 
         return $keepers;
