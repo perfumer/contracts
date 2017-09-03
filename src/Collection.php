@@ -29,11 +29,23 @@ class Collection extends Annotation implements MethodAnnotationMutator, StepKeep
     public $unless;
 
     /**
+     * @var string
+     */
+    private $code_key;
+
+    public function onCreate(): void
+    {
+        $this->code_key = uniqid(null, true);
+
+        parent::onCreate();
+    }
+
+    /**
      * @return string
      */
     public function getCodeKey()
     {
-        return '_collection';
+        return '_' . $this->code_key;
     }
 
     /**
