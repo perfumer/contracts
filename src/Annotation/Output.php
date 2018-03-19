@@ -24,8 +24,8 @@ class Output extends Annotation implements ReturnedVariable
     {
         $this->getMethodKeeper()->addInitialVariable('_return', 'null');
 
-        if (!isset($this->getMethodKeeper()->getAppendedCode()['_return'])) {
-            $this->getMethodKeeper()->addAppendedCode('_return', 'return $_return;');
+        if (!$this->getMethodKeeper()->hasWrap('_return')) {
+            $this->getMethodKeeper()->addWrap('_return', '', 'return $_return;');
         }
     }
 }

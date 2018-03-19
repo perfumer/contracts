@@ -14,12 +14,7 @@ final class MethodKeeper
     /**
      * @var array
      */
-    private $prepended_code = [];
-
-    /**
-     * @var array
-     */
-    private $appended_code = [];
+    private $wrap = [];
 
     /**
      * @var array
@@ -72,51 +67,36 @@ final class MethodKeeper
     /**
      * @return array
      */
-    public function getPrependedCode(): array
+    public function getWrap(): array
     {
-        return $this->prepended_code;
+        return $this->wrap;
     }
 
     /**
-     * @param array $prepended_code
+     * @param array $wrap
      */
-    public function setPrependedCode(array $prepended_code): void
+    public function setWrap(array $wrap): void
     {
-        $this->prepended_code = $prepended_code;
-    }
-
-    /**
-     * @param string $key
-     * @param string $code
-     */
-    public function addPrependedCode(string $key, string $code): void
-    {
-        $this->prepended_code[$key] = $code;
-    }
-
-    /**
-     * @return array
-     */
-    public function getAppendedCode(): array
-    {
-        return $this->appended_code;
-    }
-
-    /**
-     * @param array $appended_code
-     */
-    public function setAppendedCode(array $appended_code): void
-    {
-        $this->appended_code = $appended_code;
+        $this->wrap = $wrap;
     }
 
     /**
      * @param string $key
-     * @param string $code
+     * @param string $before_code
+     * @param string $after_code
      */
-    public function addAppendedCode(string $key, string $code): void
+    public function addWrap(string $key, string $before_code, string $after_code): void
     {
-        $this->appended_code[$key] = $code;
+        $this->wrap[$key] = [$before_code, $after_code];
+    }
+
+    /**
+     * @param string $key
+     * @return bool
+     */
+    public function hasWrap(string $key): bool
+    {
+        return isset($this->wrap[$key]);
     }
 
     /**
@@ -199,14 +179,14 @@ final class MethodKeeper
 
         $body .= PHP_EOL;
 
-        foreach ($this->prepended_code as $code) {
-            $body .= $code . PHP_EOL . PHP_EOL;
+        foreach (array_reverse($this->wrap) as $code) {
+            $body .= $code[0] . PHP_EOL . PHP_EOL;
         }
 
         /** @var StepKeeper $step */
         foreach ($this->steps as $step) {
-            foreach ($step->getBeforeCode() as $code) {
-                $body .= $code . PHP_EOL . PHP_EOL;
+            foreach (array_reverse($step->getExternalWrap()) as $code) {
+                $body .= $code[0] . PHP_EOL . PHP_EOL;
             }
 
             if ($this->hasValidation() && $step->getExtraCondition()) {
@@ -217,8 +197,8 @@ final class MethodKeeper
                 $body .= 'if (' . $step->getExtraCondition() . ') {' . PHP_EOL;
             }
 
-            foreach ($step->getPrependedCode() as $code) {
-                $body .= $code . PHP_EOL . PHP_EOL;
+            foreach (array_reverse($step->getInternalWrap()) as $code) {
+                $body .= $code[0] . PHP_EOL . PHP_EOL;
             }
 
             if ($step->getReturnExpression()) {
@@ -227,21 +207,21 @@ final class MethodKeeper
 
             $body .= $step->getCallExpression() . $step->getMethod() . '(' . implode(', ', $step->getArguments()) . ');' . PHP_EOL . PHP_EOL;
 
-            foreach ($step->getAppendedCode() as $code) {
-                $body .= $code . PHP_EOL . PHP_EOL;
+            foreach ($step->getInternalWrap() as $code) {
+                $body .= $code[1] . PHP_EOL . PHP_EOL;
             }
 
             if ($this->hasValidation() || $step->getExtraCondition()) {
                 $body .= '}' . PHP_EOL . PHP_EOL;
             }
 
-            foreach ($step->getAfterCode() as $code) {
-                $body .= $code . PHP_EOL . PHP_EOL;
+            foreach ($step->getExternalWrap() as $code) {
+                $body .= $code[1] . PHP_EOL . PHP_EOL;
             }
         }
 
-        foreach ($this->appended_code as $code) {
-            $body .= $code . PHP_EOL . PHP_EOL;
+        foreach ($this->wrap as $code) {
+            $body .= $code[1] . PHP_EOL . PHP_EOL;
         }
 
         $this->generator->setBody($body);
