@@ -14,9 +14,9 @@ abstract class Example8Test extends \PHPUnit\Framework\TestCase
         $a = true;
         $b = true;
         $this->assertNotEmpty($b);
-        $b_valid = true;
+        $b_non_zero = true;
         $this->assertNotEmpty($a);
         $this->assertNotEmpty($b);
-        $this->assertNotEmpty($b_valid);
+        $this->assertNotEmpty($b_non_zero);
     }
 }

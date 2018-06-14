@@ -24,9 +24,9 @@ abstract class Example2 implements \Barman\Example\Contract\Example2
     /**
      * @return \Barman\Example\Contract\Example2Context
      */
-    final private function getDefaultContext(): \Barman\Example\Contract\Example2Context
+    private function getDefaultContext(): \Barman\Example\Contract\Example2Context
     {
-        if ($this->_context_default === null) {
+        if (null === $this->_context_default) {
             $this->_context_default = new \Barman\Example\Contract\Example2Context();
         }
 
