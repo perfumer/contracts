@@ -31,37 +31,43 @@ class Collection extends Annotation implements MethodAnnotationMutator, StepKeep
     /**
      * @var string
      */
-    private $code_key;
+    private $before_code;
 
-    public function onCreate(): void
+    /**
+     * @var string
+     */
+    private $after_code;
+
+    /**
+     * @return string
+     */
+    public function getBeforeCode(): ?string
     {
-        $this->code_key = uniqid(null, true);
+        return $this->before_code;
+    }
 
-        parent::onCreate();
+    /**
+     * @param string $before_code
+     */
+    public function setBeforeCode(string $before_code): void
+    {
+        $this->before_code = $before_code;
     }
 
     /**
      * @return string
      */
-    public function getCodeKey()
+    public function getAfterCode(): ?string
     {
-        return '_' . $this->code_key;
+        return $this->after_code;
     }
 
     /**
-     * @return string
+     * @param string $after_code
      */
-    public function getBeforeCode()
+    public function setAfterCode(string $after_code): void
     {
-        return '';
-    }
-
-    /**
-     * @return string
-     */
-    public function getAfterCode()
-    {
-        return '';
+        $this->after_code = $after_code;
     }
 
     /**
@@ -82,6 +88,16 @@ class Collection extends Annotation implements MethodAnnotationMutator, StepKeep
         }
 
         if (count($keepers) > 0) {
+            /** @var StepKeeper $first_keeper */
+            $first_keeper = $keepers[0];
+
+            /** @var StepKeeper $last_keeper */
+            $last_keeper = $keepers[count($keepers) - 1];
+
+            if ($this->getBeforeCode()) {
+                $first_keeper->setBeforeCode($this->getBeforeCode() . PHP_EOL . PHP_EOL . $first_keeper->getBeforeCode());
+            }
+
             if ($this->if || $this->unless) {
                 $condition = $this->if ?: $this->unless;
 
@@ -91,16 +107,17 @@ class Collection extends Annotation implements MethodAnnotationMutator, StepKeep
                     $body_argument = '!' . $body_argument;
                 }
 
-                $keepers[0]->addBeforeCode($this->getCodeKey() . '_condition', '
+                $first_keeper->setBeforeCode('
                     if (' . $body_argument . ') {
-                ');
+                ' . $first_keeper->getBeforeCode());
             }
 
-            $keepers[0]->addBeforeCode($this->getCodeKey(), $this->getBeforeCode());
-            $keepers[count($keepers) - 1]->addAfterCode($this->getCodeKey(), $this->getAfterCode());
+            if ($this->getAfterCode()) {
+                $last_keeper->setAfterCode($last_keeper->getAfterCode() . PHP_EOL . PHP_EOL . $this->getAfterCode());
+            }
 
             if ($this->if || $this->unless) {
-                $keepers[count($keepers) - 1]->addAfterCode($this->getCodeKey() . '_condition', '}');
+                $last_keeper->setAfterCode($last_keeper->getAfterCode() . PHP_EOL . '}');
             }
         }
 
