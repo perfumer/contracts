@@ -17,12 +17,12 @@ final class StepKeeper
     /**
      * @var string
      */
-    private $append_code;
+    private $appended_code;
 
     /**
      * @var string
      */
-    private $prepend_code;
+    private $prepended_code;
 
     /**
      * @var bool
@@ -89,33 +89,33 @@ final class StepKeeper
     /**
      * @return string
      */
-    public function getAppendCode(): ?string
+    public function getAppendedCode(): ?string
     {
-        return $this->append_code;
+        return $this->appended_code;
     }
 
     /**
-     * @param string $append_code
+     * @param string $appended_code
      */
-    public function setAppendCode(string $append_code): void
+    public function setAppendedCode(string $appended_code): void
     {
-        $this->append_code = $append_code;
+        $this->appended_code = $appended_code;
     }
 
     /**
      * @return string
      */
-    public function getPrependCode(): ?string
+    public function getPrependedCode(): ?string
     {
-        return $this->prepend_code;
+        return $this->prepended_code;
     }
 
     /**
-     * @param string $prepend_code
+     * @param string $prepended_code
      */
-    public function setPrependCode(string $prepend_code): void
+    public function setPrependedCode(string $prepended_code): void
     {
-        $this->prepend_code = $prepend_code;
+        $this->prepended_code = $prepended_code;
     }
 
     /**
