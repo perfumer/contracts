@@ -4,11 +4,6 @@ namespace Generated\Tests\Barman\Example;
 
 abstract class Example5Test extends \PHPUnit\Framework\TestCase
 {
-    final public function testSyntax()
-    {
-        new \ReflectionClass(\Barman\Example\Example5::class);
-    }
-
     final public function testMathActionsLocalVariables()
     {
         $math = true;

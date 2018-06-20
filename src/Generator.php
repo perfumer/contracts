@@ -159,12 +159,12 @@ class Generator
                 $test_case_generator->setName($reflection->getShortName() . 'Test');
                 $test_case_generator->setExtendedClass('PHPUnit\\Framework\\TestCase');
 
-                $reflection_test = new MethodGenerator();
-                $reflection_test->setFinal(true);
-                $reflection_test->setName('testSyntax');
-                $reflection_test->setBody('new \\ReflectionClass(\\' . $namespace . '\\' . $reflection->getShortName() . '::class);');
+//                $reflection_test = new MethodGenerator();
+//                $reflection_test->setFinal(true);
+//                $reflection_test->setName('testSyntax');
+//                $reflection_test->setBody('new \\ReflectionClass(\\' . $namespace . '\\' . $reflection->getShortName() . '::class);');
 
-                $test_case_generator->addMethodFromGenerator($reflection_test);
+//                $test_case_generator->addMethodFromGenerator($reflection_test);
 
                 $class_keeper = new ClassKeeper();
 

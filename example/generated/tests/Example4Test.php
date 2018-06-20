@@ -4,11 +4,6 @@ namespace Generated\Tests\Barman\Example;
 
 abstract class Example4Test extends \PHPUnit\Framework\TestCase
 {
-    final public function testSyntax()
-    {
-        new \ReflectionClass(\Barman\Example\Example4::class);
-    }
-
     final public function testSumThenProductLocalVariables()
     {
         $a = true;
