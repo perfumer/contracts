@@ -5,24 +5,14 @@ namespace Barman\Keeper;
 final class StepKeeper
 {
     /**
-     * @var string
+     * @var array
      */
-    private $before_code;
+    private $external_wrap = [];
 
     /**
-     * @var string
+     * @var array
      */
-    private $after_code;
-
-    /**
-     * @var string
-     */
-    private $append_code;
-
-    /**
-     * @var string
-     */
-    private $prepend_code;
+    private $internal_wrap = [];
 
     /**
      * @var bool
@@ -55,67 +45,73 @@ final class StepKeeper
     private $arguments = [];
 
     /**
-     * @return string
+     * @return array
      */
-    public function getBeforeCode(): string
+    public function getExternalWrap(): array
     {
-        return $this->before_code;
+        return $this->external_wrap;
     }
 
     /**
+     * @param array $external_wrap
+     */
+    public function setExternalWrap(array $external_wrap): void
+    {
+        $this->external_wrap = $external_wrap;
+    }
+
+    /**
+     * @param string $key
      * @param string $before_code
-     */
-    public function setBeforeCode(string $before_code): void
-    {
-        $this->before_code = $before_code;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAfterCode(): ?string
-    {
-        return $this->after_code;
-    }
-
-    /**
      * @param string $after_code
      */
-    public function setAfterCode(string $after_code): void
+    public function addExternalWrap(string $key, string $before_code, string $after_code): void
     {
-        $this->after_code = $after_code;
+        $this->external_wrap[$key] = [$before_code, $after_code];
     }
 
     /**
-     * @return string
+     * @param string $key
+     * @return bool
      */
-    public function getAppendCode(): ?string
+    public function hasExternalWrap(string $key): bool
     {
-        return $this->append_code;
+        return isset($this->external_wrap[$key]);
     }
 
     /**
-     * @param string $append_code
+     * @return array
      */
-    public function setAppendCode(string $append_code): void
+    public function getInternalWrap(): array
     {
-        $this->append_code = $append_code;
+        return $this->internal_wrap;
     }
 
     /**
-     * @return string
+     * @param array $internal_wrap
      */
-    public function getPrependCode(): ?string
+    public function setInternalWrap(array $internal_wrap): void
     {
-        return $this->prepend_code;
+        $this->internal_wrap = $internal_wrap;
     }
 
     /**
-     * @param string $prepend_code
+     * @param string $key
+     * @param string $before_code
+     * @param string $after_code
      */
-    public function setPrependCode(string $prepend_code): void
+    public function addInternalWrap(string $key, string $before_code, string $after_code): void
     {
-        $this->prepend_code = $prepend_code;
+        $this->internal_wrap[$key] = [$before_code, $after_code];
+    }
+
+    /**
+     * @param string $key
+     * @return bool
+     */
+    public function hasInternalWrap(string $key): bool
+    {
+        return isset($this->internal_wrap[$key]);
     }
 
     /**
