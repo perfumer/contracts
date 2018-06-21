@@ -14,12 +14,12 @@ final class MethodKeeper
     /**
      * @var string
      */
-    private $prepended_code;
+    private $before_code;
 
     /**
      * @var string
      */
-    private $appended_code;
+    private $after_code;
 
     /**
      * @var string
@@ -77,33 +77,33 @@ final class MethodKeeper
     /**
      * @return string
      */
-    public function getPrependedCode(): ?string
+    public function getBeforeCode(): ?string
     {
-        return $this->prepended_code;
+        return $this->before_code;
     }
 
     /**
-     * @param string $prepended_code
+     * @param string $before_code
      */
-    public function setPrependedCode(string $prepended_code): void
+    public function setBeforeCode(string $before_code): void
     {
-        $this->prepended_code = $prepended_code;
+        $this->before_code = $before_code;
     }
 
     /**
      * @return string
      */
-    public function getAppendedCode(): ?string
+    public function getAfterCode(): ?string
     {
-        return $this->appended_code;
+        return $this->after_code;
     }
 
     /**
-     * @param string $appended_code
+     * @param string $after_code
      */
-    public function setAppendedCode(string $appended_code): void
+    public function setAfterCode(string $after_code): void
     {
-        $this->appended_code = $appended_code;
+        $this->after_code = $after_code;
     }
 
     /**
@@ -202,8 +202,8 @@ final class MethodKeeper
 
         $body .= PHP_EOL;
 
-        if ($this->getPrependedCode()) {
-            $body .= $this->getPrependedCode() . PHP_EOL . PHP_EOL;
+        if ($this->getBeforeCode()) {
+            $body .= $this->getBeforeCode() . PHP_EOL . PHP_EOL;
         }
 
         /** @var StepKeeper $step */
@@ -220,8 +220,8 @@ final class MethodKeeper
                 $body .= 'if (' . $step->getExtraCondition() . ') {' . PHP_EOL;
             }
 
-            if ($step->getPrependedCode()) {
-                $body .= $step->getPrependedCode() . PHP_EOL . PHP_EOL;
+            if ($step->getPrependCode()) {
+                $body .= $step->getPrependCode() . PHP_EOL . PHP_EOL;
             }
 
             if ($step->getReturnExpression()) {
@@ -230,8 +230,8 @@ final class MethodKeeper
 
             $body .= $step->getCallExpression() . $step->getMethod() . '(' . implode(', ', $step->getArguments()) . ');' . PHP_EOL . PHP_EOL;
 
-            if ($step->getAppendedCode()) {
-                $body .= $step->getAppendedCode() . PHP_EOL . PHP_EOL;
+            if ($step->getAppendCode()) {
+                $body .= $step->getAppendCode() . PHP_EOL . PHP_EOL;
             }
 
             if ($this->hasValidation() || $step->getExtraCondition()) {
@@ -243,8 +243,8 @@ final class MethodKeeper
             }
         }
 
-        if ($this->getAppendedCode()) {
-            $body .= $this->getAppendedCode() . PHP_EOL . PHP_EOL;
+        if ($this->getAfterCode()) {
+            $body .= $this->getAfterCode() . PHP_EOL . PHP_EOL;
         }
 
         if ($this->getReturnCode()) {
