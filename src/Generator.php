@@ -10,15 +10,19 @@ use Barman\Exception\MutatorException;
 use Barman\Keeper\ClassKeeper;
 use Barman\Keeper\MethodKeeper;
 use Barman\Keeper\TestCaseKeeper;
+use Perfumerlabs\Perfumer\Annotation\Error;
 use Perfumerlabs\Perfumer\Data\ClassData;
 use Perfumerlabs\Perfumer\Data\MethodData;
 use Perfumerlabs\Perfumer\Data\StepData;
 use Perfumerlabs\Perfumer\Data\TestCaseData;
+use Perfumerlabs\Perfumer\Step\ContextStep;
+use Perfumerlabs\Perfumer\Step\ExpressionStep;
 use Perfumerlabs\Perfumer\Step\PlainStep;
 use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
+use Zend\Code\Generator\PropertyGenerator;
 
 class Generator
 {
@@ -41,6 +45,11 @@ class Generator
      * @var string
      */
     private $root_dir;
+
+    /**
+     * @var string
+     */
+    private $base_annotations_path = 'generated/annotation';
 
     /**
      * @var string
@@ -99,6 +108,10 @@ class Generator
 
         if (isset($options['context_prefix'])) {
             $this->context_prefix = (string) $options['context_prefix'];
+        }
+
+        if (isset($options['base_annotations_path'])) {
+            $this->base_annotations_path = (string) $options['base_annotations_path'];
         }
 
         if (isset($options['base_src_path'])) {
@@ -230,12 +243,25 @@ class Generator
                     $method_annotations = $this->reader->getMethodAnnotations($method);
 
                     try {
-                        // Set reflection classes, keepers and call onCreate()
+                        $validated_returns = [];
+
                         foreach ($method_annotations as $annotation) {
-                            $this->onCreateMethodAnnotation($annotation, $reflection, $method, $class_keeper, $test_case_keeper, $method_keeper);
+                            if ($annotation instanceof Error && $annotation->unless) {
+                                $validated_returns[] = $annotation->unless;
+                            }
                         }
 
                         foreach ($method_annotations as $annotation) {
+                            if ($annotation instanceof ExpressionStep && is_string($annotation->return) && in_array($annotation->return, $validated_returns)) {
+                                $annotation->validate = true;
+                            }
+
+                            if ($annotation instanceof ContextStep && isset($annotation->out) && in_array($annotation->out, $validated_returns)) {
+                                $annotation->validate = true;
+                            }
+
+                            $this->onCreateMethodAnnotation($annotation, $reflection, $method, $class_keeper, $test_case_keeper, $method_keeper);
+
                             if ($annotation instanceof PlainStep) {
                                 $method_keeper->addStep($annotation->getStepData());
                             }
@@ -245,6 +271,12 @@ class Generator
 //                                    $method_keeper->addStep($step_keeper);
 //                                }
 //                            }
+                        }
+
+                        foreach ($method_annotations as $annotation) {
+                            if ($annotation instanceof ExpressionStep && $annotation->validate === true) {
+                                $method_keeper->setValidation(true);
+                            }
                         }
                     } catch (MutatorException $e) {
                         throw new ContractsException(sprintf('%s\\%s -> %s: ' . $e->getMessage(),
@@ -279,6 +311,7 @@ class Generator
                 $this->generateClassTest($keeper);
             }
 
+            shell_exec("vendor/bin/php-cs-fixer fix {$this->base_annotations_path} --rules=@Symfony");
             shell_exec("vendor/bin/php-cs-fixer fix {$this->base_src_path} --rules=@Symfony");
             shell_exec("vendor/bin/php-cs-fixer fix {$this->base_test_path} --rules=@Symfony");
         } catch (ContractsException $e) {
@@ -375,6 +408,8 @@ class Generator
                             $assertions[] = $assertion;
                         }
                     }
+
+                    $this->generateAnnotation($reflection, $method);
                 }
 
                 foreach ($data_providers as $data_provider) {
@@ -425,6 +460,99 @@ class Generator
         file_put_contents($output_name, $code);
 
         $class_generator->setNamespaceName($namespace);
+    }
+
+    private function generateAnnotation(\ReflectionClass $class, \ReflectionMethod $method)
+    {
+        $namespace = str_replace('\\', '/', $class->getNamespaceName()) . '/' . $class->getShortName();
+
+        $class_name = ucfirst($method->getName());
+
+        @mkdir($this->root_dir . '/' . $this->base_annotations_path . '/' . $namespace, 0777, true);
+
+        $output_name = $this->root_dir . '/' . $this->base_annotations_path . '/' . $namespace . '/' .$class_name . '.php';
+
+        $doc_block = DocBlockGenerator::fromArray([
+            'tags' => [
+                [
+                    'name' => 'Annotation',
+                ],
+                [
+                    'name' => 'Target({"METHOD", "ANNOTATION"})'
+                ]
+            ],
+        ]);
+
+        $class_generator = new ClassGenerator();
+        $class_generator->setDocBlock($doc_block);
+        $class_generator->setNamespaceName('Generated\\Annotation\\' . $class->getName());
+        $class_generator->setName($class_name);
+        $class_generator->setExtendedClass('\\Perfumerlabs\\Perfumer\\Step\\ContextStep');
+
+        foreach ($method->getParameters() as $parameter) {
+            $doc_block = DocBlockGenerator::fromArray([
+                'tags' => [
+                    [
+                        'name'        => 'var',
+                        'description' => 'string',
+                    ]
+                ],
+            ]);
+
+            $property = new PropertyGenerator();
+            $property->setDocBlock($doc_block);
+            $property->setVisibility('public');
+            $property->setName($parameter->getName());
+            $property->setDefaultValue($parameter->getName());
+
+            $class_generator->addPropertyFromGenerator($property);
+        }
+
+        $doc_block = DocBlockGenerator::fromArray([
+            'tags' => [
+                [
+                    'name'        => 'var',
+                    'description' => 'string',
+                ]
+            ],
+        ]);
+
+        $property = new PropertyGenerator();
+        $property->setDocBlock($doc_block);
+        $property->setVisibility('public');
+        $property->setName('out');
+
+        $class_generator->addPropertyFromGenerator($property);
+
+        $method_generator = new MethodGenerator();
+        $method_generator->setName('onCreate');
+        $method_generator->setVisibility('public');
+        $method_generator->setReturnType('void');
+
+        $in = [];
+
+        foreach ($method->getParameters() as $parameter) {
+            $in[] = $parameter->getName();
+        }
+
+        $in = array_map(function ($v) {
+            return '$this->' . $v;
+        }, $in);
+
+        $body = '$this->class = \'' . str_replace('\\', '\\\\', $class->getNamespaceName()) . '\\\\' . $class->getShortName() . '\';
+        $this->method = \'' . $method->getName() . '\';
+        $this->arguments = [' . implode(', ', $in) . '];
+        $this->return = $this->out;
+
+        parent::onCreate();';
+
+        $method_generator->setBody($body);
+
+        $class_generator->addMethodFromGenerator($method_generator);
+
+        $code = '<?php' . PHP_EOL . PHP_EOL . $class_generator->generate();
+
+        file_put_contents($output_name, $code);
     }
 
     /**

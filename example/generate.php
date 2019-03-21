@@ -3,6 +3,7 @@
 require __DIR__ . '/../vendor/autoload.php';
 
 $generator = new \Perfumerlabs\Perfumer\Generator(__DIR__ . '/..', [
+    'base_annotations_path' => 'example/generated/annotation',
     'base_src_path' => 'example/generated/src',
     'base_test_path' => 'example/generated/tests',
     'src_path' => 'example/src',

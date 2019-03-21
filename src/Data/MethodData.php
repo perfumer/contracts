@@ -2,6 +2,7 @@
 
 namespace Perfumerlabs\Perfumer\Data;
 
+use Perfumerlabs\Perfumer\Step\ExpressionStep;
 use Zend\Code\Generator\MethodGenerator;
 
 final class MethodData
@@ -145,17 +146,19 @@ final class MethodData
                 $body .= $step->getBeforeCode() . PHP_EOL . PHP_EOL;
             }
 
-            if ($this->hasValidation() && $step->getExtraCondition()) {
-                $body .= 'if ($_valid === ' . ($step->getValidationCondition() ? 'true' : 'false') . ' && ' . $step->getExtraCondition() . ') {' . PHP_EOL;
-            } elseif ($this->hasValidation() && !$step->getExtraCondition()) {
-                $body .= 'if ($_valid === ' . ($step->getValidationCondition() ? 'true' : 'false') . ') {' . PHP_EOL;
-            } elseif (!$this->hasValidation() && $step->getExtraCondition()) {
-                $body .= 'if (' . $step->getExtraCondition() . ') {' . PHP_EOL;
+            if ($step->isValidationEnabled()) {
+                if ($this->hasValidation() && $step->getExtraCondition()) {
+                    $body .= 'if ($_valid === ' . ($step->getValidationCondition() ? 'true' : 'false') . ' && ' . $step->getExtraCondition() . ') {' . PHP_EOL;
+                } elseif ($this->hasValidation() && !$step->getExtraCondition()) {
+                    $body .= 'if ($_valid === ' . ($step->getValidationCondition() ? 'true' : 'false') . ') {' . PHP_EOL;
+                } elseif (!$this->hasValidation() && $step->getExtraCondition()) {
+                    $body .= 'if (' . $step->getExtraCondition() . ') {' . PHP_EOL;
+                }
             }
 
             $body .= $step->getCode() . PHP_EOL . PHP_EOL;
 
-            if ($this->hasValidation() || $step->getExtraCondition()) {
+            if ($step->isValidationEnabled() && ($this->hasValidation() || $step->getExtraCondition())) {
                 $body .= '}' . PHP_EOL . PHP_EOL;
             }
 

@@ -23,6 +23,7 @@
     "psr-4": {
       "Barman\\Example\\": "example/src/",
       "Tests\\Barman\\Example\\": "example/tests/",
+      "Generated\\Annotation\\": "example/generated/annotation/",
       "Generated\\Barman\\Example\\": "example/generated/src/",
       "Generated\\Tests\\Barman\\Example\\": "example/generated/tests/"
     }

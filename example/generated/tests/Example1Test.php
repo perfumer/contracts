@@ -6,15 +6,14 @@ abstract class Example1Test extends \PHPUnit\Framework\TestCase
 {
     final public function testSumThenProductLocalVariables()
     {
+        $c = true;
         $a = true;
         $b = true;
-        $c = true;
         $this->assertNotEmpty($a);
         $this->assertNotEmpty($b);
         $sum = true;
         $this->assertNotEmpty($sum);
         $this->assertNotEmpty($c);
-        $res = true;
         $rrr = true;
         $this->assertNotEmpty($sum);
         $this->assertNotEmpty($b);

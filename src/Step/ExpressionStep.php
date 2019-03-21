@@ -2,11 +2,7 @@
 
 namespace Perfumerlabs\Perfumer\Step;
 
-/**
- * @Annotation
- * @Target({"METHOD", "ANNOTATION"})
- */
-class ExpressionStep extends ConditionalStep
+abstract class ExpressionStep extends ConditionalStep
 {
     /**
      * @var string
@@ -31,10 +27,6 @@ class ExpressionStep extends ConditionalStep
     public function onCreate(): void
     {
         parent::onCreate();
-
-        if ($this->validate) {
-            $this->getMethodKeeper()->setValidation(true);
-        }
 
         $return = is_array($this->return) ? $this->return : [$this->return];
 
