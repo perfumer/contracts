@@ -24,9 +24,9 @@ abstract class Example6 implements \Barman\Example\Contract\Example6
     /**
      * @return \Barman\Example\Context\Math
      */
-    final private function getMathContext(): \Barman\Example\Context\Math
+    private function getMathContext(): \Barman\Example\Context\Math
     {
-        if ($this->_context_math === null) {
+        if (null === $this->_context_math) {
             $this->_context_math = new \Barman\Example\Context\Math();
         }
 

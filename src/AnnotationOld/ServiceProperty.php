@@ -3,20 +3,20 @@
 namespace Barman\Annotation;
 
 use Doctrine\Common\Annotations\Annotation\Target;
-use Barman\Annotation;
+use Barman\AnnotationOld;
 use Barman\Service;
 
 /**
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class ServiceSelf extends Service
+class ServiceProperty extends Service
 {
     /**
      * @return string
      */
     public function getCallExpression(): string
     {
-        return 'self::';
+        return '$this->' . $this->name . '->';
     }
 }

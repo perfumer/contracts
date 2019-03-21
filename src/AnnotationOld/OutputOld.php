@@ -3,14 +3,14 @@
 namespace Barman\Annotation;
 
 use Doctrine\Common\Annotations\Annotation\Target;
-use Barman\Annotation;
+use Barman\AnnotationOld;
 use Barman\Variable\ReturnedVariable;
 
 /**
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Output extends Annotation implements ReturnedVariable
+class Output extends AnnotationOld implements ReturnedVariable
 {
     /**
      * @return string

@@ -4,32 +4,27 @@ namespace Generated\Barman\Example;
 
 abstract class Example1 implements \Barman\Example\Contract\Example1
 {
-    /**
-     * @var \Barman\Example\Context\Math
-     */
-    private $_context_math = null;
-
     final public function sumThenProduct(int $a, int $b, int $c): int
     {
-        $sum = null;
-        $_return = null;
+        $_valid = true;
+        $sum = true;
+        $res = null;
+        $rrr = null;
 
-        $sum = $this->getMathContext()->sum($a, $b);
-
-        $_return = $this->getMathContext()->product($sum, $c);
-
-        return $_return;
-    }
-
-    /**
-     * @return \Barman\Example\Context\Math
-     */
-    final private function getMathContext(): \Barman\Example\Context\Math
-    {
-        if ($this->_context_math === null) {
-            $this->_context_math = new \Barman\Example\Context\Math();
+        if (true === $_valid) {
+            $_valid = (bool) $sum = asd($a, $b);
         }
 
-        return $this->_context_math;
+        if (true === $_valid) {
+            list($res, $rrr) = zxc($sum, $c);
+        }
+
+        if (false === $_valid && !$sum) {
+            return $b;
+        }
+
+        if (true === $_valid) {
+            return $rrr;
+        }
     }
 }

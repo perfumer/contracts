@@ -1,36 +1,45 @@
 <?php
 
-namespace Perfumerlabs\Perfumer\Annotation;
+namespace Perfumerlabs\Perfumer\Step;
 
-use Perfumerlabs\Perfumer\Annotation;
-use Perfumerlabs\Perfumer\Step\ConditionalStep;
 use Zend\Code\Generator\MethodGenerator;
 
-/**
- * @Annotation
- * @Target({"METHOD", "ANNOTATION"})
- */
-class Error extends ConditionalStep
+abstract class ConditionalStep extends PlainStep
 {
     /**
      * @var string
      */
-    public $name;
+    public $if;
+
+    /**
+     * @var string
+     */
+    public $unless;
 
     public function onCreate(): void
     {
         parent::onCreate();
 
-        $code = 'return $' . $this->name . ';';
+        $step_data = $this->getStepData();
+        $step_data->setValidationCondition(true);
 
-        $this->getStepData()->setValidationCondition(false);
-        $this->getStepData()->setCode($code);
+        if ($this->if || $this->unless) {
+            $condition = $this->if ?: $this->unless;
+
+            $body_argument = '$' . $condition;
+
+            if ($this->unless) {
+                $body_argument = '!' . $body_argument;
+            }
+
+            $step_data->setExtraCondition($body_argument);
+        }
+
+        $this->mutateTestCaseData();
     }
 
     protected function mutateTestCaseData(): void
     {
-        parent::mutateTestCaseData();
-
         $test_method = 'test' . ucfirst($this->getReflectionMethod()->getName()) . 'LocalVariables';
 
         if (!$this->getTestCaseKeeper()->getGenerator()->hasMethod($test_method)) {
@@ -52,7 +61,14 @@ class Error extends ConditionalStep
             $method = $this->getTestCaseKeeper()->getGenerator()->getMethod($test_method);
         }
 
-        $body = $method->getBody() . '$this->assertNotEmpty($' . $this->name . ');';
-        $method->setBody($body);
+        if ($this->if && is_string($this->if)) {
+            $body = $method->getBody() . '$this->assertNotEmpty($' . $this->if . ');';
+            $method->setBody($body);
+        }
+
+        if ($this->unless && is_string($this->unless)) {
+            $body = $method->getBody() . '$this->assertNotEmpty($' . $this->unless . ');';
+            $method->setBody($body);
+        }
     }
 }

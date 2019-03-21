@@ -3,14 +3,14 @@
 namespace Perfumerlabs\Perfumer\Annotation;
 
 use Perfumerlabs\Perfumer\Annotation;
-use Perfumerlabs\Perfumer\Step\ConditionalStep;
+use Perfumerlabs\Perfumer\Step\PlainStep;
 use Zend\Code\Generator\MethodGenerator;
 
 /**
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Error extends ConditionalStep
+class Out extends PlainStep
 {
     /**
      * @var string
@@ -23,14 +23,13 @@ class Error extends ConditionalStep
 
         $code = 'return $' . $this->name . ';';
 
-        $this->getStepData()->setValidationCondition(false);
         $this->getStepData()->setCode($code);
+
+        $this->mutateTestCaseData();
     }
 
     protected function mutateTestCaseData(): void
     {
-        parent::mutateTestCaseData();
-
         $test_method = 'test' . ucfirst($this->getReflectionMethod()->getName()) . 'LocalVariables';
 
         if (!$this->getTestCaseKeeper()->getGenerator()->hasMethod($test_method)) {

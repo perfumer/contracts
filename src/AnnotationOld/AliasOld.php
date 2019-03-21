@@ -4,7 +4,7 @@ namespace Barman\Annotation;
 
 use Barman\Collection;
 use Doctrine\Common\Annotations\Annotation\Target;
-use Barman\Annotation;
+use Barman\AnnotationOld;
 use Barman\Mutator\MethodAnnotationMutator;
 use Barman\Step;
 
@@ -12,7 +12,7 @@ use Barman\Step;
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Alias extends Annotation implements MethodAnnotationMutator
+class Alias extends AnnotationOld implements MethodAnnotationMutator
 {
     /**
      * @var string
@@ -26,7 +26,7 @@ class Alias extends Annotation implements MethodAnnotationMutator
 
     public function onCreate(): void
     {
-        if ($this->variable instanceof Annotation) {
+        if ($this->variable instanceof AnnotationOld) {
             $this->variable->setReflectionClass($this->getReflectionClass());
             $this->variable->setReflectionMethod($this->getReflectionMethod());
             $this->variable->setClassKeeper($this->getClassKeeper());
@@ -36,15 +36,15 @@ class Alias extends Annotation implements MethodAnnotationMutator
     }
 
     /**
-     * @param Annotation $annotation
+     * @param AnnotationOld $annotation
      */
-    public function mutateMethodAnnotation(Annotation $annotation): void
+    public function mutateMethodAnnotation(AnnotationOld $annotation): void
     {
         if (!$annotation instanceof Step && !$annotation instanceof Collection) {
             return;
         }
 
-        if ($this->variable instanceof Annotation) {
+        if ($this->variable instanceof AnnotationOld) {
             $tmp = clone $this->variable;
 
             if ($annotation instanceof Step) {
@@ -87,6 +87,6 @@ class Alias extends Annotation implements MethodAnnotationMutator
      */
     private function getVariableCopy($variable)
     {
-        return $variable instanceof Annotation ? clone $variable : $variable;
+        return $variable instanceof AnnotationOld ? clone $variable : $variable;
     }
 }

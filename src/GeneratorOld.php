@@ -1,7 +1,8 @@
 <?php
 
-namespace Perfumerlabs\Perfumer;
+namespace Barman;
 
+use Barman\Annotation\Inject;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Barman\Annotation\Test;
@@ -9,18 +10,18 @@ use Barman\Exception\ContractsException;
 use Barman\Exception\MutatorException;
 use Barman\Keeper\ClassKeeper;
 use Barman\Keeper\MethodKeeper;
+use Barman\Keeper\StepKeeper;
 use Barman\Keeper\TestCaseKeeper;
-use Perfumerlabs\Perfumer\Data\ClassData;
-use Perfumerlabs\Perfumer\Data\MethodData;
-use Perfumerlabs\Perfumer\Data\StepData;
-use Perfumerlabs\Perfumer\Data\TestCaseData;
-use Perfumerlabs\Perfumer\Step\PlainStep;
+use Barman\Mutator\ClassAnnotationMutator;
+use Barman\Mutator\MethodAnnotationMutator;
+use Barman\Mutator\MethodKeeperMutator;
+use Barman\Mutator\StepKeeperMutator;
 use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
 
-class Generator
+class GeneratorOld
 {
     /**
      * @var string
@@ -143,14 +144,14 @@ class Generator
     public function generateAll()
     {
         try {
-            $bundle = new Bundle();
+            $bundle = new BundleOld();
 
             foreach ($this->contracts as $class) {
                 $reflection = new \ReflectionClass($class);
 
                 $namespace = str_replace($this->contract_prefix, $this->class_prefix, $reflection->getNamespaceName());
 
-                $test_case_keeper = new TestCaseData();
+                $test_case_keeper = new TestCaseKeeper();
 
                 $test_case_generator = $test_case_keeper->getGenerator();
                 $test_case_generator->setNamespaceName('Generated\\Tests\\' . $namespace);
@@ -158,7 +159,14 @@ class Generator
                 $test_case_generator->setName($reflection->getShortName() . 'Test');
                 $test_case_generator->setExtendedClass('PHPUnit\\Framework\\TestCase');
 
-                $class_keeper = new ClassData();
+                $reflection_test = new MethodGenerator();
+                $reflection_test->setFinal(true);
+                $reflection_test->setName('testSyntax');
+                $reflection_test->setBody('new \\ReflectionClass(\\' . $namespace . '\\' . $reflection->getShortName() . '::class);');
+
+                $test_case_generator->addMethodFromGenerator($reflection_test);
+
+                $class_keeper = new ClassKeeper();
 
                 $class_generator = $class_keeper->getGenerator();
                 $class_generator->setAbstract(true);
@@ -175,7 +183,7 @@ class Generator
 
                 try {
                     foreach ($class_annotations as $annotation) {
-                        if (!$annotation instanceof Annotation) {
+                        if (!$annotation instanceof AnnotationOld) {
                             continue;
                         }
 
@@ -186,6 +194,28 @@ class Generator
 
                         $annotation->onCreate();
                     }
+
+                    foreach ($class_annotations as $annotation) {
+                        if (!$annotation instanceof AnnotationOld) {
+                            continue;
+                        }
+
+                        if ($annotation instanceof ClassAnnotationMutator) {
+                            foreach ($class_annotations as $another) {
+                                if ($another instanceof AnnotationOld && $annotation !== $another) {
+                                    $annotation->mutateClassAnnotation($another);
+                                }
+                            }
+                        }
+                    }
+
+                    foreach ($class_annotations as $annotation) {
+                        if (!$annotation instanceof AnnotationOld) {
+                            continue;
+                        }
+
+                        $annotation->onMutate();
+                    }
                 } catch (MutatorException $e) {
                     throw new ContractsException(sprintf('%s\\%s: ' . $e->getMessage(),
                         $class_generator->getNamespaceName(),
@@ -194,7 +224,7 @@ class Generator
                 }
 
                 foreach ($reflection->getMethods() as $method) {
-                    $method_keeper = new MethodData();
+                    $method_keeper = new MethodKeeper();
 
                     $method_generator = $method_keeper->getGenerator();
                     $method_generator->setFinal(true);
@@ -235,16 +265,80 @@ class Generator
                             $this->onCreateMethodAnnotation($annotation, $reflection, $method, $class_keeper, $test_case_keeper, $method_keeper);
                         }
 
-                        foreach ($method_annotations as $annotation) {
-                            if ($annotation instanceof PlainStep) {
-                                $method_keeper->addStep($annotation->getStepData());
+                        // Mutate method annotations by class annotations
+                        foreach ($class_annotations as $annotation) {
+                            if (!$annotation instanceof AnnotationOld) {
+                                continue;
                             }
 
-//                            if ($annotation instanceof Collection) {
-//                                foreach ($annotation->getStepKeepers() as $step_keeper) {
-//                                    $method_keeper->addStep($step_keeper);
-//                                }
-//                            }
+                            if ($annotation instanceof MethodAnnotationMutator) {
+                                foreach ($method_annotations as $another) {
+                                    $this->mutateMethodAnnotationByMethodAnnotationMutator($annotation, $another);
+                                }
+                            }
+                        }
+
+                        // Mutate method annotations by method annotations
+                        foreach ($method_annotations as $annotation) {
+                            if (!$annotation instanceof AnnotationOld) {
+                                continue;
+                            }
+
+                            if ($annotation instanceof MethodAnnotationMutator) {
+                                foreach ($method_annotations as $another) {
+                                    $this->mutateMethodAnnotationByMethodAnnotationMutator($annotation, $another);
+                                }
+                            }
+                        }
+
+                        // Call onMutate()
+                        foreach ($method_annotations as $annotation) {
+                            $this->onMutateMethodAnnotation($annotation);
+                        }
+
+                        // Mutate step keepers by method annotations
+                        foreach ($method_annotations as $annotation) {
+                            if (!$annotation instanceof AnnotationOld) {
+                                continue;
+                            }
+
+                            if ($annotation instanceof StepKeeperMutator) {
+                                foreach ($method_annotations as $another) {
+                                    $this->mutateStepKeeperByStepKeeperMutator($annotation, $another);
+                                }
+                            }
+                        }
+
+                        // Mutate step keepers by class annotations
+                        foreach ($class_annotations as $annotation) {
+                            if (!$annotation instanceof AnnotationOld) {
+                                continue;
+                            }
+
+                            if ($annotation instanceof StepKeeperMutator) {
+                                foreach ($method_annotations as $another) {
+                                    $this->mutateStepKeeperByStepKeeperMutator($annotation, $another);
+                                }
+                            }
+                        }
+
+                        // Mutate method keeper by class annotations
+                        foreach ($class_annotations as $annotation) {
+                            if ($annotation instanceof MethodKeeperMutator) {
+                                $annotation->mutateMethodKeeper($method_keeper);
+                            }
+                        }
+
+                        foreach ($method_annotations as $annotation) {
+                            if ($annotation instanceof Step) {
+                                $method_keeper->addStep($annotation->getStepKeeper());
+                            }
+
+                            if ($annotation instanceof Collection) {
+                                foreach ($annotation->getStepKeepers() as $step_keeper) {
+                                    $method_keeper->addStep($step_keeper);
+                                }
+                            }
                         }
                     } catch (MutatorException $e) {
                         throw new ContractsException(sprintf('%s\\%s -> %s: ' . $e->getMessage(),
@@ -400,9 +494,9 @@ class Generator
     }
 
     /**
-     * @param ClassData $keeper
+     * @param ClassKeeper $keeper
      */
-    private function generateBaseClass(ClassData $keeper)
+    private function generateBaseClass(ClassKeeper $keeper)
     {
         $class_generator = $keeper->getGenerator();
 
@@ -428,9 +522,9 @@ class Generator
     }
 
     /**
-     * @param ClassData $keeper
+     * @param ClassKeeper $keeper
      */
-    private function generateClass(ClassData $keeper)
+    private function generateClass(ClassKeeper $keeper)
     {
         $class_generator = $keeper->getGenerator();
 
@@ -472,9 +566,9 @@ class Generator
     }
 
     /**
-     * @param TestCaseData $keeper
+     * @param TestCaseKeeper $keeper
      */
-    private function generateBaseClassTest(TestCaseData $keeper)
+    private function generateBaseClassTest(TestCaseKeeper $keeper)
     {
         $generator = $keeper->getGenerator();
 
@@ -494,9 +588,9 @@ class Generator
     }
 
     /**
-     * @param TestCaseData $keeper
+     * @param TestCaseKeeper $keeper
      */
-    private function generateClassTest(TestCaseData $keeper)
+    private function generateClassTest(TestCaseKeeper $keeper)
     {
         $generator = $keeper->getGenerator();
 
@@ -597,7 +691,7 @@ class Generator
     }
 
     /**
-     * @param Annotation $annotation
+     * @param AnnotationOld $annotation
      * @param \ReflectionClass $reflection
      * @param \ReflectionMethod $method
      * @param ClassKeeper $class_keeper
@@ -608,12 +702,12 @@ class Generator
         $annotation,
         \ReflectionClass $reflection,
         \ReflectionMethod $method,
-        ClassData $class_keeper,
-        TestCaseData $test_case_keeper,
-        MethodData $method_keeper
+        ClassKeeper $class_keeper,
+        TestCaseKeeper $test_case_keeper,
+        MethodKeeper $method_keeper
     )
     {
-        if (!$annotation instanceof Annotation) {
+        if (!$annotation instanceof AnnotationOld) {
             return;
         }
 
@@ -624,25 +718,79 @@ class Generator
         $annotation->setMethodKeeper($method_keeper);
         $annotation->setIsMethodAnnotation(true);
 
-        if ($annotation instanceof PlainStep) {
-            $annotation->setStepKeeper(new StepData());
-            $annotation->setStepData(new StepData());
+        if ($annotation instanceof Step) {
+            $annotation->setStepKeeper(new StepKeeper());
         }
 
         $annotation->onCreate();
 
-//        if ($annotation instanceof Step && $annotation instanceof AutoArguments) {
-//            $this->setAutoArguments($annotation, $reflection, $method, $class_keeper, $test_case_keeper, $method_keeper);
-//        }
-//
-//        if ($annotation instanceof Collection) {
-//            foreach ($annotation->steps as $step) {
-//                $this->onCreateMethodAnnotation($step, $reflection, $method, $class_keeper, $test_case_keeper, $method_keeper);
-//            }
-//        }
+        if ($annotation instanceof Step && $annotation instanceof AutoArguments) {
+            $this->setAutoArguments($annotation, $reflection, $method, $class_keeper, $test_case_keeper, $method_keeper);
+        }
+
+        if ($annotation instanceof Collection) {
+            foreach ($annotation->steps as $step) {
+                $this->onCreateMethodAnnotation($step, $reflection, $method, $class_keeper, $test_case_keeper, $method_keeper);
+            }
+        }
     }
 
     /**
+     * @param MethodAnnotationMutator $mutator
+     * @param AnnotationOld $annotation
+     */
+    private function mutateMethodAnnotationByMethodAnnotationMutator(MethodAnnotationMutator $mutator, $annotation)
+    {
+        if (!$annotation instanceof AnnotationOld) {
+            return;
+        }
+
+        if ($mutator !== $annotation) {
+            $mutator->mutateMethodAnnotation($annotation);
+        }
+
+        if ($annotation instanceof Collection) {
+            foreach ($annotation->steps as $step) {
+                $this->mutateMethodAnnotationByMethodAnnotationMutator($mutator, $step);
+            }
+        }
+    }
+
+    /**
+     * @param AnnotationOld $annotation
+     */
+    private function onMutateMethodAnnotation($annotation)
+    {
+        if (!$annotation instanceof AnnotationOld) {
+            return;
+        }
+
+        $annotation->onMutate();
+
+        if ($annotation instanceof Collection) {
+            foreach ($annotation->steps as $step) {
+                $this->onMutateMethodAnnotation($step);
+            }
+        }
+    }
+
+    /**
+     * @param StepKeeperMutator $mutator
+     * @param AnnotationOld $annotation
+     */
+    private function mutateStepKeeperByStepKeeperMutator(StepKeeperMutator $mutator, $annotation)
+    {
+        if ($annotation instanceof Collection) {
+            foreach ($annotation->steps as $step) {
+                $this->mutateStepKeeperByStepKeeperMutator($mutator, $step);
+            }
+        } elseif ($annotation instanceof Step && $mutator !== $annotation) {
+            $mutator->mutateStepKeeper($annotation->getStepKeeper());
+        }
+    }
+
+    /**
+     * @param Step|AutoArguments $step
      * @param \ReflectionClass $reflection_class
      * @param \ReflectionMethod $reflection_method
      * @param ClassKeeper $class_keeper
@@ -650,78 +798,78 @@ class Generator
      * @param MethodKeeper $method_keeper
      * @throws MutatorException
      */
-//    private function setAutoArguments(
-//        Step $step,
-//        \ReflectionClass $reflection_class,
-//        \ReflectionMethod $reflection_method,
-//        ClassKeeper $class_keeper,
-//        TestCaseKeeper $test_case_keeper,
-//        MethodKeeper $method_keeper
-//    )
-//    {
-//        $current_arguments = $step->arguments;
-//
-//        $remote_class_reflection = new \ReflectionClass($step->getAutoArgumentsClass());
-//        $remote_method_found = false;
-//
-//        foreach ($remote_class_reflection->getMethods() as $remote_method) {
-//            if ($remote_method->getName() !== $step->getAutoArgumentsMethod()) {
-//                continue;
-//            }
-//
-//            $remote_method_found = true;
-//
-//            $reader = new AnnotationReader();
-//            $remote_method_annotations = $reader->getMethodAnnotations($remote_method);
-//            $new_arguments = [];
-//
-//            foreach ($remote_method->getParameters() as $parameter) {
-//                $found = false;
-//
-//                foreach ($remote_method_annotations as $remote_method_annotation) {
-//                    if ($remote_method_annotation instanceof Inject && $parameter->getName() == $remote_method_annotation->name) {
-//                        /** @var Annotation $variable */
-//                        $variable = $remote_method_annotation->variable;
-//                        $variable->setReflectionClass($reflection_class);
-//                        $variable->setReflectionMethod($reflection_method);
-//                        $variable->setClassKeeper($class_keeper);
-//                        $variable->setMethodKeeper($method_keeper);
-//                        $variable->setTestCaseKeeper($test_case_keeper);
-//                        $variable->setStepKeeper($step->getStepKeeper());
-//
-//                        $new_arguments[] = $variable;
-//                        $found = true;
-//                    }
-//                }
-//
-//                if (!$found) {
-//                    if ($step->arguments) {
-//                        if ($current_arguments) {
-//                            $new_arguments[] = array_shift($current_arguments);
-//                        }
-//                    } elseif (!$parameter->isOptional()) {
-//                        $new_arguments[] = $parameter->getName();
-//                    }
-//                }
-//            }
-//
-//            if (count($current_arguments) > 0) {
-//                throw new MutatorException(sprintf('%s.%s has excessive arguments.',
-//                    $step->name,
-//                    $step->method
-//                ));
-//            }
-//
-//            if ($new_arguments) {
-//                $step->arguments = $new_arguments;
-//            }
-//        }
-//
-//        if ($remote_method_found === false) {
-//            throw new MutatorException(sprintf('method "%s" is not found in "%s".',
-//                $step->method,
-//                $step->name
-//            ));
-//        }
-//    }
+    private function setAutoArguments(
+        Step $step,
+        \ReflectionClass $reflection_class,
+        \ReflectionMethod $reflection_method,
+        ClassKeeper $class_keeper,
+        TestCaseKeeper $test_case_keeper,
+        MethodKeeper $method_keeper
+    )
+    {
+        $current_arguments = $step->arguments;
+
+        $remote_class_reflection = new \ReflectionClass($step->getAutoArgumentsClass());
+        $remote_method_found = false;
+
+        foreach ($remote_class_reflection->getMethods() as $remote_method) {
+            if ($remote_method->getName() !== $step->getAutoArgumentsMethod()) {
+                continue;
+            }
+
+            $remote_method_found = true;
+
+            $reader = new AnnotationReader();
+            $remote_method_annotations = $reader->getMethodAnnotations($remote_method);
+            $new_arguments = [];
+
+            foreach ($remote_method->getParameters() as $parameter) {
+                $found = false;
+
+                foreach ($remote_method_annotations as $remote_method_annotation) {
+                    if ($remote_method_annotation instanceof Inject && $parameter->getName() == $remote_method_annotation->name) {
+                        /** @var AnnotationOld $variable */
+                        $variable = $remote_method_annotation->variable;
+                        $variable->setReflectionClass($reflection_class);
+                        $variable->setReflectionMethod($reflection_method);
+                        $variable->setClassKeeper($class_keeper);
+                        $variable->setMethodKeeper($method_keeper);
+                        $variable->setTestCaseKeeper($test_case_keeper);
+                        $variable->setStepKeeper($step->getStepKeeper());
+
+                        $new_arguments[] = $variable;
+                        $found = true;
+                    }
+                }
+
+                if (!$found) {
+                    if ($step->arguments) {
+                        if ($current_arguments) {
+                            $new_arguments[] = array_shift($current_arguments);
+                        }
+                    } elseif (!$parameter->isOptional()) {
+                        $new_arguments[] = $parameter->getName();
+                    }
+                }
+            }
+
+            if (count($current_arguments) > 0) {
+                throw new MutatorException(sprintf('%s.%s has excessive arguments.',
+                    $step->name,
+                    $step->method
+                ));
+            }
+
+            if ($new_arguments) {
+                $step->arguments = $new_arguments;
+            }
+        }
+
+        if ($remote_method_found === false) {
+            throw new MutatorException(sprintf('method "%s" is not found in "%s".',
+                $step->method,
+                $step->name
+            ));
+        }
+    }
 }

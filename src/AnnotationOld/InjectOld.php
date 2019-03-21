@@ -3,13 +3,13 @@
 namespace Barman\Annotation;
 
 use Doctrine\Common\Annotations\Annotation\Target;
-use Barman\Annotation;
+use Barman\AnnotationOld;
 
 /**
  * @Annotation
  * @Target("METHOD")
  */
-class Inject extends Annotation
+class Inject extends AnnotationOld
 {
     /**
      * @var string

@@ -1,13 +1,14 @@
 <?php
 
-namespace Perfumerlabs\Perfumer;
+namespace Barman;
 
-use Perfumerlabs\Perfumer\Data\ClassData;
-use Perfumerlabs\Perfumer\Data\MethodData;
+use Barman\Keeper\ClassKeeper;
+use Barman\Keeper\MethodKeeper;
+use Barman\Keeper\StepKeeper;
+use Barman\Keeper\TestCaseKeeper;
 use Perfumerlabs\Perfumer\Data\StepData;
-use Perfumerlabs\Perfumer\Data\TestCaseData;
 
-class Annotation
+class AnnotationOld
 {
     /**
      * @var \ReflectionClass
@@ -20,22 +21,22 @@ class Annotation
     private $reflection_method;
 
     /**
-     * @var ClassData
+     * @var ClassKeeper
      */
     private $class_keeper;
 
     /**
-     * @var MethodData
+     * @var MethodKeeper
      */
     private $method_keeper;
 
     /**
-     * @var TestCaseData
+     * @var TestCaseKeeper
      */
     private $test_case_keeper;
 
     /**
-     * @var StepData
+     * @var StepKeeper
      */
     private $step_keeper;
 
@@ -95,65 +96,65 @@ class Annotation
     }
 
     /**
-     * @return ClassData
+     * @return ClassKeeper
      */
-    public function getClassKeeper(): ?ClassData
+    public function getClassKeeper(): ?ClassKeeper
     {
         return $this->class_keeper;
     }
 
     /**
-     * @param ClassData $class_keeper
+     * @param ClassKeeper $class_keeper
      */
-    public function setClassKeeper(ClassData $class_keeper): void
+    public function setClassKeeper(ClassKeeper $class_keeper): void
     {
         $this->class_keeper = $class_keeper;
     }
 
     /**
-     * @return MethodData
+     * @return MethodKeeper
      */
-    public function getMethodKeeper(): ?MethodData
+    public function getMethodKeeper(): ?MethodKeeper
     {
         return $this->method_keeper;
     }
 
     /**
-     * @param MethodData $method_keeper
+     * @param MethodKeeper $method_keeper
      */
-    public function setMethodKeeper(MethodData $method_keeper): void
+    public function setMethodKeeper(MethodKeeper $method_keeper): void
     {
         $this->method_keeper = $method_keeper;
     }
 
     /**
-     * @return TestCaseData
+     * @return TestCaseKeeper
      */
-    public function getTestCaseKeeper(): ?TestCaseData
+    public function getTestCaseKeeper(): ?TestCaseKeeper
     {
         return $this->test_case_keeper;
     }
 
     /**
-     * @param TestCaseData $test_case_keeper
+     * @param TestCaseKeeper $test_case_keeper
      */
-    public function setTestCaseKeeper(TestCaseData $test_case_keeper): void
+    public function setTestCaseKeeper(TestCaseKeeper $test_case_keeper): void
     {
         $this->test_case_keeper = $test_case_keeper;
     }
 
     /**
-     * @return StepData
+     * @return StepKeeper
      */
-    public function getStepKeeper(): ?StepData
+    public function getStepKeeper(): ?StepKeeper
     {
         return $this->step_keeper;
     }
 
     /**
-     * @param StepData $step_keeper
+     * @param StepKeeper $step_keeper
      */
-    public function setStepKeeper(StepData $step_keeper): void
+    public function setStepKeeper(StepKeeper $step_keeper): void
     {
         $this->step_keeper = $step_keeper;
     }

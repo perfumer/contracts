@@ -3,7 +3,7 @@
 namespace Barman\Annotation;
 
 use Doctrine\Common\Annotations\Annotation\Target;
-use Barman\Annotation;
+use Barman\AnnotationOld;
 use Barman\Variable\ArgumentVariable;
 use Barman\Variable\ReturnedVariable;
 use Zend\Code\Generator\PropertyGenerator;
@@ -12,7 +12,7 @@ use Zend\Code\Generator\PropertyGenerator;
  * @Annotation
  * @Target("ANNOTATION")
  */
-class Property extends Annotation implements ArgumentVariable, ReturnedVariable
+class Property extends AnnotationOld implements ArgumentVariable, ReturnedVariable
 {
     /**
      * @var string

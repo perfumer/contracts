@@ -20,15 +20,15 @@ abstract class Example8 implements \Barman\Example\Contract\Example8
         $b_valid = true;
         $_return = null;
 
-        if ($_valid === true) {
+        if (true === $_valid) {
             $_valid = (bool) $b_valid = $this->getDefaultContext()->isNonZero($b);
         }
 
-        if ($_valid === true) {
+        if (true === $_valid) {
             $_return = $this->getMathContext()->quotient($a, $b);
         }
 
-        if ($_valid === false && !$b_valid) {
+        if (false === $_valid && !$b_valid) {
             $_return = $this->getDefaultContext()->defaultValue();
         }
 
@@ -38,9 +38,9 @@ abstract class Example8 implements \Barman\Example\Contract\Example8
     /**
      * @return \Barman\Example\Context\Math
      */
-    final private function getMathContext(): \Barman\Example\Context\Math
+    private function getMathContext(): \Barman\Example\Context\Math
     {
-        if ($this->_context_math === null) {
+        if (null === $this->_context_math) {
             $this->_context_math = new \Barman\Example\Context\Math();
         }
 
@@ -50,9 +50,9 @@ abstract class Example8 implements \Barman\Example\Contract\Example8
     /**
      * @return \Barman\Example\Contract\Example8Context
      */
-    final private function getDefaultContext(): \Barman\Example\Contract\Example8Context
+    private function getDefaultContext(): \Barman\Example\Contract\Example8Context
     {
-        if ($this->_context_default === null) {
+        if (null === $this->_context_default) {
             $this->_context_default = new \Barman\Example\Contract\Example8Context();
         }
 

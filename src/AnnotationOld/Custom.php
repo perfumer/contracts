@@ -3,7 +3,7 @@
 namespace Barman\Annotation;
 
 use Doctrine\Common\Annotations\Annotation\Target;
-use Barman\Annotation;
+use Barman\AnnotationOld;
 use Barman\Step;
 use Barman\Variable\ArgumentVariable;
 use Zend\Code\Generator\MethodGenerator;

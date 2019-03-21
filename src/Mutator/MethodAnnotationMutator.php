@@ -2,9 +2,9 @@
 
 namespace Barman\Mutator;
 
-use Barman\Annotation;
+use Barman\AnnotationOld;
 
 interface MethodAnnotationMutator
 {
-    public function mutateMethodAnnotation(Annotation $annotation): void;
+    public function mutateMethodAnnotation(AnnotationOld $annotation): void;
 }

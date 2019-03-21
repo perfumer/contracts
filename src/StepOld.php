@@ -11,7 +11,7 @@ use Barman\Variable\ArgumentVariable;
 use Barman\Variable\ReturnedVariable;
 use Zend\Code\Generator\MethodGenerator;
 
-abstract class Step extends Annotation
+abstract class Step extends AnnotationOld
 {
     /**
      * @var string
@@ -54,7 +54,7 @@ abstract class Step extends Annotation
     public function setReflectionClass(\ReflectionClass $reflection_class): void
     {
         foreach ($this->arguments as $argument) {
-            if ($argument instanceof Annotation) {
+            if ($argument instanceof AnnotationOld) {
                 $argument->setReflectionClass($reflection_class);
             }
         }
@@ -62,16 +62,16 @@ abstract class Step extends Annotation
         $return = is_array($this->return) ? $this->return : [$this->return];
 
         foreach ($return as $item) {
-            if ($item instanceof Annotation) {
+            if ($item instanceof AnnotationOld) {
                 $item->setReflectionClass($reflection_class);
             }
         }
 
-        if ($this->if instanceof Annotation) {
+        if ($this->if instanceof AnnotationOld) {
             $this->if->setReflectionClass($reflection_class);
         }
 
-        if ($this->unless instanceof Annotation) {
+        if ($this->unless instanceof AnnotationOld) {
             $this->unless->setReflectionClass($reflection_class);
         }
 
@@ -84,7 +84,7 @@ abstract class Step extends Annotation
     public function setReflectionMethod(\ReflectionMethod $reflection_method): void
     {
         foreach ($this->arguments as $argument) {
-            if ($argument instanceof Annotation) {
+            if ($argument instanceof AnnotationOld) {
                 $argument->setReflectionMethod($reflection_method);
             }
         }
@@ -92,16 +92,16 @@ abstract class Step extends Annotation
         $return = is_array($this->return) ? $this->return : [$this->return];
 
         foreach ($return as $item) {
-            if ($item instanceof Annotation) {
+            if ($item instanceof AnnotationOld) {
                 $item->setReflectionMethod($reflection_method);
             }
         }
 
-        if ($this->if instanceof Annotation) {
+        if ($this->if instanceof AnnotationOld) {
             $this->if->setReflectionMethod($reflection_method);
         }
 
-        if ($this->unless instanceof Annotation) {
+        if ($this->unless instanceof AnnotationOld) {
             $this->unless->setReflectionMethod($reflection_method);
         }
 
@@ -114,7 +114,7 @@ abstract class Step extends Annotation
     public function setClassKeeper(ClassKeeper $class_keeper): void
     {
         foreach ($this->arguments as $argument) {
-            if ($argument instanceof Annotation) {
+            if ($argument instanceof AnnotationOld) {
                 $argument->setClassKeeper($class_keeper);
             }
         }
@@ -122,16 +122,16 @@ abstract class Step extends Annotation
         $return = is_array($this->return) ? $this->return : [$this->return];
 
         foreach ($return as $item) {
-            if ($item instanceof Annotation) {
+            if ($item instanceof AnnotationOld) {
                 $item->setClassKeeper($class_keeper);
             }
         }
 
-        if ($this->if instanceof Annotation) {
+        if ($this->if instanceof AnnotationOld) {
             $this->if->setClassKeeper($class_keeper);
         }
 
-        if ($this->unless instanceof Annotation) {
+        if ($this->unless instanceof AnnotationOld) {
             $this->unless->setClassKeeper($class_keeper);
         }
 
@@ -144,7 +144,7 @@ abstract class Step extends Annotation
     public function setMethodKeeper(MethodKeeper $method_keeper): void
     {
         foreach ($this->arguments as $argument) {
-            if ($argument instanceof Annotation) {
+            if ($argument instanceof AnnotationOld) {
                 $argument->setMethodKeeper($method_keeper);
             }
         }
@@ -152,16 +152,16 @@ abstract class Step extends Annotation
         $return = is_array($this->return) ? $this->return : [$this->return];
 
         foreach ($return as $item) {
-            if ($item instanceof Annotation) {
+            if ($item instanceof AnnotationOld) {
                 $item->setMethodKeeper($method_keeper);
             }
         }
 
-        if ($this->if instanceof Annotation) {
+        if ($this->if instanceof AnnotationOld) {
             $this->if->setMethodKeeper($method_keeper);
         }
 
-        if ($this->unless instanceof Annotation) {
+        if ($this->unless instanceof AnnotationOld) {
             $this->unless->setMethodKeeper($method_keeper);
         }
 
@@ -174,7 +174,7 @@ abstract class Step extends Annotation
     public function setTestCaseKeeper(TestCaseKeeper $test_case_keeper): void
     {
         foreach ($this->arguments as $argument) {
-            if ($argument instanceof Annotation) {
+            if ($argument instanceof AnnotationOld) {
                 $argument->setTestCaseKeeper($test_case_keeper);
             }
         }
@@ -182,16 +182,16 @@ abstract class Step extends Annotation
         $return = is_array($this->return) ? $this->return : [$this->return];
 
         foreach ($return as $item) {
-            if ($item instanceof Annotation) {
+            if ($item instanceof AnnotationOld) {
                 $item->setTestCaseKeeper($test_case_keeper);
             }
         }
 
-        if ($this->if instanceof Annotation) {
+        if ($this->if instanceof AnnotationOld) {
             $this->if->setTestCaseKeeper($test_case_keeper);
         }
 
-        if ($this->unless instanceof Annotation) {
+        if ($this->unless instanceof AnnotationOld) {
             $this->unless->setTestCaseKeeper($test_case_keeper);
         }
 
@@ -204,7 +204,7 @@ abstract class Step extends Annotation
     public function setStepKeeper(StepKeeper $step_keeper): void
     {
         foreach ($this->arguments as $argument) {
-            if ($argument instanceof Annotation) {
+            if ($argument instanceof AnnotationOld) {
                 $argument->setStepKeeper($step_keeper);
             }
         }
@@ -212,16 +212,16 @@ abstract class Step extends Annotation
         $return = is_array($this->return) ? $this->return : [$this->return];
 
         foreach ($return as $item) {
-            if ($item instanceof Annotation) {
+            if ($item instanceof AnnotationOld) {
                 $item->setStepKeeper($step_keeper);
             }
         }
 
-        if ($this->if instanceof Annotation) {
+        if ($this->if instanceof AnnotationOld) {
             $this->if->setStepKeeper($step_keeper);
         }
 
-        if ($this->unless instanceof Annotation) {
+        if ($this->unless instanceof AnnotationOld) {
             $this->unless->setStepKeeper($step_keeper);
         }
 
@@ -235,7 +235,7 @@ abstract class Step extends Annotation
         }
 
         foreach ($this->arguments as $argument) {
-            if ($argument instanceof Annotation) {
+            if ($argument instanceof AnnotationOld) {
                 $argument->onMutate();
             }
         }
@@ -256,16 +256,16 @@ abstract class Step extends Annotation
                 $this->getMethodKeeper()->addInitialVariable($item, $value);
             }
 
-            if ($item instanceof Annotation) {
+            if ($item instanceof AnnotationOld) {
                 $item->onMutate();
             }
         }
 
-        if ($this->if instanceof Annotation) {
+        if ($this->if instanceof AnnotationOld) {
             $this->if->onMutate();
         }
 
-        if ($this->unless instanceof Annotation) {
+        if ($this->unless instanceof AnnotationOld) {
             $this->unless->onMutate();
         }
 

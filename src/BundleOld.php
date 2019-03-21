@@ -1,11 +1,11 @@
 <?php
 
-namespace Perfumerlabs\Perfumer;
+namespace Barman;
 
-use Perfumerlabs\Perfumer\Data\ClassData;
-use Perfumerlabs\Perfumer\Data\TestCaseData;
+use Barman\Keeper\ClassKeeper;
+use Barman\Keeper\TestCaseKeeper;
 
-final class Bundle
+final class BundleOld
 {
     /**
      * @var array
@@ -18,7 +18,7 @@ final class Bundle
     private $test_case_keepers = [];
 
     /**
-     * @return ClassData[]
+     * @return ClassKeeper[]
      */
     public function getClassKeepers(): array
     {
@@ -34,15 +34,15 @@ final class Bundle
     }
 
     /**
-     * @param ClassData $class_keeper
+     * @param ClassKeeper $class_keeper
      */
-    public function addClassKeeper(ClassData $class_keeper): void
+    public function addClassKeeper(ClassKeeper $class_keeper): void
     {
         $this->class_keepers[] = $class_keeper;
     }
 
     /**
-     * @return TestCaseData[]
+     * @return TestCaseKeeper[]
      */
     public function getTestCaseKeepers(): array
     {
@@ -58,9 +58,9 @@ final class Bundle
     }
 
     /**
-     * @param TestCaseData $test_case_keeper
+     * @param TestCaseKeeper $test_case_keeper
      */
-    public function addTestCaseKeeper(TestCaseData $test_case_keeper): void
+    public function addTestCaseKeeper(TestCaseKeeper $test_case_keeper): void
     {
         $this->test_case_keepers[] = $test_case_keeper;
     }

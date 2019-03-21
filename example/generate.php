@@ -2,7 +2,7 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$generator = new \Barman\Generator(__DIR__ . '/..', [
+$generator = new \Perfumerlabs\Perfumer\Generator(__DIR__ . '/..', [
     'base_src_path' => 'example/generated/src',
     'base_test_path' => 'example/generated/tests',
     'src_path' => 'example/src',
@@ -13,11 +13,11 @@ $generator = new \Barman\Generator(__DIR__ . '/..', [
 ]);
 
 $generator->addContract(\Barman\Example\Contract\Example1::class);
-$generator->addContract(\Barman\Example\Contract\Example2::class);
-$generator->addContract(\Barman\Example\Contract\Example3::class);
-$generator->addContract(\Barman\Example\Contract\Example4::class);
-$generator->addContract(\Barman\Example\Contract\Example5::class);
-$generator->addContract(\Barman\Example\Contract\Example6::class);
-$generator->addContract(\Barman\Example\Contract\Example7::class);
-$generator->addContract(\Barman\Example\Contract\Example8::class);
+//$generator->addContract(\Barman\Example\Contract\Example2::class);
+//$generator->addContract(\Barman\Example\Contract\Example3::class);
+//$generator->addContract(\Barman\Example\Contract\Example4::class);
+//$generator->addContract(\Barman\Example\Contract\Example5::class);
+//$generator->addContract(\Barman\Example\Contract\Example6::class);
+//$generator->addContract(\Barman\Example\Contract\Example7::class);
+//$generator->addContract(\Barman\Example\Contract\Example8::class);
 $generator->generateAll();

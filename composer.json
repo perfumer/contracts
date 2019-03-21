@@ -29,7 +29,8 @@
   },
   "autoload": {
     "psr-4": {
-      "Barman\\": "src/"
+      "Barman\\": "src/",
+      "Perfumerlabs\\Perfumer\\": "src/"
     }
   },
   "config": {

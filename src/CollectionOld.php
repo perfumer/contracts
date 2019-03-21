@@ -11,7 +11,7 @@ use Barman\Variable\ArgumentVariable;
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Collection extends Annotation implements MethodAnnotationMutator, StepKeeperMutator
+class Collection extends AnnotationOld implements MethodAnnotationMutator, StepKeeperMutator
 {
     /**
      * @var array
@@ -108,9 +108,9 @@ class Collection extends Annotation implements MethodAnnotationMutator, StepKeep
     }
 
     /**
-     * @param Annotation $annotation
+     * @param AnnotationOld $annotation
      */
-    public function mutateMethodAnnotation(Annotation $annotation): void
+    public function mutateMethodAnnotation(AnnotationOld $annotation): void
     {
         foreach ($this->steps as $step) {
             if ($step instanceof MethodAnnotationMutator) {

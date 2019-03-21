@@ -4,11 +4,6 @@ namespace Generated\Tests\Barman\Example;
 
 abstract class Example1Test extends \PHPUnit\Framework\TestCase
 {
-    final public function testSyntax()
-    {
-        new \ReflectionClass(\Barman\Example\Example1::class);
-    }
-
     final public function testSumThenProductLocalVariables()
     {
         $a = true;
@@ -19,5 +14,10 @@ abstract class Example1Test extends \PHPUnit\Framework\TestCase
         $sum = true;
         $this->assertNotEmpty($sum);
         $this->assertNotEmpty($c);
+        $res = true;
+        $rrr = true;
+        $this->assertNotEmpty($sum);
+        $this->assertNotEmpty($b);
+        $this->assertNotEmpty($rrr);
     }
 }
