@@ -1,9 +1,9 @@
 {
-  "name": "barmanlabs/php",
+  "name": "perfumerlabs/perfumer",
   "type": "library",
   "description": "Code generating tool",
   "keywords": ["generator"],
-  "homepage": "https://github.com/barmanlabs/php",
+  "homepage": "https://github.com/perfumerlabs/perfumer",
   "license": "MIT",
   "authors": [
     {
@@ -30,7 +30,6 @@
   },
   "autoload": {
     "psr-4": {
-      "Barman\\": "src/",
       "Perfumerlabs\\Perfumer\\": "src/"
     }
   },

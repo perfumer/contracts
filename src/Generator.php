@@ -7,6 +7,7 @@ use Doctrine\Common\Annotations\AnnotationRegistry;
 use Perfumerlabs\Perfumer\Annotation\After;
 use Perfumerlabs\Perfumer\Annotation\Before;
 use Perfumerlabs\Perfumer\Annotation\Error;
+use Perfumerlabs\Perfumer\Annotation\Returns;
 use Perfumerlabs\Perfumer\Annotation\Set;
 use Perfumerlabs\Perfumer\Annotation\Test;
 use Perfumerlabs\Perfumer\Data\ClassData;
@@ -543,6 +544,16 @@ class Generator
         $class_generator->setNamespaceName('Generated\\Annotation\\' . $class->getName());
         $class_generator->setName($class_name);
 
+        $annotations = $this->collectAnnotations($method);
+
+        $returns_annotation = null;
+
+        foreach ($annotations as $annotation) {
+            if ($annotation instanceof Returns) {
+                $returns_annotation = $annotation;
+            }
+        }
+
         if ($extends[0] !== '\\') {
             $extends = '\\' . $extends;
         }
@@ -577,12 +588,23 @@ class Generator
             ],
         ]);
 
-        $property = new PropertyGenerator();
-        $property->setDocBlock($doc_block);
-        $property->setVisibility('public');
-        $property->setName('out');
+        if ($returns_annotation) {
+            foreach ($returns_annotation->names as $name) {
+                $property = new PropertyGenerator();
+                $property->setDocBlock($doc_block);
+                $property->setVisibility('public');
+                $property->setName('out_' . $name);
 
-        $class_generator->addPropertyFromGenerator($property);
+                $class_generator->addPropertyFromGenerator($property);
+            }
+        } else {
+            $property = new PropertyGenerator();
+            $property->setDocBlock($doc_block);
+            $property->setVisibility('public');
+            $property->setName('out');
+
+            $class_generator->addPropertyFromGenerator($property);
+        }
 
         $method_generator = new MethodGenerator();
         $method_generator->setName('onCreate');
@@ -601,9 +623,30 @@ class Generator
 
         $body = '$this->class = \'' . str_replace('\\', '\\\\', $class->getNamespaceName()) . '\\\\' . $class->getShortName() . '\';
         $this->method = \'' . $method->getName() . '\';
-        $this->arguments = [' . implode(', ', $in) . '];
-        $this->return = $this->out;
+        $this->arguments = [' . implode(', ', $in) . '];' . PHP_EOL;
 
+        if ($returns_annotation) {
+            if ($returns_annotation->assoc) {
+                $body .= '$this->return = [' . PHP_EOL;
+
+                foreach ($returns_annotation->names as $name) {
+                    $body .= '$this->out_' . $name . ' => true,' . PHP_EOL;
+                }
+
+                $body .= '];';
+            } else {
+                $names = array_map(function ($v) {
+                    return '$this->out_' . $v;
+                }, $returns_annotation->names);
+
+                $body .= '$this->return = [' . implode(', ', $names) . '];';
+            }
+        } else {
+            $body .= '$this->return = $this->out;';
+        }
+
+        $body .= '
+        
         parent::onCreate();';
 
         $method_generator->setBody($body);
@@ -808,5 +851,23 @@ class Generator
         }
 
         $annotation->onCreate();
+    }
+
+    private function collectAnnotations(\ReflectionMethod $method)
+    {
+        $annotations = [];
+
+        $reader = new AnnotationReader();
+        /** @noinspection PhpDeprecationInspection */
+        AnnotationRegistry::registerLoader('class_exists');
+        $method_annotations = $reader->getMethodAnnotations($method);
+
+        foreach ($method_annotations as $method_annotation) {
+            if ($method_annotation instanceof Annotation) {
+                $annotations[] = $method_annotation;
+            }
+        }
+
+        return $annotations;
     }
 }
