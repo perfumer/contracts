@@ -21,9 +21,9 @@ abstract class SharedClassStep extends ExpressionStep
 
     public function onCreate(): void
     {
-        $name = str_replace('\\', '', $this->class);
+        $name = str_replace('\\', '_', $this->class);
 
-        $this->expression = '$this->get' . $name . 'Context()->' . $this->method;
+        $this->expression = '$this->get_' . $name . '()->' . $this->method;
 
         parent::onCreate();
     }

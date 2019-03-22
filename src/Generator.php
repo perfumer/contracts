@@ -73,6 +73,11 @@ class Generator
     /**
      * @var array
      */
+    private $modules = [];
+
+    /**
+     * @var array
+     */
     private $contracts = [];
 
     /**
@@ -131,6 +136,20 @@ class Generator
         }
     }
 
+    public function addModule(string $class, ?string $regex = null)
+    {
+        $reflection = new \ReflectionClass($class);
+        $annotations = $this->reader->getClassAnnotations($reflection);
+
+        $this->modules[] = [
+            'class' => $class,
+            'regex' => $regex,
+            'annotations' => $annotations
+        ];
+
+        return $this;
+    }
+
     public function addContract(string $class)
     {
         $this->contracts[] = $class;
@@ -182,7 +201,16 @@ class Generator
                     $class_generator->setExtendedClass('\\' . $class);
                 }
 
-                $class_annotations = $this->reader->getClassAnnotations($reflection);
+                $class_annotations = [];
+
+                foreach ($this->modules as $module) {
+                    if ($module['regex'] === null || preg_match($module['regex'], $class)) {
+                        $class_annotations = array_merge($class_annotations, $module['annotations']);
+                    }
+                }
+
+                $new_class_annotations = $this->reader->getClassAnnotations($reflection);
+                $class_annotations = array_merge($class_annotations, $new_class_annotations);
 
                 foreach ($class_annotations as $annotation) {
                     if (!$annotation instanceof ClassAnnotation) {
@@ -313,7 +341,9 @@ class Generator
                         }
                     }
 
-                    foreach ($class_annotations as $class_annotation) {
+                    for ($i = count($class_annotations) - 1; $i >= 0; $i--) {
+                        $class_annotation = $class_annotations[$i];
+
                         if ($class_annotation instanceof After) {
                             foreach ($class_annotation->steps as $step) {
                                 $this->onCreateMethodAnnotation($step, $reflection, $method, $test_case_data, $method_data);

@@ -44,12 +44,13 @@ abstract class ExpressionStep extends ConditionalStep
         if ($this->return) {
             if (is_array($this->return)) {
                 if ($this->isAssociative($this->return)) {
-                    $var = uniqid();
-                    $return_expression = '$_' . $var . ' = ';
+                    $return_expression = '$_tmp = ';
 
                     foreach ($this->return as $key => $value) {
-                        $return_expression_after .= sprintf('$%s = $_%s[\'%s\'];', $key, $var, $key) . PHP_EOL;
+                        $return_expression_after .= sprintf('$%s = $_tmp[\'%s\'];', $key, $key) . PHP_EOL;
                     }
+
+                    $return_expression_after .= '$_tmp = null;' . PHP_EOL;
                 } else {
                     $vars = array_map(function ($v) {
                         return '$' . $v;

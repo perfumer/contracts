@@ -174,7 +174,7 @@ final class ClassData
     private function generateContexts(): void
     {
         foreach ($this->contexts as $name => $class) {
-            $name = str_replace('\\', '', $class);
+            $name = str_replace('\\', '_', trim($class, '\\'));
 
             $doc_block = DocBlockGenerator::fromArray([
                 'tags' => [
@@ -204,7 +204,7 @@ final class ClassData
             $getter->setDocBlock($doc_block);
             $getter->setFinal(true);
             $getter->setVisibility('private');
-            $getter->setName('get' . $name . 'Context');
+            $getter->setName('get_' . $name);
             $getter->setReturnType($class);
 
             $getter->setBody('
