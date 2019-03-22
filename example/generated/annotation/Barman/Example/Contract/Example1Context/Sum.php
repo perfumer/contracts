@@ -6,7 +6,7 @@ namespace Generated\Annotation\Barman\Example\Contract\Example1Context;
  * @Annotation
  * @Target({"METHOD", "ANNOTATION"})
  */
-class Sum extends \Perfumerlabs\Perfumer\Step\ContextStep
+class Sum extends \Perfumerlabs\Perfumer\Step\SharedClassStep
 {
     /**
      * @var string

@@ -56,21 +56,19 @@ final class ClassData
     }
 
     /**
-     * @param string $name
      * @param string $class
      */
-    public function addContext(string $name, string $class): void
+    public function addContext(string $class): void
     {
-        $this->contexts[$name] = $class;
-    }
+        if ($class[0] !== '\\') {
+            $class = '\\' . $class;
+        }
 
-    /**
-     * @param string $name
-     * @return bool
-     */
-    public function hasContext(string $name): bool
-    {
-        return isset($this->contexts[$name]);
+        if (in_array($class, $this->contexts)) {
+            return;
+        }
+
+        $this->contexts[] = $class;
     }
 
     /**
@@ -95,6 +93,10 @@ final class ClassData
      */
     public function addInjection(string $name, string $type): void
     {
+        if ($type[0] !== '\\') {
+            $type = '\\' . $type;
+        }
+
         $this->injections[$name] = $type;
     }
 
@@ -172,6 +174,8 @@ final class ClassData
     private function generateContexts(): void
     {
         foreach ($this->contexts as $name => $class) {
+            $name = str_replace('\\', '', $class);
+
             $doc_block = DocBlockGenerator::fromArray([
                 'tags' => [
                     [
@@ -184,7 +188,7 @@ final class ClassData
             $property = new PropertyGenerator();
             $property->setDocBlock($doc_block);
             $property->setVisibility('private');
-            $property->setName('_context_' . $name);
+            $property->setName('_shared_' . $name);
 
             $this->generator->addPropertyFromGenerator($property);
 
@@ -200,15 +204,15 @@ final class ClassData
             $getter->setDocBlock($doc_block);
             $getter->setFinal(true);
             $getter->setVisibility('private');
-            $getter->setName('get' . str_replace('_', '', ucwords($name, '_')) . 'Context');
+            $getter->setName('get' . $name . 'Context');
             $getter->setReturnType($class);
 
             $getter->setBody('
-                if ($this->_context_' . $name . ' === null) {
-                    $this->_context_' . $name . ' = new ' . $class . '();
+                if ($this->_shared_' . $name . ' === null) {
+                    $this->_shared_' . $name . ' = new ' . $class . '();
                 }
                 
-                return $this->_context_' . $name . ';'
+                return $this->_shared_' . $name . ';'
             );
 
             $this->generator->addMethodFromGenerator($getter);
@@ -230,7 +234,7 @@ final class ClassData
             $property = new PropertyGenerator();
             $property->setDocBlock($doc_block);
             $property->setVisibility('private');
-            $property->setName('_injection_' . $name);
+            $property->setName('_inject_' . $name);
 
             $this->generator->addPropertyFromGenerator($property);
 
@@ -244,7 +248,7 @@ final class ClassData
                 $this->generator->addMethodFromGenerator($constructor);
             }
 
-            $body = $constructor->getBody() . PHP_EOL . '$this->_injection_' . $name . ' = $' . $name . ';';
+            $body = $constructor->getBody() . PHP_EOL . '$this->_inject_' . $name . ' = $' . $name . ';';
 
             $constructor->setParameter(new ParameterGenerator($name, $type));
             $constructor->setBody($body);
@@ -263,7 +267,7 @@ final class ClassData
             $getter->setVisibility('protected');
             $getter->setName('get' . str_replace('_', '', ucwords($name, '_')));
             $getter->setReturnType($type);
-            $getter->setBody('return $this->_injection_' . $name . ';');
+            $getter->setBody('return $this->_inject_' . $name . ';');
 
             $this->generator->addMethodFromGenerator($getter);
         }

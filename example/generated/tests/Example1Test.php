@@ -8,13 +8,14 @@ abstract class Example1Test extends \PHPUnit\Framework\TestCase
     {
         $c = true;
         $a = true;
-        $b = true;
         $this->assertNotEmpty($a);
         $this->assertNotEmpty($b);
         $sum = true;
-        $this->assertNotEmpty($sum);
+        $b = true;
+        $this->assertNotEmpty($a);
         $this->assertNotEmpty($c);
         $rrr = true;
+        $a = true;
         $this->assertNotEmpty($sum);
         $this->assertNotEmpty($b);
         $this->assertNotEmpty($rrr);

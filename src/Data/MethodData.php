@@ -2,7 +2,7 @@
 
 namespace Perfumerlabs\Perfumer\Data;
 
-use Perfumerlabs\Perfumer\Step\ExpressionStep;
+use Perfumerlabs\Perfumer\Annotation\Set;
 use Zend\Code\Generator\MethodGenerator;
 
 final class MethodData
@@ -16,6 +16,11 @@ final class MethodData
      * @var array
      */
     private $steps = [];
+
+    /**
+     * @var array
+     */
+    private $sets = [];
 
     /**
      * @var bool
@@ -85,6 +90,30 @@ final class MethodData
     }
 
     /**
+     * @return array
+     */
+    public function getSets(): array
+    {
+        return $this->sets;
+    }
+
+    /**
+     * @param array $sets
+     */
+    public function setSets(array $sets): void
+    {
+        $this->sets = $sets;
+    }
+
+    /**
+     * @param Set $set
+     */
+    public function addSet(Set $set): void
+    {
+        $this->sets[] = $set;
+    }
+
+    /**
      * @return bool
      */
     public function hasValidation(): bool
@@ -140,33 +169,47 @@ final class MethodData
 
         $body .= PHP_EOL;
 
+        /** @var Set $set */
+        foreach ($this->sets as $set) {
+            $body .= $this->generateStep($set->getStepData());
+        }
+
         /** @var StepData $step */
         foreach ($this->steps as $step) {
-            if ($step->getBeforeCode()) {
-                $body .= $step->getBeforeCode() . PHP_EOL . PHP_EOL;
-            }
-
-            if ($step->isValidationEnabled()) {
-                if ($this->hasValidation() && $step->getExtraCondition()) {
-                    $body .= 'if ($_valid === ' . ($step->getValidationCondition() ? 'true' : 'false') . ' && ' . $step->getExtraCondition() . ') {' . PHP_EOL;
-                } elseif ($this->hasValidation() && !$step->getExtraCondition()) {
-                    $body .= 'if ($_valid === ' . ($step->getValidationCondition() ? 'true' : 'false') . ') {' . PHP_EOL;
-                } elseif (!$this->hasValidation() && $step->getExtraCondition()) {
-                    $body .= 'if (' . $step->getExtraCondition() . ') {' . PHP_EOL;
-                }
-            }
-
-            $body .= $step->getCode() . PHP_EOL . PHP_EOL;
-
-            if ($step->isValidationEnabled() && ($this->hasValidation() || $step->getExtraCondition())) {
-                $body .= '}' . PHP_EOL . PHP_EOL;
-            }
-
-            if ($step->getAfterCode()) {
-                $body .= $step->getAfterCode() . PHP_EOL . PHP_EOL;
-            }
+            $body .= $this->generateStep($step);
         }
 
         $this->generator->setBody($body);
+    }
+
+    private function generateStep(StepData $step)
+    {
+        $body = '';
+
+        if ($step->getBeforeCode()) {
+            $body .= $step->getBeforeCode() . PHP_EOL . PHP_EOL;
+        }
+
+        if ($step->isValidationEnabled()) {
+            if ($this->hasValidation() && $step->getExtraCondition()) {
+                $body .= 'if ($_valid === ' . ($step->getValidationCondition() ? 'true' : 'false') . ' && ' . $step->getExtraCondition() . ') {' . PHP_EOL;
+            } elseif ($this->hasValidation() && !$step->getExtraCondition()) {
+                $body .= 'if ($_valid === ' . ($step->getValidationCondition() ? 'true' : 'false') . ') {' . PHP_EOL;
+            } elseif (!$this->hasValidation() && $step->getExtraCondition()) {
+                $body .= 'if (' . $step->getExtraCondition() . ') {' . PHP_EOL;
+            }
+        }
+
+        $body .= $step->getCode() . PHP_EOL . PHP_EOL;
+
+        if ($step->isValidationEnabled() && ($this->hasValidation() || $step->getExtraCondition())) {
+            $body .= '}' . PHP_EOL . PHP_EOL;
+        }
+
+        if ($step->getAfterCode()) {
+            $body .= $step->getAfterCode() . PHP_EOL . PHP_EOL;
+        }
+
+        return $body;
     }
 }
