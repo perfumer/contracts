@@ -40,6 +40,7 @@ abstract class SharedClassStep extends ExpressionStep
             }
 
             $reader = new AnnotationReader();
+            /** @noinspection PhpDeprecationInspection */
             AnnotationRegistry::registerLoader('class_exists');
             $method_annotations = $reader->getMethodAnnotations($method);
 
@@ -47,13 +48,11 @@ abstract class SharedClassStep extends ExpressionStep
                 if ($method_annotation instanceof Annotation) {
                     $method_annotation->setReflectionClass($this->getReflectionClass());
                     $method_annotation->setReflectionMethod($this->getReflectionMethod());
-                    $method_annotation->setClassKeeper($this->getClassKeeper());
-                    $method_annotation->setTestCaseKeeper($this->getTestCaseKeeper());
-                    $method_annotation->setMethodKeeper($this->getMethodKeeper());
-                    $method_annotation->setIsMethodAnnotation(true);
+                    $method_annotation->setClassData($this->getClassData());
+                    $method_annotation->setTestCaseData($this->getTestCaseData());
+                    $method_annotation->setMethodData($this->getMethodData());
 
                     if ($method_annotation instanceof PlainStep) {
-                        $method_annotation->setStepKeeper(new StepData());
                         $method_annotation->setStepData(new StepData());
                     }
 

@@ -17,6 +17,6 @@ class AddDefaultContext extends Annotation
 
         $name = $this->getReflectionClass()->getName() . 'Context';
 
-        $this->getClassKeeper()->addContext($name);
+        $this->getClassData()->addContext($name);
     }
 }

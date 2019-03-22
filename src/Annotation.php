@@ -22,43 +22,24 @@ class Annotation
     /**
      * @var ClassData
      */
-    private $class_keeper;
+    private $class_data;
 
     /**
      * @var MethodData
      */
-    private $method_keeper;
+    private $method_data;
 
     /**
      * @var TestCaseData
      */
-    private $test_case_keeper;
-
-    /**
-     * @var StepData
-     */
-    private $step_keeper;
+    private $test_case_data;
 
     /**
      * @var StepData
      */
     private $step_data;
 
-    /**
-     * @var bool
-     */
-    private $is_class_annotation = false;
-
-    /**
-     * @var bool
-     */
-    private $is_method_annotation = false;
-
     public function onCreate(): void
-    {
-    }
-
-    public function onMutate(): void
     {
     }
 
@@ -97,65 +78,49 @@ class Annotation
     /**
      * @return ClassData
      */
-    public function getClassKeeper(): ?ClassData
+    public function getClassData(): ?ClassData
     {
-        return $this->class_keeper;
+        return $this->class_data;
     }
 
     /**
-     * @param ClassData $class_keeper
+     * @param ClassData $class_data
      */
-    public function setClassKeeper(ClassData $class_keeper): void
+    public function setClassData(ClassData $class_data): void
     {
-        $this->class_keeper = $class_keeper;
+        $this->class_data = $class_data;
     }
 
     /**
      * @return MethodData
      */
-    public function getMethodKeeper(): ?MethodData
+    public function getMethodData(): ?MethodData
     {
-        return $this->method_keeper;
+        return $this->method_data;
     }
 
     /**
-     * @param MethodData $method_keeper
+     * @param MethodData $method_data
      */
-    public function setMethodKeeper(MethodData $method_keeper): void
+    public function setMethodData(MethodData $method_data): void
     {
-        $this->method_keeper = $method_keeper;
+        $this->method_data = $method_data;
     }
 
     /**
      * @return TestCaseData
      */
-    public function getTestCaseKeeper(): ?TestCaseData
+    public function getTestCaseData(): ?TestCaseData
     {
-        return $this->test_case_keeper;
+        return $this->test_case_data;
     }
 
     /**
-     * @param TestCaseData $test_case_keeper
+     * @param TestCaseData $test_case_data
      */
-    public function setTestCaseKeeper(TestCaseData $test_case_keeper): void
+    public function setTestCaseData(TestCaseData $test_case_data): void
     {
-        $this->test_case_keeper = $test_case_keeper;
-    }
-
-    /**
-     * @return StepData
-     */
-    public function getStepKeeper(): ?StepData
-    {
-        return $this->step_keeper;
-    }
-
-    /**
-     * @param StepData $step_keeper
-     */
-    public function setStepKeeper(StepData $step_keeper): void
-    {
-        $this->step_keeper = $step_keeper;
+        $this->test_case_data = $test_case_data;
     }
 
     /**
@@ -172,45 +137,5 @@ class Annotation
     public function setStepData(StepData $step_data): void
     {
         $this->step_data = $step_data;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isClassAnnotation(): bool
-    {
-        return $this->is_class_annotation;
-    }
-
-    /**
-     * @param bool $is_class_annotation
-     */
-    public function setIsClassAnnotation(bool $is_class_annotation): void
-    {
-        $this->is_class_annotation = $is_class_annotation;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isMethodAnnotation(): bool
-    {
-        return $this->is_method_annotation;
-    }
-
-    /**
-     * @param bool $is_method_annotation
-     */
-    public function setIsMethodAnnotation(bool $is_method_annotation): void
-    {
-        $this->is_method_annotation = $is_method_annotation;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isInnerAnnotation(): bool
-    {
-        return !$this->is_class_annotation && !$this->is_method_annotation;
     }
 }

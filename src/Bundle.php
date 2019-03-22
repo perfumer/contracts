@@ -10,58 +10,58 @@ final class Bundle
     /**
      * @var array
      */
-    private $class_keepers = [];
+    private $classes = [];
 
     /**
      * @var array
      */
-    private $test_case_keepers = [];
+    private $test_cases = [];
 
     /**
      * @return ClassData[]
      */
-    public function getClassKeepers(): array
+    public function getClasses(): array
     {
-        return $this->class_keepers;
+        return $this->classes;
     }
 
     /**
-     * @param array $class_keepers
+     * @param array $classes
      */
-    public function setClassKeepers(array $class_keepers): void
+    public function setClasses(array $classes): void
     {
-        $this->class_keepers = $class_keepers;
+        $this->classes = $classes;
     }
 
     /**
-     * @param ClassData $class_keeper
+     * @param ClassData $class
      */
-    public function addClassKeeper(ClassData $class_keeper): void
+    public function addClass(ClassData $class): void
     {
-        $this->class_keepers[] = $class_keeper;
+        $this->classes[] = $class;
     }
 
     /**
      * @return TestCaseData[]
      */
-    public function getTestCaseKeepers(): array
+    public function getTestCases(): array
     {
-        return $this->test_case_keepers;
+        return $this->test_cases;
     }
 
     /**
-     * @param array $test_case_keepers
+     * @param array $test_cases
      */
-    public function setTestCaseKeepers(array $test_case_keepers): void
+    public function setTestCases(array $test_cases): void
     {
-        $this->test_case_keepers = $test_case_keepers;
+        $this->test_cases = $test_cases;
     }
 
     /**
-     * @param TestCaseData $test_case_keeper
+     * @param TestCaseData $test_case
      */
-    public function addTestCaseKeeper(TestCaseData $test_case_keeper): void
+    public function addTestCase(TestCaseData $test_case): void
     {
-        $this->test_case_keepers[] = $test_case_keeper;
+        $this->test_cases[] = $test_case;
     }
 }

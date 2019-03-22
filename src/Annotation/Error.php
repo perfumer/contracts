@@ -33,7 +33,7 @@ class Error extends ConditionalStep
 
         $test_method = 'test' . ucfirst($this->getReflectionMethod()->getName()) . 'LocalVariables';
 
-        if (!$this->getTestCaseKeeper()->getGenerator()->hasMethod($test_method)) {
+        if (!$this->getTestCaseData()->getGenerator()->hasMethod($test_method)) {
             $method = new MethodGenerator();
             $method->setFinal(true);
             $method->setVisibility('public');
@@ -47,9 +47,9 @@ class Error extends ConditionalStep
 
             $method->setBody($body);
 
-            $this->getTestCaseKeeper()->getGenerator()->addMethodFromGenerator($method);
+            $this->getTestCaseData()->getGenerator()->addMethodFromGenerator($method);
         } else {
-            $method = $this->getTestCaseKeeper()->getGenerator()->getMethod($test_method);
+            $method = $this->getTestCaseData()->getGenerator()->getMethod($test_method);
         }
 
         $body = $method->getBody() . '$this->assertNotEmpty($' . $this->name . ');';

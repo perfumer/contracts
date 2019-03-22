@@ -42,7 +42,7 @@ abstract class ConditionalStep extends PlainStep
     {
         $test_method = 'test' . ucfirst($this->getReflectionMethod()->getName()) . 'LocalVariables';
 
-        if (!$this->getTestCaseKeeper()->getGenerator()->hasMethod($test_method)) {
+        if (!$this->getTestCaseData()->getGenerator()->hasMethod($test_method)) {
             $method = new MethodGenerator();
             $method->setFinal(true);
             $method->setVisibility('public');
@@ -56,9 +56,9 @@ abstract class ConditionalStep extends PlainStep
 
             $method->setBody($body);
 
-            $this->getTestCaseKeeper()->getGenerator()->addMethodFromGenerator($method);
+            $this->getTestCaseData()->getGenerator()->addMethodFromGenerator($method);
         } else {
-            $method = $this->getTestCaseKeeper()->getGenerator()->getMethod($test_method);
+            $method = $this->getTestCaseData()->getGenerator()->getMethod($test_method);
         }
 
         if ($this->if && is_string($this->if)) {

@@ -25,6 +25,6 @@ class Inject extends Annotation
     {
         parent::onCreate();
 
-        $this->getClassKeeper()->addInjection($this->name, $this->type);
+        $this->getClassData()->addInjection($this->name, $this->type);
     }
 }

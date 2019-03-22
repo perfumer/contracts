@@ -31,17 +31,9 @@ abstract class ExpressionStep extends ConditionalStep
         $return = is_array($this->return) ? $this->return : [$this->return];
 
         foreach ($return as $key => $item) {
-//                if (isset($this->getMethodKeeper()->getInitialVariables()[$item])) {
-//                    throw new MutatorException(sprintf('%s.%s returns "%s" which is already in use.',
-//                        $this->name,
-//                        $this->method,
-//                        $item
-//                    ));
-//                }
-
             $value = $this->validate ? 'true' : 'null';
             $name = is_string($key) ? $key : $item;
-            $this->getMethodKeeper()->addInitialVariable($name, $value);
+            $this->getMethodData()->addInitialVariable($name, $value);
         }
 
         $step_data = $this->getStepData();
@@ -101,7 +93,7 @@ abstract class ExpressionStep extends ConditionalStep
 
         $test_method = 'test' . ucfirst($this->getReflectionMethod()->getName()) . 'LocalVariables';
 
-        $method = $this->getTestCaseKeeper()->getGenerator()->getMethod($test_method);
+        $method = $this->getTestCaseData()->getGenerator()->getMethod($test_method);
 
         foreach ($this->arguments as $argument) {
             if (is_string($argument)) {
