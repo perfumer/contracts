@@ -7,11 +7,11 @@ abstract class ParentCallStep extends ExpressionStep
     /**
      * @var string
      */
-    public $method;
+    protected $_method;
 
     public function onCreate(): void
     {
-        $this->expression = 'parent::' . $this->method;
+        $this->_expression = 'parent::' . $this->_method;
 
         parent::onCreate();
     }

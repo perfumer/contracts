@@ -7,23 +7,25 @@ use Doctrine\Common\Annotations\AnnotationRegistry;
 use Perfumerlabs\Perfumer\Data\StepData;
 use Perfumerlabs\Perfumer\MethodAnnotation;
 
-abstract class SharedClassStep extends ExpressionStep
+abstract class SharedClassCallStep extends ExpressionStep
 {
     /**
      * @var string
      */
-    public $class;
+    protected $_class;
 
     /**
      * @var string
      */
-    public $method;
+    protected $_method;
 
     public function onCreate(): void
     {
-        $name = str_replace('\\', '_', $this->class);
+        $name = str_replace('\\', '_', $this->_class);
 
-        $this->expression = '$this->get_' . $name . '()->' . $this->method;
+        $this->_expression = '$this->get_' . $name . '()->' . $this->_method;
+
+        $this->getClassData()->addContext($this->_class);
 
         parent::onCreate();
     }
@@ -32,10 +34,10 @@ abstract class SharedClassStep extends ExpressionStep
     {
         $annotations = [];
 
-        $reflection = new \ReflectionClass($this->class);
+        $reflection = new \ReflectionClass($this->_class);
 
         foreach ($reflection->getMethods() as $method) {
-            if ($method->getName() !== $this->method) {
+            if ($method->getName() !== $this->_method) {
                 continue;
             }
 
@@ -49,6 +51,7 @@ abstract class SharedClassStep extends ExpressionStep
                     $method_annotation->setReflectionClass($this->getReflectionClass());
                     $method_annotation->setReflectionMethod($this->getReflectionMethod());
                     $method_annotation->setTestCaseData($this->getTestCaseData());
+                    $method_annotation->setClassData($this->getClassData());
                     $method_annotation->setMethodData($this->getMethodData());
 
                     if ($method_annotation instanceof PlainStep) {

@@ -7,16 +7,16 @@ abstract class GetterCallStep extends ExpressionStep
     /**
      * @var string
      */
-    public $getter;
+    protected $_getter;
 
     /**
      * @var string
      */
-    public $method;
+    protected $_method;
 
     public function onCreate(): void
     {
-        $this->expression = '$this->' . $this->getter . '()->' . $this->method;
+        $this->_expression = '$this->' . $this->_getter . '()->' . $this->_method;
 
         parent::onCreate();
     }

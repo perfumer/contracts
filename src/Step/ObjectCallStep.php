@@ -7,16 +7,16 @@ abstract class ObjectCallStep extends ExpressionStep
     /**
      * @var string
      */
-    public $object;
+    protected $_object;
 
     /**
      * @var string
      */
-    public $method;
+    protected $_method;
 
     public function onCreate(): void
     {
-        $this->expression = '$' . $this->object . '->' . $this->method;
+        $this->_expression = '$' . $this->_object . '->' . $this->_method;
 
         parent::onCreate();
     }

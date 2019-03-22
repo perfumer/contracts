@@ -2,26 +2,26 @@
 
 namespace Perfumerlabs\Perfumer\Step;
 
-abstract class ComplexClassStep extends ExpressionStep
+abstract class ComplexClassCallStep extends ExpressionStep
 {
     /**
      * @var string
      */
-    public $instance;
+    protected $_instance;
 
     /**
      * @var string
      */
-    public $class;
+    protected $_class;
 
     /**
      * @var string
      */
-    public $method;
+    protected $_method;
 
     public function onCreate(): void
     {
-        $this->expression = $this->instance . $this->method;
+        $this->_expression = $this->_instance . $this->_method;
 
         parent::onCreate();
     }

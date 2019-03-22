@@ -7,11 +7,11 @@ abstract class SelfCallStep extends ExpressionStep
     /**
      * @var string
      */
-    public $method;
+    protected $_method;
 
     public function onCreate(): void
     {
-        $this->expression = 'self::' . $this->method;
+        $this->_expression = 'self::' . $this->_method;
 
         parent::onCreate();
     }

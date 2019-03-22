@@ -7,16 +7,16 @@ abstract class PropertyCallStep extends ExpressionStep
     /**
      * @var string
      */
-    public $property;
+    protected $_property;
 
     /**
      * @var string
      */
-    public $method;
+    protected $_method;
 
     public function onCreate(): void
     {
-        $this->expression = '$this->' . $this->property . '->' . $this->method;
+        $this->_expression = '$this->' . $this->_property . '->' . $this->_method;
 
         parent::onCreate();
     }

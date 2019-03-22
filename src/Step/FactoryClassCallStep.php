@@ -2,7 +2,7 @@
 
 namespace Perfumerlabs\Perfumer\Step;
 
-abstract class StaticCallStep extends ExpressionStep
+abstract class FactoryClassCallStep extends ExpressionStep
 {
     /**
      * @var string
@@ -20,7 +20,7 @@ abstract class StaticCallStep extends ExpressionStep
             $this->_class = '\\' . $this->_class;
         }
 
-        $this->_expression = $this->_class . '::' . $this->_method;
+        $this->_expression = '(new ' . $this->_class . '())->' . $this->_method;
 
         parent::onCreate();
     }

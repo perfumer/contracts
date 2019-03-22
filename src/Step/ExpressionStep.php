@@ -5,30 +5,46 @@ namespace Perfumerlabs\Perfumer\Step;
 abstract class ExpressionStep extends ConditionalStep
 {
     /**
+     * @var bool
+     */
+    public $validate = false;
+
+    /**
      * @var string
      */
-    public $expression;
+    protected $_expression;
 
     /**
      * @var array
      */
-    public $arguments = [];
+    protected $_arguments = [];
 
     /**
      * @var mixed
      */
-    public $return;
+    protected $_return;
 
     /**
-     * @var bool
+     * @return mixed
      */
-    public $validate = false;
+    public function getReturn()
+    {
+        return $this->_return;
+    }
+
+    /**
+     * @param mixed $return
+     */
+    public function setReturn($return): void
+    {
+        $this->_return = $return;
+    }
 
     public function onCreate(): void
     {
         parent::onCreate();
 
-        $return = is_array($this->return) ? $this->return : [$this->return];
+        $return = is_array($this->_return) ? $this->_return : [$this->_return];
 
         foreach ($return as $key => $item) {
             $value = $this->validate ? 'true' : 'null';
@@ -41,12 +57,12 @@ abstract class ExpressionStep extends ConditionalStep
         $return_expression = '';
         $return_expression_after = '';
 
-        if ($this->return) {
-            if (is_array($this->return)) {
-                if ($this->isAssociative($this->return)) {
+        if ($this->_return) {
+            if (is_array($this->_return)) {
+                if ($this->isAssociative($this->_return)) {
                     $return_expression = '$_tmp = ';
 
-                    foreach ($this->return as $key => $value) {
+                    foreach ($this->_return as $key => $value) {
                         $return_expression_after .= sprintf('$%s = $_tmp[\'%s\'];', $key, $key) . PHP_EOL;
                     }
 
@@ -54,23 +70,23 @@ abstract class ExpressionStep extends ConditionalStep
                 } else {
                     $vars = array_map(function ($v) {
                         return '$' . $v;
-                    }, $this->return);
+                    }, $this->_return);
 
                     $return_expression = 'list(' . implode(', ', $vars) . ') = ';
                 }
             } else {
-                $return_expression = '$' . $this->return . ' = ';
+                $return_expression = '$' . $this->_return . ' = ';
             }
         }
 
-        $code = $return_expression . $this->expression;
+        $code = $return_expression . $this->_expression;
 
         $arguments_expression = '';
 
-        if ($this->arguments) {
+        if ($this->_arguments) {
             $vars = array_map(function ($v) {
                 return '$' . $v;
-            }, $this->arguments);
+            }, $this->_arguments);
 
             $arguments_expression = implode(', ', $vars);
         }
@@ -96,14 +112,14 @@ abstract class ExpressionStep extends ConditionalStep
 
         $method = $this->getTestCaseData()->getGenerator()->getMethod($test_method);
 
-        foreach ($this->arguments as $argument) {
+        foreach ($this->_arguments as $argument) {
             if (is_string($argument)) {
                 $body = $method->getBody() . '$this->assertNotEmpty($' . $argument . ');';
                 $method->setBody($body);
             }
         }
 
-        $return = is_array($this->return) ? $this->return : [$this->return];
+        $return = is_array($this->_return) ? $this->_return : [$this->_return];
 
         foreach ($return as $key => $item) {
             $name = is_string($key) ? $key : $item;

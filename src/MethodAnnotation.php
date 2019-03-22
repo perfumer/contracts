@@ -2,12 +2,18 @@
 
 namespace Perfumerlabs\Perfumer;
 
+use Perfumerlabs\Perfumer\Data\ClassData;
 use Perfumerlabs\Perfumer\Data\MethodData;
 use Perfumerlabs\Perfumer\Data\StepData;
 use Perfumerlabs\Perfumer\Data\TestCaseData;
 
 class MethodAnnotation extends Annotation
 {
+    /**
+     * @var ClassData
+     */
+    private $_class_data;
+
     /**
      * @var MethodData
      */
@@ -27,6 +33,16 @@ class MethodAnnotation extends Annotation
      * @var bool
      */
     private $_is_returning = false;
+
+    public function getClassData(): ?ClassData
+    {
+        return $this->_class_data;
+    }
+
+    public function setClassData(ClassData $class_data): void
+    {
+        $this->_class_data = $class_data;
+    }
 
     public function getMethodData(): ?MethodData
     {
