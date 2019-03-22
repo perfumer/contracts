@@ -22,7 +22,7 @@ final class StepData
     /**
      * @var bool
      */
-    private $validation_enabled = true;
+    private $_is_validating = true;
 
     /**
      * @var bool
@@ -64,14 +64,14 @@ final class StepData
         $this->code = $code;
     }
 
-    public function isValidationEnabled(): bool
+    public function isValidating(): bool
     {
-        return $this->validation_enabled;
+        return $this->_is_validating;
     }
 
-    public function setValidationEnabled(bool $validation_enabled): void
+    public function setIsValidating(bool $_is_validating): void
     {
-        $this->validation_enabled = $validation_enabled;
+        $this->_is_validating = $_is_validating;
     }
 
     public function getValidationCondition(): bool

@@ -3,13 +3,13 @@
 namespace Perfumerlabs\Perfumer\Annotation;
 
 use Doctrine\Common\Annotations\Annotation\Target;
-use Perfumerlabs\Perfumer\Annotation;
+use Perfumerlabs\Perfumer\ClassAnnotation;
 
 /**
  * @Annotation
  * @Target("CLASS")
  */
-class Inject extends Annotation
+class Inject extends ClassAnnotation
 {
     /**
      * @var string

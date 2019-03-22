@@ -197,7 +197,7 @@ class Generator
                 $class_annotations = $this->reader->getClassAnnotations($reflection);
 
                 foreach ($class_annotations as $annotation) {
-                    if (!$annotation instanceof Annotation) {
+                    if (!$annotation instanceof ClassAnnotation) {
                         continue;
                     }
 
@@ -246,8 +246,13 @@ class Generator
 
                     foreach ($class_annotations as $class_annotation) {
                         if ($class_annotation instanceof Before) {
+                            /** @var MethodAnnotation $step */
                             foreach ($class_annotation->steps as $step) {
-                                $this->onCreateMethodAnnotation($step, $reflection, $method, $class_data, $test_case_data, $method_data);
+                                $this->onCreateMethodAnnotation($step, $reflection, $method, $test_case_data, $method_data);
+
+                                if ($step->isReturning()) {
+                                    $method_data->setIsReturning(true);
+                                }
 
                                 if ($step instanceof PlainStep) {
                                     if ($step instanceof Set) {
@@ -289,7 +294,11 @@ class Generator
                             $annotation->validate = true;
                         }
 
-                        $this->onCreateMethodAnnotation($annotation, $reflection, $method, $class_data, $test_case_data, $method_data);
+                        $this->onCreateMethodAnnotation($annotation, $reflection, $method, $test_case_data, $method_data);
+
+                        if ($annotation->isReturning()) {
+                            $method_data->setIsReturning(true);
+                        }
 
                         if ($annotation instanceof PlainStep) {
                             if ($annotation instanceof Set) {
@@ -312,14 +321,18 @@ class Generator
 
                     foreach ($method_annotations as $annotation) {
                         if ($annotation instanceof ExpressionStep && $annotation->validate === true) {
-                            $method_data->setValidation(true);
+                            $method_data->setIsValidating(true);
                         }
                     }
 
                     foreach ($class_annotations as $class_annotation) {
                         if ($class_annotation instanceof After) {
                             foreach ($class_annotation->steps as $step) {
-                                $this->onCreateMethodAnnotation($step, $reflection, $method, $class_data, $test_case_data, $method_data);
+                                $this->onCreateMethodAnnotation($step, $reflection, $method, $test_case_data, $method_data);
+
+                                if ($step->isReturning()) {
+                                    $method_data->setIsReturning(true);
+                                }
 
                                 if ($step instanceof PlainStep) {
                                     if ($step instanceof Set) {
@@ -573,8 +586,23 @@ class Generator
             $property = new PropertyGenerator();
             $property->setDocBlock($doc_block);
             $property->setVisibility('public');
+            $property->setName('in_' . $parameter->getName());
+
+            $class_generator->addPropertyFromGenerator($property);
+
+            $doc_block = DocBlockGenerator::fromArray([
+                'tags' => [
+                    [
+                        'name'        => 'var',
+                        'description' => 'string',
+                    ]
+                ],
+            ]);
+
+            $property = new PropertyGenerator();
+            $property->setDocBlock($doc_block);
+            $property->setVisibility('public');
             $property->setName($parameter->getName());
-            $property->setDefaultValue($parameter->getName());
 
             $class_generator->addPropertyFromGenerator($property);
         }
@@ -617,13 +645,22 @@ class Generator
             $in[] = $parameter->getName();
         }
 
+        $body = '$this->class = \'' . str_replace('\\', '\\\\', $class->getNamespaceName()) . '\\\\' . $class->getShortName() . '\';
+        $this->method = \'' . $method->getName() . '\';' . PHP_EOL;
+
+        foreach ($method->getParameters() as $parameter) {
+            $body .= sprintf('$in_%s = $this->in_%s ?: $this->%s;', $parameter->getName(), $parameter->getName(), $parameter->getName()) . PHP_EOL;
+
+            $body .= sprintf('if (!$in_%s) {
+                $in_%s = \'%s\';
+            }', $parameter->getName(), $parameter->getName(), $parameter->getName()) . PHP_EOL;
+        }
+
         $in = array_map(function ($v) {
-            return '$this->' . $v;
+            return '$in_' . $v;
         }, $in);
 
-        $body = '$this->class = \'' . str_replace('\\', '\\\\', $class->getNamespaceName()) . '\\\\' . $class->getShortName() . '\';
-        $this->method = \'' . $method->getName() . '\';
-        $this->arguments = [' . implode(', ', $in) . '];' . PHP_EOL;
+        $body .= '$this->arguments = [' . implode(', ', $in) . '];' . PHP_EOL;
 
         if ($returns_annotation) {
             if ($returns_annotation->assoc) {
@@ -831,20 +868,18 @@ class Generator
         $annotation,
         \ReflectionClass $reflection,
         \ReflectionMethod $method,
-        ClassData $class_keeper,
-        TestCaseData $test_case_keeper,
-        MethodData $method_keeper
+        TestCaseData $test_case_data,
+        MethodData $method_data
     )
     {
-        if (!$annotation instanceof Annotation) {
+        if (!$annotation instanceof MethodAnnotation) {
             return;
         }
 
         $annotation->setReflectionClass($reflection);
         $annotation->setReflectionMethod($method);
-        $annotation->setClassData($class_keeper);
-        $annotation->setTestCaseData($test_case_keeper);
-        $annotation->setMethodData($method_keeper);
+        $annotation->setTestCaseData($test_case_data);
+        $annotation->setMethodData($method_data);
 
         if ($annotation instanceof PlainStep) {
             $annotation->setStepData(new StepData());

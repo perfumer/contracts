@@ -2,8 +2,8 @@
 
 namespace Perfumerlabs\Perfumer\Step;
 
-use Perfumerlabs\Perfumer\Annotation;
+use Perfumerlabs\Perfumer\MethodAnnotation;
 
-abstract class PlainStep extends Annotation
+abstract class PlainStep extends MethodAnnotation
 {
 }

@@ -4,8 +4,8 @@ namespace Perfumerlabs\Perfumer\Step;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
-use Perfumerlabs\Perfumer\Annotation;
 use Perfumerlabs\Perfumer\Data\StepData;
+use Perfumerlabs\Perfumer\MethodAnnotation;
 
 abstract class SharedClassStep extends ExpressionStep
 {
@@ -45,10 +45,9 @@ abstract class SharedClassStep extends ExpressionStep
             $method_annotations = $reader->getMethodAnnotations($method);
 
             foreach ($method_annotations as $method_annotation) {
-                if ($method_annotation instanceof Annotation) {
+                if ($method_annotation instanceof MethodAnnotation) {
                     $method_annotation->setReflectionClass($this->getReflectionClass());
                     $method_annotation->setReflectionMethod($this->getReflectionMethod());
-                    $method_annotation->setClassData($this->getClassData());
                     $method_annotation->setTestCaseData($this->getTestCaseData());
                     $method_annotation->setMethodData($this->getMethodData());
 

@@ -2,7 +2,6 @@
 
 namespace Perfumerlabs\Perfumer\Annotation;
 
-use Perfumerlabs\Perfumer\Annotation;
 use Perfumerlabs\Perfumer\Step\PlainStep;
 use Zend\Code\Generator\MethodGenerator;
 
@@ -21,9 +20,10 @@ class Out extends PlainStep
     {
         parent::onCreate();
 
-        $code = 'return $' . $this->name . ';';
+        $code = '$_return = $' . $this->name . ';';
 
         $this->getStepData()->setCode($code);
+        $this->setIsReturning(true);
 
         $this->mutateTestCaseData();
     }

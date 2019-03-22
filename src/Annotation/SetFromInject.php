@@ -8,7 +8,7 @@ use Perfumerlabs\Perfumer\Annotation;
  * @Annotation
  * @Target({"CLASS", "METHOD", "ANNOTATION"})
  */
-class SetFromProperty extends Set
+class SetFromInject extends Set
 {
     /**
      * @var string
@@ -24,7 +24,7 @@ class SetFromProperty extends Set
     {
         parent::onCreate();
 
-        $code = '$' . $this->name . ' = $this->' . $this->value . ';';
+        $code = '$' . $this->name . ' = $this->get' . str_replace('_', '', ucwords($this->value, '_')) . '();';
 
         $this->getStepData()->setCode($code);
         $this->getStepData()->setIsValidating(false);

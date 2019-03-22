@@ -2,7 +2,6 @@
 
 namespace Perfumerlabs\Perfumer\Annotation;
 
-use Perfumerlabs\Perfumer\Annotation;
 use Perfumerlabs\Perfumer\Step\ConditionalStep;
 use Zend\Code\Generator\MethodGenerator;
 
@@ -21,10 +20,11 @@ class Error extends ConditionalStep
     {
         parent::onCreate();
 
-        $code = 'return $' . $this->name . ';';
+        $code = '$_return = $' . $this->name . ';';
 
         $this->getStepData()->setValidationCondition(false);
         $this->getStepData()->setCode($code);
+        $this->setIsReturning(true);
     }
 
     protected function mutateTestCaseData(): void

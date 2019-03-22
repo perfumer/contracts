@@ -8,7 +8,7 @@ use Zend\Code\Generator\MethodGenerator;
 
 /**
  * @Annotation
- * @Target({"METHOD", "ANNOTATION"})
+ * @Target({"CLASS", "METHOD", "ANNOTATION"})
  */
 class Set extends PlainStep
 {
@@ -29,7 +29,7 @@ class Set extends PlainStep
         $code = '$' . $this->name . ' = $' . $this->value . ';';
 
         $this->getStepData()->setCode($code);
-        $this->getStepData()->setValidationEnabled(false);
+        $this->getStepData()->setIsValidating(false);
 
         $this->mutateTestCaseData();
     }

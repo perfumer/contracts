@@ -23,131 +23,100 @@ final class MethodData
     private $sets = [];
 
     /**
-     * @var bool
-     */
-    private $validation = false;
-
-    /**
      * @var MethodGenerator
      */
     private $generator;
 
     /**
-     * MethodKeeper constructor.
+     * @var bool
      */
+    private $_is_validating = false;
+
+    /**
+     * @var bool
+     */
+    private $_is_returning = false;
+
     public function __construct()
     {
         $this->generator = new MethodGenerator();
     }
 
-    /**
-     * @return array
-     */
     public function getInitialVariables(): array
     {
         return $this->initial_variables;
     }
 
-    /**
-     * @param array $initial_variables
-     */
     public function setInitialVariables(array $initial_variables): void
     {
         $this->initial_variables = $initial_variables;
     }
 
-    /**
-     * @param string $name
-     * @param string $value
-     */
     public function addInitialVariable(string $name, string $value): void
     {
         $this->initial_variables[$name] = $value;
     }
 
-    /**
-     * @return array
-     */
     public function getSteps(): array
     {
         return $this->steps;
     }
 
-    /**
-     * @param array $steps
-     */
     public function setSteps(array $steps): void
     {
         $this->steps = $steps;
     }
 
-    /**
-     * @param StepData $step
-     */
     public function addStep(StepData $step): void
     {
         $this->steps[] = $step;
     }
 
-    /**
-     * @return array
-     */
     public function getSets(): array
     {
         return $this->sets;
     }
 
-    /**
-     * @param array $sets
-     */
     public function setSets(array $sets): void
     {
         $this->sets = $sets;
     }
 
-    /**
-     * @param Set $set
-     */
     public function addSet(Set $set): void
     {
         $this->sets[] = $set;
     }
 
-    /**
-     * @return bool
-     */
-    public function hasValidation(): bool
+    public function isValidating(): bool
     {
-        return $this->validation;
+        return $this->_is_validating;
     }
 
-    /**
-     * @param bool $validation
-     */
-    public function setValidation(bool $validation): void
+    public function setIsValidating(bool $_is_validating): void
     {
-        $this->validation = $validation;
+        $this->_is_validating = $_is_validating;
     }
 
-    /**
-     * @return MethodGenerator
-     */
     public function getGenerator(): MethodGenerator
     {
         return $this->generator;
     }
 
-    /**
-     * @param MethodGenerator $generator
-     */
     public function setGenerator(MethodGenerator $generator): void
     {
         $this->generator = $generator;
     }
 
-    /**
-     * @return string
-     */
+    public function isReturning(): bool
+    {
+        return $this->_is_returning;
+    }
+
+    public function setIsReturning(bool $is_returning): void
+    {
+        $this->_is_returning = $is_returning;
+    }
+
     public function generate(): string
     {
         $this->generateBody();
@@ -159,7 +128,11 @@ final class MethodData
     {
         $body = '';
 
-        if ($this->hasValidation()) {
+        if ($this->isReturning()) {
+            $body .= '$_return = null;';
+        }
+
+        if ($this->isValidating()) {
             $body .= '$_valid = true;' . PHP_EOL;
         }
 
@@ -179,6 +152,10 @@ final class MethodData
             $body .= $this->generateStep($step);
         }
 
+        if ($this->isReturning()) {
+            $body .= 'return $_return;';
+        }
+
         $this->generator->setBody($body);
     }
 
@@ -190,19 +167,19 @@ final class MethodData
             $body .= $step->getBeforeCode() . PHP_EOL . PHP_EOL;
         }
 
-        if ($step->isValidationEnabled()) {
-            if ($this->hasValidation() && $step->getExtraCondition()) {
+        if ($step->isValidating()) {
+            if ($this->isValidating() && $step->getExtraCondition()) {
                 $body .= 'if ($_valid === ' . ($step->getValidationCondition() ? 'true' : 'false') . ' && ' . $step->getExtraCondition() . ') {' . PHP_EOL;
-            } elseif ($this->hasValidation() && !$step->getExtraCondition()) {
+            } elseif ($this->isValidating() && !$step->getExtraCondition()) {
                 $body .= 'if ($_valid === ' . ($step->getValidationCondition() ? 'true' : 'false') . ') {' . PHP_EOL;
-            } elseif (!$this->hasValidation() && $step->getExtraCondition()) {
+            } elseif (!$this->isValidating() && $step->getExtraCondition()) {
                 $body .= 'if (' . $step->getExtraCondition() . ') {' . PHP_EOL;
             }
         }
 
         $body .= $step->getCode() . PHP_EOL . PHP_EOL;
 
-        if ($step->isValidationEnabled() && ($this->hasValidation() || $step->getExtraCondition())) {
+        if ($step->isValidating() && ($this->isValidating() || $step->getExtraCondition())) {
             $body .= '}' . PHP_EOL . PHP_EOL;
         }
 

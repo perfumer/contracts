@@ -3,13 +3,13 @@
 namespace Perfumerlabs\Perfumer\Annotation;
 
 use Doctrine\Common\Annotations\Annotation\Target;
-use Perfumerlabs\Perfumer\Annotation;
+use Perfumerlabs\Perfumer\ClassAnnotation;
 
 /**
  * @Annotation
  * @Target("CLASS")
  */
-class AddDefaultContext extends Annotation
+class AddDefaultContext extends ClassAnnotation
 {
     public function onCreate(): void
     {
