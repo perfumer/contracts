@@ -7,7 +7,7 @@ use Zend\Code\Generator\MethodGenerator;
 
 /**
  * @Annotation
- * @Target({"METHOD", "ANNOTATION"})
+ * @Target({"CLASS", "METHOD", "ANNOTATION"})
  */
 class Out extends PlainStep
 {

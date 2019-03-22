@@ -131,10 +131,6 @@ class Generator
         }
     }
 
-    /**
-     * @param string $class
-     * @return $this
-     */
     public function addContract(string $class)
     {
         $this->contracts[] = $class;
@@ -142,20 +138,12 @@ class Generator
         return $this;
     }
 
-    /**
-     * @param string $class
-     * @param string $extends
-     * @return $this
-     */
-    public function addContext(string $class, ?string $extends = null)
+    public function addContext(string $class, $options = [], $properties = [])
     {
-        if (!$extends) {
-            $extends = SharedClassStep::class;
-        }
-
         $this->contexts[] = [
             'class' => $class,
-            'extends' => $extends,
+            'options' => $options,
+            'properties' => $properties,
         ];
 
         return $this;
@@ -388,9 +376,15 @@ class Generator
     {
         try {
             foreach ($contexts as $context) {
-                $class = is_string($context) ? $context : $context['class'];
-                /** @noinspection PhpIllegalStringOffsetInspection */
-                $extends = is_string($context) ? SharedClassStep::class : $context['extends'];
+                if (is_string($context)) {
+                    $class = $context;
+                    $extends = SharedClassStep::class;
+                    $properties = [];
+                } else {
+                    $class = $context['class'];
+                    $extends = $context['options']['extends'] ?? SharedClassStep::class;
+                    $properties = $context['properties'] ?? [];
+                }
 
                 $reflection = new \ReflectionClass($class);
                 $tests = false;
@@ -478,7 +472,7 @@ class Generator
                         }
                     }
 
-                    $this->generateAnnotation($reflection, $method, $extends);
+                    $this->generateAnnotation($reflection, $method, $extends, $properties);
                 }
 
                 foreach ($data_providers as $data_provider) {
@@ -531,7 +525,7 @@ class Generator
         $class_generator->setNamespaceName($namespace);
     }
 
-    private function generateAnnotation(\ReflectionClass $class, \ReflectionMethod $method, $extends)
+    private function generateAnnotation(\ReflectionClass $class, \ReflectionMethod $method, $extends, $properties = [])
     {
         $namespace = str_replace('\\', '/', $class->getNamespaceName()) . '/' . $class->getShortName();
 
@@ -547,7 +541,7 @@ class Generator
                     'name' => 'Annotation',
                 ],
                 [
-                    'name' => 'Target({"METHOD", "ANNOTATION"})'
+                    'name' => 'Target({"CLASS", "METHOD", "ANNOTATION"})'
                 ]
             ],
         ]);
@@ -680,6 +674,10 @@ class Generator
             }
         } else {
             $body .= '$this->return = $this->out;';
+        }
+
+        foreach ($properties as $key => $property) {
+            $body .= sprintf('$this->%s = \'%s\';', $key, $property) . PHP_EOL;
         }
 
         $body .= '
