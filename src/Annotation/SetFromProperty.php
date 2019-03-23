@@ -26,6 +26,6 @@ class SetFromProperty extends Set
 
         $code = '$' . $this->name . ' = $this->' . $this->value . ';';
 
-        $this->getStepData()->setCode($code);
+        $this->setCode($code);
     }
 }

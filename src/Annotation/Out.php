@@ -2,25 +2,18 @@
 
 namespace Perfumerlabs\Perfumer\Annotation;
 
-use Perfumerlabs\Perfumer\Step\PlainStep;
+use Perfumerlabs\Perfumer\Step\CodeStep;
 
 /**
  * @Annotation
  * @Target({"CLASS", "METHOD", "ANNOTATION"})
  */
-class Out extends PlainStep
+class Out extends CodeStep
 {
     /**
      * @var string
      */
     public $name;
-
-    public function onCreate(): void
-    {
-        $this->setIsReturning(true);
-
-        parent::onCreate();
-    }
 
     public function onBuild(): void
     {
@@ -28,7 +21,9 @@ class Out extends PlainStep
 
         $code = '$_return = $' . $this->name . ';';
 
-        $this->getStepData()->setCode($code);
+        $this->setCode($code);
+
+        $this->getMethodData()->setIsReturning(true);
 
         $this->addAssertionsToBaseTestData([$this->name]);
     }

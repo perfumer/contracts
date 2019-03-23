@@ -3,6 +3,9 @@
 namespace Perfumerlabs\Perfumer\Data;
 
 use Perfumerlabs\Perfumer\Annotation\Set;
+use Perfumerlabs\Perfumer\Step\CodeStep;
+use Perfumerlabs\Perfumer\Step\ConditionalStep;
+use Perfumerlabs\Perfumer\Step\Step;
 use Zend\Code\Generator\MethodGenerator;
 
 final class MethodData
@@ -67,7 +70,7 @@ final class MethodData
         $this->steps = $steps;
     }
 
-    public function addStep(StepData $step): void
+    public function addStep(Step $step): void
     {
         $this->steps[] = $step;
     }
@@ -144,12 +147,13 @@ final class MethodData
 
         /** @var Set $set */
         foreach ($this->sets as $set) {
-            $body .= $this->generateStep($set->getStepData());
+            $body .= $this->generateStep($set);
         }
 
-        /** @var StepData $step */
         foreach ($this->steps as $step) {
-            $body .= $this->generateStep($step);
+            if ($step instanceof CodeStep) {
+                $body .= $this->generateStep($step);
+            }
         }
 
         if ($this->isReturning()) {
@@ -159,7 +163,7 @@ final class MethodData
         $this->generator->setBody($body);
     }
 
-    private function generateStep(StepData $step)
+    private function generateStep(CodeStep $step)
     {
         $body = '';
 
@@ -167,19 +171,31 @@ final class MethodData
             $body .= $step->getBeforeCode() . PHP_EOL . PHP_EOL;
         }
 
-        if ($step->isValidating()) {
-            if ($this->isValidating() && $step->getExtraCondition()) {
-                $body .= 'if ($_valid === ' . ($step->getValidationCondition() ? 'true' : 'false') . ' && ' . $step->getExtraCondition() . ') {' . PHP_EOL;
-            } elseif ($this->isValidating() && !$step->getExtraCondition()) {
-                $body .= 'if ($_valid === ' . ($step->getValidationCondition() ? 'true' : 'false') . ') {' . PHP_EOL;
-            } elseif (!$this->isValidating() && $step->getExtraCondition()) {
-                $body .= 'if (' . $step->getExtraCondition() . ') {' . PHP_EOL;
+        $condition = null;
+
+        if ($step instanceof ConditionalStep && ($step->if || $step->unless)) {
+            $value = $step->if ?: $step->unless;
+
+            $condition = '$' . $value;
+
+            if ($step->unless) {
+                $condition = '!' . $condition;
+            }
+        }
+
+        if (!$step instanceof Set) {
+            if ($this->isValidating() && $condition) {
+                $body .= 'if ($_valid === ' . ($step->getValidatingValue() ? 'true' : 'false') . ' && ' . $condition . ') {' . PHP_EOL;
+            } elseif ($this->isValidating() && !$condition) {
+                $body .= 'if ($_valid === ' . ($step->getValidatingValue() ? 'true' : 'false') . ') {' . PHP_EOL;
+            } elseif (!$this->isValidating() && $condition) {
+                $body .= 'if (' . $condition . ') {' . PHP_EOL;
             }
         }
 
         $body .= $step->getCode() . PHP_EOL . PHP_EOL;
 
-        if ($step->isValidating() && ($this->isValidating() || $step->getExtraCondition())) {
+        if (!$step instanceof Set && ($this->isValidating() || $condition)) {
             $body .= '}' . PHP_EOL . PHP_EOL;
         }
 

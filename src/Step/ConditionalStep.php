@@ -2,7 +2,7 @@
 
 namespace Perfumerlabs\Perfumer\Step;
 
-abstract class ConditionalStep extends PlainStep
+abstract class ConditionalStep extends CodeStep
 {
     /**
      * @var string
@@ -17,21 +17,6 @@ abstract class ConditionalStep extends PlainStep
     public function onBuild(): void
     {
         parent::onBuild();
-
-        $step_data = $this->getStepData();
-        $step_data->setValidationCondition(true);
-
-        if ($this->if || $this->unless) {
-            $condition = $this->if ?: $this->unless;
-
-            $body_argument = '$' . $condition;
-
-            if ($this->unless) {
-                $body_argument = '!' . $body_argument;
-            }
-
-            $step_data->setExtraCondition($body_argument);
-        }
 
         if ($this->if) {
             $this->addAssertionsToBaseTestData([$this->if]);

@@ -4,7 +4,7 @@ namespace Perfumerlabs\Perfumer\Data;
 
 use Zend\Code\Generator\ClassGenerator;
 
-class ClassData
+class ClassData extends AbstractData
 {
     /**
      * @var ClassGenerator

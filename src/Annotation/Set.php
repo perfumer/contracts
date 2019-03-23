@@ -3,13 +3,13 @@
 namespace Perfumerlabs\Perfumer\Annotation;
 
 use Perfumerlabs\Perfumer\Annotation;
-use Perfumerlabs\Perfumer\Step\PlainStep;
+use Perfumerlabs\Perfumer\Step\CodeStep;
 
 /**
  * @Annotation
  * @Target({"CLASS", "METHOD", "ANNOTATION"})
  */
-class Set extends PlainStep
+class Set extends CodeStep
 {
     /**
      * @var string
@@ -26,20 +26,13 @@ class Set extends PlainStep
      */
     public $tags = [];
 
-    public function onCreate(): void
-    {
-        $this->getStepData()->setIsValidating(false);
-
-        parent::onCreate();
-    }
-
     public function onBuild(): void
     {
         parent::onBuild();
 
         $code = '$' . $this->name . ' = $' . $this->value . ';';
 
-        $this->getStepData()->setCode($code);
+        $this->setCode($code);
 
         $this->addDeclarationsToBaseTestData([$this->name]);
     }

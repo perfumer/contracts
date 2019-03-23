@@ -10,16 +10,16 @@ use Perfumerlabs\Perfumer\Annotation\Error;
 use Perfumerlabs\Perfumer\Annotation\Returns;
 use Perfumerlabs\Perfumer\Annotation\Set;
 use Perfumerlabs\Perfumer\Annotation\Test;
+use Perfumerlabs\Perfumer\Data\AbstractData;
 use Perfumerlabs\Perfumer\Data\BaseClassData;
 use Perfumerlabs\Perfumer\Data\BaseTestData;
 use Perfumerlabs\Perfumer\Data\ClassData;
 use Perfumerlabs\Perfumer\Data\MethodData;
-use Perfumerlabs\Perfumer\Data\StepData;
 use Perfumerlabs\Perfumer\Data\TestData;
 use Perfumerlabs\Perfumer\Step\ClassCallStep;
 use Perfumerlabs\Perfumer\Step\ExpressionStep;
-use Perfumerlabs\Perfumer\Step\PlainStep;
 use Perfumerlabs\Perfumer\Step\SharedClassCallStep;
+use Perfumerlabs\Perfumer\Step\Step;
 use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\MethodGenerator;
@@ -202,6 +202,10 @@ final class Generator
                 $namespace = str_replace($this->contract_prefix, $this->class_prefix, $reflection->getNamespaceName());
 
                 $test_data = new TestData();
+                $test_generator = $test_data->getGenerator();
+                $test_generator->setNamespaceName('Tests\\' . $namespace);
+                $test_generator->setName($reflection->getShortName() . 'Test');
+                $test_generator->setExtendedClass('Generated\\Tests\\' . $namespace . '\\' . $reflection->getShortName() . 'Test');
 
                 $base_test_data = new BaseTestData();
                 $base_test_generator = $base_test_data->getGenerator();
@@ -211,11 +215,15 @@ final class Generator
                 $base_test_generator->setExtendedClass('PHPUnit\\Framework\\TestCase');
 
                 $class_data = new ClassData();
+                $class_generator = $class_data->getGenerator();
+                $class_generator->setNamespaceName($namespace);
+                $class_generator->setName($reflection->getShortName());
+                $class_generator->setExtendedClass('\\Generated\\' . $namespace . '\\' . $reflection->getShortName());
 
                 $base_class_data = new BaseClassData();
                 $base_class_generator = $base_class_data->getGenerator();
                 $base_class_generator->setAbstract(true);
-                $base_class_generator->setNamespaceName($namespace);
+                $base_class_generator->setNamespaceName('Generated\\' . $namespace);
                 $base_class_generator->setName($reflection->getShortName());
 
                 if ($reflection->isInterface()) {
@@ -232,8 +240,13 @@ final class Generator
                     }
                 }
 
-                $new_class_annotations = $this->reader->getClassAnnotations($reflection);
-                $class_annotations = array_merge($class_annotations, $new_class_annotations);
+                $reader_annotations = $this->reader->getClassAnnotations($reflection);
+
+                foreach ($reader_annotations as $reader_annotation) {
+                    if ($reader_annotation instanceof ClassAnnotation) {
+                        $class_annotations[] = $reader_annotation;
+                    }
+                }
 
                 foreach ($class_annotations as $annotation) {
                     if (!$annotation instanceof ClassAnnotation) {
@@ -288,17 +301,31 @@ final class Generator
 
                     foreach ($class_annotations as $class_annotation) {
                         if ($class_annotation instanceof Before) {
-                            $method_annotations = array_merge($method_annotations, $class_annotation->steps);
+                            foreach ($class_annotation->steps as $reader_annotation) {
+                                if ($reader_annotation instanceof Step) {
+                                    $method_annotations[] = $reader_annotation;
+                                }
+                            }
                         }
                     }
 
-                    $method_annotations = array_merge($method_annotations, $this->reader->getMethodAnnotations($method));
+                    $reader_annotations = $this->reader->getMethodAnnotations($method);
+
+                    foreach ($reader_annotations as $reader_annotation) {
+                        if ($reader_annotation instanceof Step) {
+                            $method_annotations[] = $reader_annotation;
+                        }
+                    }
 
                     for ($i = count($class_annotations) - 1; $i >= 0; $i--) {
                         $class_annotation = $class_annotations[$i];
 
                         if ($class_annotation instanceof After) {
-                            $method_annotations = array_merge($method_annotations, $class_annotation->steps);
+                            foreach ($class_annotation->steps as $reader_annotation) {
+                                if ($reader_annotation instanceof Step) {
+                                    $method_annotations[] = $reader_annotation;
+                                }
+                            }
                         }
                     }
 
@@ -335,19 +362,9 @@ final class Generator
 
                     $method_annotations = array_merge($set_annotations, $step_annotations);
 
-                    /** @var Annotation $annotation */
+                    /** @var Step $annotation */
                     foreach ($method_annotations as $annotation) {
                         $annotation->onBuild();
-                    }
-
-                    foreach ($method_annotations as $annotation) {
-                        if ($annotation instanceof ExpressionStep && $annotation->validate === true) {
-                            $method_data->setIsValidating(true);
-                        }
-
-                        if ($annotation->isReturning()) {
-                            $method_data->setIsReturning(true);
-                        }
                     }
 
                     if (count($method_data->getSteps()) > 0 || count($method_data->getSets()) > 0) {
@@ -358,17 +375,25 @@ final class Generator
                 }
 
                 $bundle->addBaseClassData($base_class_data);
+                $bundle->addClassData($class_data);
                 $bundle->addBaseTestData($base_test_data);
+                $bundle->addTestData($test_data);
             }
 
             foreach ($bundle->getBaseClassData() as $base_class_data) {
-                $this->generateBaseClass($base_class_data);
-                $this->generateClass($base_class_data);
+                $this->generateClass($base_class_data, $base_class_data->getGenerator(), $this->base_src_path, 'Generated\\', true);
+            }
+
+            foreach ($bundle->getClassData() as $class_data) {
+                $this->generateClass($class_data, $class_data->getGenerator(), $this->src_path, '', false);
             }
 
             foreach ($bundle->getBaseTestData() as $base_test_data) {
-                $this->generateBaseClassTest($base_test_data);
-                $this->generateClassTest($base_test_data);
+                $this->generateClass($base_test_data, $base_test_data->getGenerator(), $this->base_test_path, 'Generated\\Tests\\', true);
+            }
+
+            foreach ($bundle->getTestData() as $test_data) {
+                $this->generateClass($test_data, $test_data->getGenerator(), $this->test_path, 'Tests\\', false);
             }
 
             shell_exec("vendor/bin/php-cs-fixer fix {$this->base_annotations_path} --rules=@Symfony");
@@ -380,7 +405,7 @@ final class Generator
     }
 
     private function onCreateMethodAnnotation(
-        MethodAnnotation $annotation,
+        Step $annotation,
         \ReflectionClass $reflection_class,
         \ReflectionMethod $reflection_method,
         BaseClassData $base_class_data,
@@ -397,46 +422,38 @@ final class Generator
         $annotation->setClassData($class_data);
         $annotation->setTestData($test_data);
         $annotation->setMethodData($method_data);
-
-        if ($annotation instanceof PlainStep) {
-            $annotation->setStepData(new StepData());
-        }
-
         $annotation->onCreate();
 
         $add_annotations = [];
 
-        if ($annotation instanceof PlainStep) {
-            if ($annotation instanceof Set) {
-                $method_data->addSet($annotation);
-            } else {
-                $method_data->addStep($annotation->getStepData());
-            }
+        if ($annotation instanceof Set) {
+            $method_data->addSet($annotation);
+        } else {
+            $method_data->addStep($annotation);
+        }
 
-            if ($annotation instanceof ClassCallStep) {
-                $context_annotations = $this->collectMethodAnnotations($annotation->getClass(), $annotation->getMethod());
+        if ($annotation instanceof ClassCallStep) {
+            $context_annotations = $this->collectMethodAnnotations($annotation->getClass(), $annotation->getMethod());
 
-                foreach ($context_annotations as $context_annotation) {
-                    if ($context_annotation instanceof Set) {
-                        // Do not set annotations with different tags
-                        if ($context_annotation->tags && !array_intersect($base_class_data->getTags(), $annotation->tags)) {
-                            continue;
-                        }
-
-                        $context_annotation->setReflectionClass($reflection_class);
-                        $context_annotation->setReflectionMethod($reflection_method);
-                        $context_annotation->setBaseClassData($base_class_data);
-                        $context_annotation->setBaseTestData($base_test_data);
-                        $context_annotation->setClassData($class_data);
-                        $context_annotation->setTestData($test_data);
-                        $context_annotation->setMethodData($method_data);
-                        $context_annotation->setStepData(new StepData());
-                        $context_annotation->onCreate();
-
-                        $method_data->addSet($context_annotation);
-
-                        $add_annotations[] = $context_annotation;
+            foreach ($context_annotations as $context_annotation) {
+                if ($context_annotation instanceof Set) {
+                    // Do not set annotations with different tags
+                    if ($context_annotation->tags && !array_intersect($base_class_data->getTags(), $annotation->tags)) {
+                        continue;
                     }
+
+                    $context_annotation->setReflectionClass($reflection_class);
+                    $context_annotation->setReflectionMethod($reflection_method);
+                    $context_annotation->setBaseClassData($base_class_data);
+                    $context_annotation->setBaseTestData($base_test_data);
+                    $context_annotation->setClassData($class_data);
+                    $context_annotation->setTestData($test_data);
+                    $context_annotation->setMethodData($method_data);
+                    $context_annotation->onCreate();
+
+                    $method_data->addSet($context_annotation);
+
+                    $add_annotations[] = $context_annotation;
                 }
             }
         }
@@ -482,7 +499,7 @@ final class Generator
         $method_annotations = [];
 
         foreach ($annotations as $annotation) {
-            if ($annotation instanceof MethodAnnotation) {
+            if ($annotation instanceof Step) {
                 $method_annotations[] = $annotation;
             }
         }
@@ -783,122 +800,27 @@ final class Generator
         file_put_contents($output_name, $code);
     }
 
-    private function generateBaseClass(BaseClassData $base_class_data)
+    private function generateClass(AbstractData $data, ClassGenerator $generator, string $path, string $prefix, bool $overwrite): void
     {
-        $class_generator = $base_class_data->getGenerator();
-
-        $output_name = str_replace('\\', '/', trim(str_replace($this->class_prefix, '', $class_generator->getNamespaceName()), '\\'));
+        $output_name = str_replace('\\', '/', trim(str_replace($prefix . $this->class_prefix, '', $generator->getNamespaceName()), '\\'));
 
         if ($output_name) {
             $output_name .= '/';
         }
 
-        @mkdir($this->root_dir . '/' . $this->base_src_path . '/' . $output_name, 0777, true);
+        @mkdir($this->root_dir . '/' . $path . '/' . $output_name, 0777, true);
 
-        $output_name = $this->root_dir . '/' . $this->base_src_path . '/' . $output_name . $class_generator->getName() . '.php';
+        $output_name = $this->root_dir . '/' . $path . '/' . $output_name . $generator->getName() . '.php';
 
-        $namespace = $class_generator->getNamespaceName();
-
-        $class_generator->setNamespaceName('Generated\\' . $namespace);
-
-        $code = '<?php' . PHP_EOL . PHP_EOL . $base_class_data->generate();
-
-        file_put_contents($output_name, $code);
-
-        $class_generator->setNamespaceName($namespace);
-    }
-
-    private function generateClass(BaseClassData $base_class_data)
-    {
-        $class_generator = $base_class_data->getGenerator();
-
-        $output_name = str_replace('\\', '/', trim(str_replace($this->class_prefix, '', $class_generator->getNamespaceName()), '\\'));
-
-        if ($output_name) {
-            $output_name .= '/';
-        }
-
-        @mkdir($this->root_dir . '/' . $this->src_path . '/' . $output_name, 0777, true);
-
-        $output_name = $this->root_dir . '/' . $this->src_path . '/' . $output_name . $class_generator->getName() . '.php';
-
-        if (is_file($output_name)) {
+        if ($overwrite === false && is_file($output_name)) {
             return;
         }
 
-        $class = new ClassGenerator();
-        $class->setNamespaceName($class_generator->getNamespaceName());
-        $class->setName($class_generator->getName());
-        $class->setExtendedClass('\\Generated\\' . $class_generator->getNamespaceName() . '\\' . $class_generator->getName());
-
-        foreach ($class_generator->getMethods() as $method_generator) {
-            if ($method_generator->isAbstract()) {
-                $method = new MethodGenerator();
-                $method->setName($method_generator->getName());
-                $method->setParameters($method_generator->getParameters());
-                $method->setVisibility($method_generator->getVisibility());
-                $method->setReturnType($method_generator->getReturnType());
-                $method->setBody('throw new \Exception(\'Method "' . $method->getName() . '" is not implemented yet.\');');
-
-                $class->addMethodFromGenerator($method);
-            }
-        }
-
-        $code = '<?php' . PHP_EOL . PHP_EOL . $class->generate();
+        $code = '<?php' . PHP_EOL . PHP_EOL . $data->generate();
 
         file_put_contents($output_name, $code);
     }
 
-    private function generateBaseClassTest(BaseTestData $base_test_data)
-    {
-        $generator = $base_test_data->getGenerator();
-
-        $output_name = str_replace('\\', '/', trim(str_replace('Generated\\Tests\\' . $this->class_prefix, '', $generator->getNamespaceName()), '\\'));
-
-        if ($output_name) {
-            $output_name .= '/';
-        }
-
-        @mkdir($this->root_dir . '/' . $this->base_test_path . '/' . $output_name, 0777, true);
-
-        $output_name = $this->root_dir . '/' . $this->base_test_path . '/' . $output_name . $generator->getName() . '.php';
-
-        $code = '<?php' . PHP_EOL . PHP_EOL . $generator->generate();
-
-        file_put_contents($output_name, $code);
-    }
-
-    private function generateClassTest(BaseTestData $base_test_data)
-    {
-        $generator = $base_test_data->getGenerator();
-
-        $output_name = str_replace('\\', '/', trim(str_replace('Generated\\Tests\\' . $this->class_prefix, '', $generator->getNamespaceName()), '\\'));
-
-        if ($output_name) {
-            $output_name .= '/';
-        }
-
-        @mkdir($this->root_dir . '/' . $this->test_path . '/' . $output_name, 0777, true);
-
-        $output_name = $this->root_dir . '/' . $this->test_path . '/' . $output_name . $generator->getName() . '.php';
-
-        if (is_file($output_name)) {
-            return;
-        }
-
-        $class = new ClassGenerator();
-        $class->setNamespaceName(str_replace('Generated\\', '', $generator->getNamespaceName()));
-        $class->setName($generator->getName());
-        $class->setExtendedClass($generator->getNamespaceName() . '\\' . $generator->getName());
-
-        $code = '<?php' . PHP_EOL . PHP_EOL . $class->generate();
-
-        file_put_contents($output_name, $code);
-    }
-
-    /**
-     * @param ClassGenerator $class_generator
-     */
     private function generateBaseContextTest(ClassGenerator $class_generator)
     {
         // If context is from another package
@@ -921,9 +843,6 @@ final class Generator
         file_put_contents($output_name, $code);
     }
 
-    /**
-     * @param ClassGenerator $class_generator
-     */
     private function generateContextTest(ClassGenerator $class_generator)
     {
         // If context is from another package

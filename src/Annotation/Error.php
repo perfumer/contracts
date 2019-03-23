@@ -17,7 +17,7 @@ class Error extends ConditionalStep
 
     public function onCreate(): void
     {
-        $this->setIsReturning(true);
+        $this->setValidatingValue(false);
 
         parent::onCreate();
     }
@@ -28,8 +28,9 @@ class Error extends ConditionalStep
 
         $code = '$_return = $' . $this->name . ';';
 
-        $this->getStepData()->setValidationCondition(false);
-        $this->getStepData()->setCode($code);
+        $this->setCode($code);
+
+        $this->getMethodData()->setIsReturning(true);
 
         $this->addAssertionsToBaseTestData([$this->name]);
     }

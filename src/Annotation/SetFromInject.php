@@ -26,6 +26,6 @@ class SetFromInject extends Set
 
         $code = '$' . $this->name . ' = $this->get' . str_replace('_', '', ucwords($this->value, '_')) . '();';
 
-        $this->getStepData()->setCode($code);
+        $this->setCode($code);
     }
 }

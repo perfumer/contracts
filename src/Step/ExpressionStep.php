@@ -69,6 +69,10 @@ abstract class ExpressionStep extends ConditionalStep
     {
         parent::onBuild();
 
+        if ($this->validate) {
+            $this->getMethodData()->setIsValidating(true);
+        }
+
         $return = is_array($this->_return) ? $this->_return : [$this->_return];
 
         foreach ($return as $key => $item) {
@@ -76,8 +80,6 @@ abstract class ExpressionStep extends ConditionalStep
             $name = is_string($key) ? $key : $item;
             $this->getMethodData()->addInitialVariable($name, $value);
         }
-
-        $step_data = $this->getStepData();
 
         $return_expression = '';
         $return_expression_after = '';
@@ -126,7 +128,7 @@ abstract class ExpressionStep extends ConditionalStep
             $code .= PHP_EOL . $return_expression_after;
         }
 
-        $step_data->setCode($code);
+        $this->setCode($code);
 
         $this->addAssertionsToBaseTestData($this->_arguments);
 
