@@ -18,6 +18,10 @@ class Annotation
     {
     }
 
+    public function onBuild(): void
+    {
+    }
+
     public function getReflectionClass(): ?\ReflectionClass
     {
         return $this->_reflection_class;

@@ -20,13 +20,12 @@ class SetFromInject extends Set
      */
     public $value;
 
-    public function onCreate(): void
+    public function onBuild(): void
     {
-        parent::onCreate();
+        parent::onBuild();
 
         $code = '$' . $this->name . ' = $this->get' . str_replace('_', '', ucwords($this->value, '_')) . '();';
 
         $this->getStepData()->setCode($code);
-        $this->getStepData()->setIsValidating(false);
     }
 }

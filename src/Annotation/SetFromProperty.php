@@ -20,13 +20,12 @@ class SetFromProperty extends Set
      */
     public $value;
 
-    public function onCreate(): void
+    public function onBuild(): void
     {
-        parent::onCreate();
+        parent::onBuild();
 
         $code = '$' . $this->name . ' = $this->' . $this->value . ';';
 
         $this->getStepData()->setCode($code);
-        $this->getStepData()->setIsValidating(false);
     }
 }

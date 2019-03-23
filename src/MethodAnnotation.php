@@ -89,20 +89,27 @@ class MethodAnnotation extends Annotation
     {
         $method = $this->addLocalVariablesTestToTestCaseData();
 
+        $body = '';
+
         foreach ($vars as $var) {
-            $body = $method->getBody() . '$' . $var . ' = true;';
-            $method->setBody($body);
+            $body .= sprintf('$this->assertArrayNotHasKey(\'%s\', $vars, \'"%s" is already used. You can not redeclare variable.\');', $var, $var) . PHP_EOL;
+            $body .= '$vars[\'' . $var . '\'] = true;' . PHP_EOL;
         }
+
+        $method->setBody($method->getBody() . $body);
     }
 
     protected function addAssertionsToTestCaseData(array $vars): void
     {
         $method = $this->addLocalVariablesTestToTestCaseData();
 
+        $body = '';
+
         foreach ($vars as $var) {
-            $body = $method->getBody() . '$this->assertNotEmpty($' . $var . ');';
-            $method->setBody($body);
+            $body .= sprintf('$this->assertArrayHasKey(\'%s\', $vars, \'"%s" is undefined. Possibly, you have mistyped variable name.\');', $var, $var) . PHP_EOL;
         }
+
+        $method->setBody($method->getBody() . $body);
     }
 
     protected function addLocalVariablesTestToTestCaseData(): MethodGenerator
@@ -115,10 +122,10 @@ class MethodAnnotation extends Annotation
             $method->setVisibility('public');
             $method->setName($test_method);
 
-            $body = '';
+            $body = '$vars = [];' . PHP_EOL;
 
             foreach ($this->getReflectionMethod()->getParameters() as $parameter) {
-                $body .= '$' . $parameter->getName() . ' = true;';
+                $body .= '$vars[\'' . $parameter->getName() . '\'] = true;' . PHP_EOL;
             }
 
             $method->setBody($body);

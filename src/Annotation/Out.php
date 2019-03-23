@@ -17,12 +17,18 @@ class Out extends PlainStep
 
     public function onCreate(): void
     {
+        $this->setIsReturning(true);
+
         parent::onCreate();
+    }
+
+    public function onBuild(): void
+    {
+        parent::onBuild();
 
         $code = '$_return = $' . $this->name . ';';
 
         $this->getStepData()->setCode($code);
-        $this->setIsReturning(true);
 
         $this->addAssertionsToTestCaseData([$this->name]);
     }

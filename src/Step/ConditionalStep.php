@@ -14,9 +14,9 @@ abstract class ConditionalStep extends PlainStep
      */
     public $unless;
 
-    public function onCreate(): void
+    public function onBuild(): void
     {
-        parent::onCreate();
+        parent::onBuild();
 
         $step_data = $this->getStepData();
         $step_data->setValidationCondition(true);

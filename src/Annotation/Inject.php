@@ -21,9 +21,9 @@ class Inject extends ClassAnnotation
      */
     public $type;
 
-    public function onCreate(): void
+    public function onBuild(): void
     {
-        parent::onCreate();
+        parent::onBuild();
 
         $this->getClassData()->addInjection($this->name, $this->type);
     }

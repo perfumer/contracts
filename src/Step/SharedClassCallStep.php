@@ -20,9 +20,14 @@ abstract class SharedClassCallStep extends ExpressionStep
 
         $this->_expression = '$this->get_' . $name . '()->' . $this->_method;
 
-        $this->getClassData()->addContext($this->_class);
-
         parent::onCreate();
+    }
+
+    public function onBuild(): void
+    {
+        parent::onBuild();
+
+        $this->getClassData()->addContext($this->_class);
     }
 
     public function getClass(): ?string

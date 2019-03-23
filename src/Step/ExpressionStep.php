@@ -60,9 +60,9 @@ abstract class ExpressionStep extends ConditionalStep
         $this->_arguments = $arguments;
     }
 
-    public function onCreate(): void
+    public function onBuild(): void
     {
-        parent::onCreate();
+        parent::onBuild();
 
         $return = is_array($this->_return) ? $this->_return : [$this->_return];
 

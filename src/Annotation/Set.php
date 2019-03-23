@@ -23,12 +23,18 @@ class Set extends PlainStep
 
     public function onCreate(): void
     {
+        $this->getStepData()->setIsValidating(false);
+
         parent::onCreate();
+    }
+
+    public function onBuild(): void
+    {
+        parent::onBuild();
 
         $code = '$' . $this->name . ' = $' . $this->value . ';';
 
         $this->getStepData()->setCode($code);
-        $this->getStepData()->setIsValidating(false);
 
         $this->addDeclarationsToTestCaseData([$this->name]);
     }
