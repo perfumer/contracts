@@ -26,7 +26,7 @@ use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
 use Zend\Code\Generator\PropertyGenerator;
 
-final class Generator
+final class Generator implements GeneratorInterface
 {
     /**
      * @var string
@@ -51,17 +51,17 @@ final class Generator
     /**
      * @var string
      */
-    private $base_annotations_path = 'generated/annotation';
+    private $generated_annotation_path = 'generated/annotation';
 
     /**
      * @var string
      */
-    private $base_src_path = 'generated/src';
+    private $generated_src_path = 'generated/src';
 
     /**
      * @var string
      */
-    private $base_test_path = 'generated/tests';
+    private $generated_tests_path = 'generated/tests';
 
     /**
      * @var string
@@ -71,7 +71,7 @@ final class Generator
     /**
      * @var string
      */
-    private $test_path = 'tests';
+    private $tests_path = 'tests';
 
     /**
      * @var array
@@ -93,11 +93,7 @@ final class Generator
      */
     private $reader;
 
-    /**
-     * @param string $root_dir
-     * @param array $options
-     */
-    public function __construct($root_dir, $options = [])
+    public function __construct(string $root_dir, array $options = [])
     {
         $this->reader = new AnnotationReader();
 
@@ -118,24 +114,24 @@ final class Generator
             $this->context_prefix = (string) $options['context_prefix'];
         }
 
-        if (isset($options['base_annotations_path'])) {
-            $this->base_annotations_path = (string) $options['base_annotations_path'];
+        if (isset($options['generated_annotation_path'])) {
+            $this->generated_annotation_path = (string) $options['generated_annotation_path'];
         }
 
-        if (isset($options['base_src_path'])) {
-            $this->base_src_path = (string) $options['base_src_path'];
+        if (isset($options['generated_src_path'])) {
+            $this->generated_src_path = (string) $options['generated_src_path'];
         }
 
-        if (isset($options['base_test_path'])) {
-            $this->base_test_path = (string) $options['base_test_path'];
+        if (isset($options['generated_tests_path'])) {
+            $this->generated_tests_path = (string) $options['generated_tests_path'];
         }
 
         if (isset($options['src_path'])) {
             $this->src_path = (string) $options['src_path'];
         }
 
-        if (isset($options['test_path'])) {
-            $this->test_path = (string) $options['test_path'];
+        if (isset($options['tests_path'])) {
+            $this->tests_path = (string) $options['tests_path'];
         }
     }
 
@@ -381,7 +377,7 @@ final class Generator
             }
 
             foreach ($bundle->getBaseClassData() as $base_class_data) {
-                $this->generateClass($base_class_data, $base_class_data->getGenerator(), $this->base_src_path, 'Generated\\', true);
+                $this->generateClass($base_class_data, $base_class_data->getGenerator(), $this->generated_src_path, 'Generated\\', true);
             }
 
             foreach ($bundle->getClassData() as $class_data) {
@@ -389,16 +385,16 @@ final class Generator
             }
 
             foreach ($bundle->getBaseTestData() as $base_test_data) {
-                $this->generateClass($base_test_data, $base_test_data->getGenerator(), $this->base_test_path, 'Generated\\Tests\\', true);
+                $this->generateClass($base_test_data, $base_test_data->getGenerator(), $this->generated_tests_path, 'Generated\\Tests\\', true);
             }
 
             foreach ($bundle->getTestData() as $test_data) {
-                $this->generateClass($test_data, $test_data->getGenerator(), $this->test_path, 'Tests\\', false);
+                $this->generateClass($test_data, $test_data->getGenerator(), $this->tests_path, 'Tests\\', false);
             }
 
-            shell_exec("vendor/bin/php-cs-fixer fix {$this->base_annotations_path} --rules=@Symfony");
-            shell_exec("vendor/bin/php-cs-fixer fix {$this->base_src_path} --rules=@Symfony");
-            shell_exec("vendor/bin/php-cs-fixer fix {$this->base_test_path} --rules=@Symfony");
+            shell_exec("vendor/bin/php-cs-fixer fix {$this->generated_annotation_path} --rules=@Symfony");
+            shell_exec("vendor/bin/php-cs-fixer fix {$this->generated_src_path} --rules=@Symfony");
+            shell_exec("vendor/bin/php-cs-fixer fix {$this->generated_tests_path} --rules=@Symfony");
         } catch (PerfumerException $e) {
             exit($e->getMessage() . PHP_EOL);
         }
@@ -638,9 +634,9 @@ final class Generator
 
         $class_name = ucfirst($method->getName());
 
-        @mkdir($this->root_dir . '/' . $this->base_annotations_path . '/' . $namespace, 0777, true);
+        @mkdir($this->root_dir . '/' . $this->generated_annotation_path . '/' . $namespace, 0777, true);
 
-        $output_name = $this->root_dir . '/' . $this->base_annotations_path . '/' . $namespace . '/' .$class_name . '.php';
+        $output_name = $this->root_dir . '/' . $this->generated_annotation_path . '/' . $namespace . '/' .$class_name . '.php';
 
         $doc_block = DocBlockGenerator::fromArray([
             'tags' => [
@@ -834,9 +830,9 @@ final class Generator
             $output_name .= '/';
         }
 
-        @mkdir($this->root_dir . '/' . $this->base_test_path . '/' . $output_name, 0777, true);
+        @mkdir($this->root_dir . '/' . $this->generated_tests_path . '/' . $output_name, 0777, true);
 
-        $output_name = $this->root_dir . '/' . $this->base_test_path . '/' . $output_name . $class_generator->getName() . '.php';
+        $output_name = $this->root_dir . '/' . $this->generated_tests_path . '/' . $output_name . $class_generator->getName() . '.php';
 
         $code = '<?php' . PHP_EOL . PHP_EOL . $class_generator->generate();
 
@@ -856,9 +852,9 @@ final class Generator
             $output_name .= '/';
         }
 
-        @mkdir($this->root_dir . '/' . $this->test_path . '/' . $output_name, 0777, true);
+        @mkdir($this->root_dir . '/' . $this->tests_path . '/' . $output_name, 0777, true);
 
-        $output_name = $this->root_dir . '/' . $this->test_path . '/' . $output_name . $class_generator->getName() . '.php';
+        $output_name = $this->root_dir . '/' . $this->tests_path . '/' . $output_name . $class_generator->getName() . '.php';
 
         if (is_file($output_name)) {
             return;
