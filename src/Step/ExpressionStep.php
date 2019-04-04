@@ -122,29 +122,15 @@ abstract class ExpressionStep extends ConditionalStep
         }
 
         $step_data->setCode($code);
-    }
 
-    protected function mutateTestCaseData(): void
-    {
-        parent::mutateTestCaseData();
-
-        $test_method = 'test' . ucfirst($this->getReflectionMethod()->getName()) . 'LocalVariables';
-
-        $method = $this->getTestCaseData()->getGenerator()->getMethod($test_method);
-
-        foreach ($this->_arguments as $argument) {
-            if (is_string($argument)) {
-                $body = $method->getBody() . '$this->assertNotEmpty($' . $argument . ');';
-                $method->setBody($body);
-            }
-        }
+        $this->addAssertionsToTestCaseData($this->_arguments);
 
         $return = is_array($this->_return) ? $this->_return : [$this->_return];
 
         foreach ($return as $key => $item) {
             $name = is_string($key) ? $key : $item;
-            $body = $method->getBody() . '$' . $name . ' = true;';
-            $method->setBody($body);
+
+            $this->addDeclarationsToTestCaseData([$name]);
         }
     }
 

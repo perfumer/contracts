@@ -6,6 +6,7 @@ use Perfumerlabs\Perfumer\Data\ClassData;
 use Perfumerlabs\Perfumer\Data\MethodData;
 use Perfumerlabs\Perfumer\Data\StepData;
 use Perfumerlabs\Perfumer\Data\TestCaseData;
+use Zend\Code\Generator\MethodGenerator;
 
 class MethodAnnotation extends Annotation
 {
@@ -82,5 +83,51 @@ class MethodAnnotation extends Annotation
     public function setIsReturning(bool $is_returning): void
     {
         $this->_is_returning = $is_returning;
+    }
+
+    protected function addDeclarationsToTestCaseData(array $vars): void
+    {
+        $method = $this->addLocalVariablesTestToTestCaseData();
+
+        foreach ($vars as $var) {
+            $body = $method->getBody() . '$' . $var . ' = true;';
+            $method->setBody($body);
+        }
+    }
+
+    protected function addAssertionsToTestCaseData(array $vars): void
+    {
+        $method = $this->addLocalVariablesTestToTestCaseData();
+
+        foreach ($vars as $var) {
+            $body = $method->getBody() . '$this->assertNotEmpty($' . $var . ');';
+            $method->setBody($body);
+        }
+    }
+
+    protected function addLocalVariablesTestToTestCaseData(): MethodGenerator
+    {
+        $test_method = 'test' . ucfirst($this->getReflectionMethod()->getName()) . 'LocalVariables';
+
+        if (!$this->getTestCaseData()->getGenerator()->hasMethod($test_method)) {
+            $method = new MethodGenerator();
+            $method->setFinal(true);
+            $method->setVisibility('public');
+            $method->setName($test_method);
+
+            $body = '';
+
+            foreach ($this->getReflectionMethod()->getParameters() as $parameter) {
+                $body .= '$' . $parameter->getName() . ' = true;';
+            }
+
+            $method->setBody($body);
+
+            $this->getTestCaseData()->getGenerator()->addMethodFromGenerator($method);
+        } else {
+            $method = $this->getTestCaseData()->getGenerator()->getMethod($test_method);
+        }
+
+        return $method;
     }
 }
