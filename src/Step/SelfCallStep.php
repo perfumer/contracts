@@ -15,4 +15,14 @@ abstract class SelfCallStep extends ExpressionStep
 
         parent::onCreate();
     }
+
+    public function getMethod(): ?string
+    {
+        return $this->_method;
+    }
+
+    public function setMethod(string $method): void
+    {
+        $this->_method = $method;
+    }
 }

@@ -20,4 +20,24 @@ abstract class ObjectCallStep extends ExpressionStep
 
         parent::onCreate();
     }
+
+    public function getObject(): ?string
+    {
+        return $this->_object;
+    }
+
+    public function setObject(string $object): void
+    {
+        $this->_object = $object;
+    }
+
+    public function getMethod(): ?string
+    {
+        return $this->_method;
+    }
+
+    public function setMethod(string $method): void
+    {
+        $this->_method = $method;
+    }
 }

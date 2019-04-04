@@ -40,6 +40,26 @@ abstract class ExpressionStep extends ConditionalStep
         $this->_return = $return;
     }
 
+    public function getExpression(): ?string
+    {
+        return $this->_expression;
+    }
+
+    public function setExpression(string $expression): void
+    {
+        $this->_expression = $expression;
+    }
+
+    public function getArguments(): array
+    {
+        return $this->_arguments;
+    }
+
+    public function setArguments(array $arguments): void
+    {
+        $this->_arguments = $arguments;
+    }
+
     public function onCreate(): void
     {
         parent::onCreate();

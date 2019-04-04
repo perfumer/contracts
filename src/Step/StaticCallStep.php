@@ -24,4 +24,24 @@ abstract class StaticCallStep extends ExpressionStep
 
         parent::onCreate();
     }
+
+    public function getClass(): ?string
+    {
+        return $this->_class;
+    }
+
+    public function setClass(string $class): void
+    {
+        $this->_class = $class;
+    }
+
+    public function getMethod(): ?string
+    {
+        return $this->_method;
+    }
+
+    public function setMethod(string $method): void
+    {
+        $this->_method = $method;
+    }
 }

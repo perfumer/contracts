@@ -20,4 +20,24 @@ abstract class PropertyCallStep extends ExpressionStep
 
         parent::onCreate();
     }
+
+    public function getProperty(): ?string
+    {
+        return $this->_property;
+    }
+
+    public function setProperty(string $property): void
+    {
+        $this->_property = $property;
+    }
+
+    public function getMethod(): ?string
+    {
+        return $this->_method;
+    }
+
+    public function setMethod(string $method): void
+    {
+        $this->_method = $method;
+    }
 }

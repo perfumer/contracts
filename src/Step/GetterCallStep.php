@@ -20,4 +20,24 @@ abstract class GetterCallStep extends ExpressionStep
 
         parent::onCreate();
     }
+
+    public function getGetter(): ?string
+    {
+        return $this->_getter;
+    }
+
+    public function setGetter(string $getter): void
+    {
+        $this->_getter = $getter;
+    }
+
+    public function getMethod(): ?string
+    {
+        return $this->_method;
+    }
+
+    public function setMethod(string $method): void
+    {
+        $this->_method = $method;
+    }
 }

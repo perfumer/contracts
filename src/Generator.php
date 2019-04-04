@@ -280,29 +280,7 @@ class Generator
                         if ($class_annotation instanceof Before) {
                             /** @var MethodAnnotation $step */
                             foreach ($class_annotation->steps as $step) {
-                                $this->onCreateMethodAnnotation($step, $reflection, $method, $class_data, $test_case_data, $method_data);
-
-                                if ($step->isReturning()) {
-                                    $method_data->setIsReturning(true);
-                                }
-
-                                if ($step instanceof PlainStep) {
-                                    if ($step instanceof Set) {
-                                        $method_data->addSet($step);
-                                    } else {
-                                        $method_data->addStep($step->getStepData());
-                                    }
-
-                                    if ($step instanceof SharedClassCallStep) {
-                                        $context_annotations = $step->getAnnotations();
-
-                                        foreach ($context_annotations as $context_annotation) {
-                                            if ($context_annotation instanceof Set) {
-                                                $method_data->addSet($context_annotation);
-                                            }
-                                        }
-                                    }
-                                }
+                                $this->processMethodAnnotation($step, $reflection, $method, $class_data, $test_case_data, $method_data);
                             }
                         }
                     }
@@ -326,29 +304,7 @@ class Generator
                             $annotation->validate = true;
                         }
 
-                        $this->onCreateMethodAnnotation($annotation, $reflection, $method, $class_data, $test_case_data, $method_data);
-
-                        if ($annotation->isReturning()) {
-                            $method_data->setIsReturning(true);
-                        }
-
-                        if ($annotation instanceof PlainStep) {
-                            if ($annotation instanceof Set) {
-                                $method_data->addSet($annotation);
-                            } else {
-                                $method_data->addStep($annotation->getStepData());
-                            }
-
-                            if ($annotation instanceof SharedClassCallStep) {
-                                $context_annotations = $annotation->getAnnotations();
-
-                                foreach ($context_annotations as $context_annotation) {
-                                    if ($context_annotation instanceof Set) {
-                                        $method_data->addSet($context_annotation);
-                                    }
-                                }
-                            }
-                        }
+                        $this->processMethodAnnotation($annotation, $reflection, $method, $class_data, $test_case_data, $method_data);
                     }
 
                     foreach ($method_annotations as $annotation) {
@@ -362,29 +318,7 @@ class Generator
 
                         if ($class_annotation instanceof After) {
                             foreach ($class_annotation->steps as $step) {
-                                $this->onCreateMethodAnnotation($step, $reflection, $method, $class_data, $test_case_data, $method_data);
-
-                                if ($step->isReturning()) {
-                                    $method_data->setIsReturning(true);
-                                }
-
-                                if ($step instanceof PlainStep) {
-                                    if ($step instanceof Set) {
-                                        $method_data->addSet($step);
-                                    } else {
-                                        $method_data->addStep($step->getStepData());
-                                    }
-
-                                    if ($step instanceof SharedClassCallStep) {
-                                        $context_annotations = $step->getAnnotations();
-
-                                        foreach ($context_annotations as $context_annotation) {
-                                            if ($context_annotation instanceof Set) {
-                                                $method_data->addSet($context_annotation);
-                                            }
-                                        }
-                                    }
-                                }
+                                $this->processMethodAnnotation($step, $reflection, $method, $class_data, $test_case_data, $method_data);
                             }
                         }
                     }
@@ -416,6 +350,97 @@ class Generator
         } catch (\Exception $e) {
             exit($e->getMessage() . PHP_EOL);
         }
+    }
+
+    private function processMethodAnnotation(
+        MethodAnnotation $annotation,
+        \ReflectionClass $reflection,
+        \ReflectionMethod $method,
+        ClassData $class_data,
+        TestCaseData $test_case_data,
+        MethodData $method_data
+    )
+    {
+        $this->onCreateMethodAnnotation($annotation, $reflection, $method, $class_data, $test_case_data, $method_data);
+
+        if ($annotation->isReturning()) {
+            $method_data->setIsReturning(true);
+        }
+
+        if ($annotation instanceof PlainStep) {
+            $this->processPlainStep($annotation, $reflection, $method, $class_data, $test_case_data, $method_data);
+        }
+    }
+
+    private function processPlainStep(
+        PlainStep $annotation,
+        \ReflectionClass $reflection_class,
+        \ReflectionMethod $reflection_method,
+        ClassData $class_data,
+        TestCaseData $test_case_data,
+        MethodData $method_data
+    )
+    {
+        if ($annotation instanceof Set) {
+            $method_data->addSet($annotation);
+        } else {
+            $method_data->addStep($annotation->getStepData());
+        }
+
+        if ($annotation instanceof SharedClassCallStep) {
+            $context_annotations = $this->getContextMethodAnnotations($annotation->getClass(), $annotation->getMethod());
+
+            foreach ($context_annotations as $context_annotation) {
+                $context_annotation->setReflectionClass($reflection_class);
+                $context_annotation->setReflectionMethod($reflection_method);
+                $context_annotation->setTestCaseData($test_case_data);
+                $context_annotation->setClassData($class_data);
+                $context_annotation->setMethodData($method_data);
+
+                if ($context_annotation instanceof PlainStep) {
+                    $context_annotation->setStepData(new StepData());
+                }
+
+                $context_annotation->onCreate();
+            }
+
+            foreach ($context_annotations as $context_annotation) {
+                if ($context_annotation instanceof Set) {
+                    $method_data->addSet($context_annotation);
+                }
+            }
+        }
+    }
+
+    private function getContextMethodAnnotations($context_class, $context_method)
+    {
+        $annotations = [];
+
+        if (!$context_method instanceof \ReflectionMethod) {
+            if (!$context_class instanceof \ReflectionClass) {
+                $context_class = new \ReflectionClass($context_class);
+            }
+
+            foreach ($context_class->getMethods() as $context_class_method) {
+                if ($context_class_method->getName() === $context_method) {
+                    $context_method = $context_class_method;
+                }
+            }
+        }
+
+        $reader = new AnnotationReader();
+        /** @noinspection PhpDeprecationInspection */
+        AnnotationRegistry::registerLoader('class_exists');
+
+        $method_annotations = $reader->getMethodAnnotations($context_method);
+
+        foreach ($method_annotations as $method_annotation) {
+            if ($method_annotation instanceof MethodAnnotation) {
+                $annotations[] = $method_annotation;
+            }
+        }
+
+        return $annotations;
     }
 
     private function generateContexts($contexts)
