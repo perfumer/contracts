@@ -2,18 +2,8 @@
 
 namespace Perfumerlabs\Perfumer\Step;
 
-abstract class FactoryClassCallStep extends ExpressionStep
+abstract class FactoryClassCallStep extends ClassCallStep
 {
-    /**
-     * @var string
-     */
-    protected $_class;
-
-    /**
-     * @var string
-     */
-    protected $_method;
-
     public function onCreate(): void
     {
         if ($this->_class[0] !== '\\') {
@@ -23,25 +13,5 @@ abstract class FactoryClassCallStep extends ExpressionStep
         $this->_expression = '(new ' . $this->_class . '())->' . $this->_method;
 
         parent::onCreate();
-    }
-
-    public function getClass(): ?string
-    {
-        return $this->_class;
-    }
-
-    public function setClass(string $class): void
-    {
-        $this->_class = $class;
-    }
-
-    public function getMethod(): ?string
-    {
-        return $this->_method;
-    }
-
-    public function setMethod(string $method): void
-    {
-        $this->_method = $method;
     }
 }

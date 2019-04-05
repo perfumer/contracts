@@ -14,9 +14,10 @@ use Perfumerlabs\Perfumer\Data\ClassData;
 use Perfumerlabs\Perfumer\Data\MethodData;
 use Perfumerlabs\Perfumer\Data\StepData;
 use Perfumerlabs\Perfumer\Data\TestCaseData;
-use Perfumerlabs\Perfumer\Step\SharedClassCallStep;
+use Perfumerlabs\Perfumer\Step\ClassCallStep;
 use Perfumerlabs\Perfumer\Step\ExpressionStep;
 use Perfumerlabs\Perfumer\Step\PlainStep;
+use Perfumerlabs\Perfumer\Step\SharedClassCallStep;
 use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\MethodGenerator;
@@ -402,11 +403,16 @@ final class Generator
                 $method_data->addStep($annotation->getStepData());
             }
 
-            if ($annotation instanceof SharedClassCallStep) {
+            if ($annotation instanceof ClassCallStep) {
                 $context_annotations = $this->collectMethodAnnotations($annotation->getClass(), $annotation->getMethod());
 
                 foreach ($context_annotations as $context_annotation) {
                     if ($context_annotation instanceof Set) {
+                        // Do not set annotations with different tags
+                        if ($context_annotation->tags && !array_intersect($class_data->getTags(), $annotation->tags)) {
+                            continue;
+                        }
+
                         $context_annotation->setReflectionClass($reflection_class);
                         $context_annotation->setReflectionMethod($reflection_method);
                         $context_annotation->setTestCaseData($test_case_data);

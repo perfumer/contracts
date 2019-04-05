@@ -14,7 +14,7 @@ final class ClassData
     /**
      * @var array
      */
-    private $contexts = [];
+    private $shared_classes = [];
 
     /**
      * @var array
@@ -31,66 +31,44 @@ final class ClassData
      */
     private $generator;
 
-    /**
-     * ClassKeeper constructor.
-     */
     public function __construct()
     {
         $this->generator = new ClassGenerator();
     }
 
-    /**
-     * @return array
-     */
-    public function getContexts(): array
+    public function getSharedClasses(): array
     {
-        return $this->contexts;
+        return $this->shared_classes;
     }
 
-    /**
-     * @param array $contexts
-     */
-    public function setContexts(array $contexts): void
+    public function setSharedClasses(array $shared_classes): void
     {
-        $this->contexts = $contexts;
+        $this->shared_classes = $shared_classes;
     }
 
-    /**
-     * @param string $class
-     */
-    public function addContext(string $class): void
+    public function addSharedClass(string $shared_class): void
     {
-        if ($class[0] !== '\\') {
-            $class = '\\' . $class;
+        if ($shared_class[0] !== '\\') {
+            $shared_class = '\\' . $shared_class;
         }
 
-        if (in_array($class, $this->contexts)) {
+        if (in_array($shared_class, $this->shared_classes)) {
             return;
         }
 
-        $this->contexts[] = $class;
+        $this->shared_classes[] = $shared_class;
     }
 
-    /**
-     * @return array
-     */
     public function getInjections(): array
     {
         return $this->injections;
     }
 
-    /**
-     * @param array $injections
-     */
     public function setInjections(array $injections): void
     {
         $this->injections = $injections;
     }
 
-    /**
-     * @param string $name
-     * @param string $type
-     */
     public function addInjection(string $name, string $type): void
     {
         if ($type[0] !== '\\') {
@@ -100,34 +78,21 @@ final class ClassData
         $this->injections[$name] = $type;
     }
 
-    /**
-     * @param string $name
-     * @return bool
-     */
     public function hasInjection(string $name): bool
     {
         return isset($this->injections[$name]);
     }
 
-    /**
-     * @return array
-     */
     public function getTags(): array
     {
         return $this->tags;
     }
 
-    /**
-     * @param array $tags
-     */
     public function setTags(array $tags): void
     {
         $this->tags = $tags;
     }
 
-    /**
-     * @param string $name
-     */
     public function addTag(string $name): void
     {
         if (!$this->hasTag($name)) {
@@ -135,45 +100,32 @@ final class ClassData
         }
     }
 
-    /**
-     * @param string $name
-     * @return bool
-     */
     public function hasTag(string $name): bool
     {
         return in_array($name, $this->tags);
     }
 
-    /**
-     * @return ClassGenerator
-     */
     public function getGenerator(): ClassGenerator
     {
         return $this->generator;
     }
 
-    /**
-     * @param ClassGenerator $generator
-     */
     public function setGenerator(ClassGenerator $generator): void
     {
         $this->generator = $generator;
     }
 
-    /**
-     * @return string
-     */
     public function generate(): string
     {
-        $this->generateContexts();
+        $this->generateSharedClasses();
         $this->generateInjections();
 
         return $this->generator->generate();
     }
 
-    private function generateContexts(): void
+    private function generateSharedClasses(): void
     {
-        foreach ($this->contexts as $name => $class) {
+        foreach ($this->shared_classes as $name => $class) {
             $name = str_replace('\\', '_', trim($class, '\\'));
 
             $doc_block = DocBlockGenerator::fromArray([

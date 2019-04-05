@@ -21,6 +21,11 @@ class Set extends PlainStep
      */
     public $value;
 
+    /**
+     * @var array
+     */
+    public $tags = [];
+
     public function onCreate(): void
     {
         $this->getStepData()->setIsValidating(false);
