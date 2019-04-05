@@ -31,6 +31,6 @@ class Error extends ConditionalStep
         $this->getStepData()->setValidationCondition(false);
         $this->getStepData()->setCode($code);
 
-        $this->addAssertionsToTestCaseData([$this->name]);
+        $this->addAssertionsToBaseTestData([$this->name]);
     }
 }

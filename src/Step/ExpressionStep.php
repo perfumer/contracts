@@ -128,14 +128,14 @@ abstract class ExpressionStep extends ConditionalStep
 
         $step_data->setCode($code);
 
-        $this->addAssertionsToTestCaseData($this->_arguments);
+        $this->addAssertionsToBaseTestData($this->_arguments);
 
         $return = is_array($this->_return) ? $this->_return : [$this->_return];
 
         foreach ($return as $key => $item) {
             $name = is_string($key) ? $key : $item;
 
-            $this->addDeclarationsToTestCaseData([$name]);
+            $this->addDeclarationsToBaseTestData([$name]);
         }
     }
 

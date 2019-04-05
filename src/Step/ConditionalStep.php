@@ -34,11 +34,11 @@ abstract class ConditionalStep extends PlainStep
         }
 
         if ($this->if) {
-            $this->addAssertionsToTestCaseData([$this->if]);
+            $this->addAssertionsToBaseTestData([$this->if]);
         }
 
         if ($this->unless) {
-            $this->addAssertionsToTestCaseData([$this->unless]);
+            $this->addAssertionsToBaseTestData([$this->unless]);
         }
     }
 }

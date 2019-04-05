@@ -41,6 +41,6 @@ class Set extends PlainStep
 
         $this->getStepData()->setCode($code);
 
-        $this->addDeclarationsToTestCaseData([$this->name]);
+        $this->addDeclarationsToBaseTestData([$this->name]);
     }
 }

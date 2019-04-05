@@ -117,9 +117,9 @@ class MethodAnnotation extends Annotation
         $this->_is_returning = $is_returning;
     }
 
-    protected function addDeclarationsToTestCaseData(array $vars): void
+    protected function addDeclarationsToBaseTestData(array $vars): void
     {
-        $method = $this->addLocalVariablesTestToTestCaseData();
+        $method = $this->addLocalVariablesTestToBaseTestData();
 
         $body = '';
 
@@ -134,9 +134,9 @@ class MethodAnnotation extends Annotation
         $method->setBody($method->getBody() . $body);
     }
 
-    protected function addAssertionsToTestCaseData(array $vars): void
+    protected function addAssertionsToBaseTestData(array $vars): void
     {
-        $method = $this->addLocalVariablesTestToTestCaseData();
+        $method = $this->addLocalVariablesTestToBaseTestData();
 
         $body = '';
 
@@ -147,11 +147,11 @@ class MethodAnnotation extends Annotation
         $method->setBody($method->getBody() . $body);
     }
 
-    protected function addLocalVariablesTestToTestCaseData(): MethodGenerator
+    protected function addLocalVariablesTestToBaseTestData(): MethodGenerator
     {
         $test_method = 'test' . ucfirst($this->getReflectionMethod()->getName()) . 'LocalVariables';
 
-        if (!$this->getBaseTestCaseData()->getGenerator()->hasMethod($test_method)) {
+        if (!$this->getBaseTestData()->getGenerator()->hasMethod($test_method)) {
             $method = new MethodGenerator();
             $method->setFinal(true);
             $method->setVisibility('public');
@@ -165,9 +165,9 @@ class MethodAnnotation extends Annotation
 
             $method->setBody($body);
 
-            $this->getBaseTestCaseData()->getGenerator()->addMethodFromGenerator($method);
+            $this->getBaseTestData()->getGenerator()->addMethodFromGenerator($method);
         } else {
-            $method = $this->getBaseTestCaseData()->getGenerator()->getMethod($test_method);
+            $method = $this->getBaseTestData()->getGenerator()->getMethod($test_method);
         }
 
         return $method;

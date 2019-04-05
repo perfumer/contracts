@@ -30,6 +30,6 @@ class Out extends PlainStep
 
         $this->getStepData()->setCode($code);
 
-        $this->addAssertionsToTestCaseData([$this->name]);
+        $this->addAssertionsToBaseTestData([$this->name]);
     }
 }
