@@ -92,7 +92,10 @@ class MethodAnnotation extends Annotation
         $body = '';
 
         foreach ($vars as $var) {
-            $body .= sprintf('$this->assertArrayNotHasKey(\'%s\', $vars, \'"%s" is already used. You can not redeclare variable.\');', $var, $var) . PHP_EOL;
+            if (isset($this->redeclare) && $this->redeclare === false) {
+                $body .= sprintf('$this->assertArrayNotHasKey(\'%s\', $vars, \'"%s" is already used. You can not redeclare variable.\');', $var, $var) . PHP_EOL;
+            }
+
             $body .= '$vars[\'' . $var . '\'] = true;' . PHP_EOL;
         }
 

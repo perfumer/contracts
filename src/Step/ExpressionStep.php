@@ -10,6 +10,11 @@ abstract class ExpressionStep extends ConditionalStep
     public $validate = false;
 
     /**
+     * @var bool
+     */
+    public $redeclare = false;
+
+    /**
      * @var string
      */
     protected $_expression;
