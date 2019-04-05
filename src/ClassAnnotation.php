@@ -2,20 +2,42 @@
 
 namespace Perfumerlabs\Perfumer;
 
+use Perfumerlabs\Perfumer\Data\BaseClassData;
+use Perfumerlabs\Perfumer\Data\BaseTestData;
 use Perfumerlabs\Perfumer\Data\ClassData;
-use Perfumerlabs\Perfumer\Data\TestCaseData;
+use Perfumerlabs\Perfumer\Data\TestData;
 
 class ClassAnnotation extends Annotation
 {
+    /**
+     * @var BaseClassData
+     */
+    private $_base_class_data;
+
     /**
      * @var ClassData
      */
     private $_class_data;
 
     /**
-     * @var TestCaseData
+     * @var BaseTestData
      */
-    private $_test_case_data;
+    private $_base_test_data;
+
+    /**
+     * @var TestData
+     */
+    private $_test_data;
+
+    public function getBaseClassData(): BaseClassData
+    {
+        return $this->_base_class_data;
+    }
+
+    public function setBaseClassData(BaseClassData $base_class_data): void
+    {
+        $this->_base_class_data = $base_class_data;
+    }
 
     public function getClassData(): ?ClassData
     {
@@ -27,13 +49,23 @@ class ClassAnnotation extends Annotation
         $this->_class_data = $class_data;
     }
 
-    public function getTestCaseData(): ?TestCaseData
+    public function getBaseTestData(): BaseTestData
     {
-        return $this->_test_case_data;
+        return $this->_base_test_data;
     }
 
-    public function setTestCaseData(TestCaseData $test_case_data): void
+    public function setBaseTestData(BaseTestData $base_test_data): void
     {
-        $this->_test_case_data = $test_case_data;
+        $this->_base_test_data = $base_test_data;
+    }
+
+    public function getTestData(): ?TestData
+    {
+        return $this->_test_data;
+    }
+
+    public function setTestData(TestData $test_data): void
+    {
+        $this->_test_data = $test_data;
     }
 }

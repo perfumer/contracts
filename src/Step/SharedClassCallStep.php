@@ -17,6 +17,6 @@ abstract class SharedClassCallStep extends ClassCallStep
     {
         parent::onBuild();
 
-        $this->getClassData()->addSharedClass($this->_class);
+        $this->getBaseClassData()->addSharedClass($this->_class);
     }
 }

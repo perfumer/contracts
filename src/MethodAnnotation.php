@@ -2,28 +2,40 @@
 
 namespace Perfumerlabs\Perfumer;
 
+use Perfumerlabs\Perfumer\Data\BaseClassData;
+use Perfumerlabs\Perfumer\Data\BaseTestData;
 use Perfumerlabs\Perfumer\Data\ClassData;
 use Perfumerlabs\Perfumer\Data\MethodData;
 use Perfumerlabs\Perfumer\Data\StepData;
-use Perfumerlabs\Perfumer\Data\TestCaseData;
+use Perfumerlabs\Perfumer\Data\TestData;
 use Zend\Code\Generator\MethodGenerator;
 
 class MethodAnnotation extends Annotation
 {
+    /**
+     * @var BaseClassData
+     */
+    private $_base_class_data;
+
     /**
      * @var ClassData
      */
     private $_class_data;
 
     /**
+     * @var BaseTestData
+     */
+    private $_base_test_data;
+
+    /**
+     * @var TestData
+     */
+    private $_test_data;
+
+    /**
      * @var MethodData
      */
     private $_method_data;
-
-    /**
-     * @var TestCaseData
-     */
-    private $_test_case_data;
 
     /**
      * @var StepData
@@ -35,6 +47,16 @@ class MethodAnnotation extends Annotation
      */
     private $_is_returning = false;
 
+    public function getBaseClassData(): BaseClassData
+    {
+        return $this->_base_class_data;
+    }
+
+    public function setBaseClassData(BaseClassData $base_class_data): void
+    {
+        $this->_base_class_data = $base_class_data;
+    }
+
     public function getClassData(): ?ClassData
     {
         return $this->_class_data;
@@ -45,6 +67,26 @@ class MethodAnnotation extends Annotation
         $this->_class_data = $class_data;
     }
 
+    public function getBaseTestData(): BaseTestData
+    {
+        return $this->_base_test_data;
+    }
+
+    public function setBaseTestData(BaseTestData $base_test_data): void
+    {
+        $this->_base_test_data = $base_test_data;
+    }
+
+    public function getTestData(): ?TestData
+    {
+        return $this->_test_data;
+    }
+
+    public function setTestData(TestData $test_data): void
+    {
+        $this->_test_data = $test_data;
+    }
+
     public function getMethodData(): ?MethodData
     {
         return $this->_method_data;
@@ -53,16 +95,6 @@ class MethodAnnotation extends Annotation
     public function setMethodData(MethodData $method_data): void
     {
         $this->_method_data = $method_data;
-    }
-
-    public function getTestCaseData(): ?TestCaseData
-    {
-        return $this->_test_case_data;
-    }
-
-    public function setTestCaseData(TestCaseData $test_case_data): void
-    {
-        $this->_test_case_data = $test_case_data;
     }
 
     public function getStepData(): ?StepData
@@ -119,7 +151,7 @@ class MethodAnnotation extends Annotation
     {
         $test_method = 'test' . ucfirst($this->getReflectionMethod()->getName()) . 'LocalVariables';
 
-        if (!$this->getTestCaseData()->getGenerator()->hasMethod($test_method)) {
+        if (!$this->getBaseTestCaseData()->getGenerator()->hasMethod($test_method)) {
             $method = new MethodGenerator();
             $method->setFinal(true);
             $method->setVisibility('public');
@@ -133,9 +165,9 @@ class MethodAnnotation extends Annotation
 
             $method->setBody($body);
 
-            $this->getTestCaseData()->getGenerator()->addMethodFromGenerator($method);
+            $this->getBaseTestCaseData()->getGenerator()->addMethodFromGenerator($method);
         } else {
-            $method = $this->getTestCaseData()->getGenerator()->getMethod($test_method);
+            $method = $this->getBaseTestCaseData()->getGenerator()->getMethod($test_method);
         }
 
         return $method;
